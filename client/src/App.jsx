@@ -1,18 +1,36 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Questions from './pages/Questions'
+import Account from './pages/Account'
+import Services from './pages/Services'
+import DataPrivacy from './pages/DataPrivacy'
+import About from './pages/About'
+import Contact from './pages/Contact'
+import Signup from './pages/Signup'
+import DashBoard from './pages/DashBoard'
+
 
 function App() {
-  const [count, setCount] = useState(0)
+ 
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-200">
-      <p className="text-2xl mb-4">You clicked {count} times</p>
-      <button 
-        onClick={() => setCount(count + 1)}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-      >
-        Click me
-      </button>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="questions" element={<Questions />} />
+        <Route path="account" element={<Account />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/data-privacy" element={<DataPrivacy />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="sign-up" element={<Signup />} />
+        <Route path="dashboard" element={<DashBoard />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
