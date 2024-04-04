@@ -10,6 +10,8 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import Signup from './pages/Signup'
 import DashBoard from './pages/DashBoard'
+import Header from './components/Header'
+import Footer from './components/Footer'
 
 
 function App() {
@@ -17,6 +19,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -30,6 +33,7 @@ function App() {
         <Route path="sign-up" element={<Signup />} />
         <Route path="dashboard" element={<DashBoard />} />
       </Routes>
+      <Footer />
     </BrowserRouter>
   )
 }

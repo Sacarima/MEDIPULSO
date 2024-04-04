@@ -1,3 +1,100 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities
+@tailwind utilities;
+
+
+@font-face {
+    font-family: 'Calibre';
+    src: url('./fonts/Calibre-Regular.woff2') format('woff2'),
+         url('./fonts/Calibre-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Calibre';
+    font-weight: 700;
+    src: url('./fonts/Calibre-Bold.woff2') format('woff2'),
+         url('./fonts/Calibre-Bold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Calibre';
+    font-style: italic;
+    src: url('./fonts/Calibre-Italic.woff2') format('woff2'),
+         url('./fonts/Calibre-Italic.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Calibre';
+    font-weight: 700;
+    font-style: italic;
+    src: url('./fonts/Calibre-BoldItalic.woff2') format('woff2'),
+         url('./fonts/Calibre-BoldItalic.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'SFMono-Regular';
+    src: url( './fonts/SFMono-Regular.woff2' ) format( 'woff2' ),
+         url( './fonts/SFMono-Regular.woff' ) format( 'woff' );
+}
+
+@font-face {
+    font-family: 'SFMono-Bold';
+    src: url( './fonts/SFMono-Bold.woff2' ) format( 'woff2' ),
+         url( './fonts/SFMono-Bold.woff' ) format( 'woff' );
+} 
+
+@font-face {
+    font-family: 'SFMono-Medium';
+    src: url( './fonts/SFMono-Medium.woff2' ) format( 'woff2' ),
+         url( './fonts/SFMono-Medium.woff' ) format( 'woff' );
+}
+
+@font-face {
+    font-family: 'SFMono-Semibold';
+    src: url( './fonts/SFMono-Semibold.woff2' ) format( 'woff2' ),
+         url( './fonts/SFMono-Semibold.woff' ) format( 'woff' );
+}
+
+@font-face {
+    font-family: 'SFMono-Light';
+    src: url( './fonts/SFMono-Light.woff2' ) format( 'woff2' ),
+         url( './fonts/SFMono-Light.woff' ) format( 'woff' );
+}
+
+@font-face {
+    font-family: 'SFMono-LightItalic';
+    src: url( './fonts/SFMono-LightItalic.woff2' ) format( 'woff2' ),
+         url( './fonts/SFMono-LightItalic.woff' ) format( 'woff' );
+}
+
+@font-face {
+    font-family: 'SFMono-BoldItalic';
+    src: url( './fonts/SFMono-BoldItalic.woff2' ) format( 'woff2' ),
+         url( './fonts/SFMono-BoldItalic.woff' ) format( 'woff' );
+}
+
+@font-face {
+    font-family: 'SFMono-SemiboldItalic';
+    src: url( './fonts/SFMono-SemiboldItalic.woff2' ) format( 'woff2' ),
+         url( './fonts/SFMono-SemiboldItalic.woff' ) format( 'woff' );
+}
+
+@font-face {
+    font-family: 'SFMono-MediumItalic';
+    src: url( './fonts/SFMono-MediumItalic.woff2' ) format( 'woff2' ),
+         url( './fonts/SFMono-MediumItalic.woff' ) format( 'woff' );
+}
+
+
+
+
+h1, h2, h3, h4, h5, h6{
+    font-family: 'Calibre-Semibold', sans-serif;
+}
+
+p, a, span, li, input, button, label, select, option, textarea, Link{
+    font-family: 'SFMono-Medium', monospace;
+}
+
+
+
