@@ -85,9 +85,6 @@
          url( './fonts/SFMono-MediumItalic.woff' ) format( 'woff' );
 }
 
-
-
-
 h1, h2, h3, h4, h5, h6{
     font-family: 'Calibre-Semibold', sans-serif;
 }

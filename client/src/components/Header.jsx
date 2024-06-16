@@ -1,23 +1,28 @@
 import { useState } from 'react';
 import { Navbar, Button, Dropdown } from 'flowbite-react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaMoon } from 'react-icons/fa';
+import { FaMoon, FaSun } from 'react-icons/fa';
 import logo from '../assets/medipulso.png';
+import logoDarkMode from '../assets/logodark.png'
 import useMediaQuery from '../hooks/useMediaQuery';
+import { useSelector, useDispatch } from 'react-redux'
 import toggleImage from '../assets/menu-icon.svg';
 import toggleCloseImage from '../assets/close-icon.svg';
 import DropdownMenu from './Dropdown';
+import { toogleTheme } from '../redux/theme/themeSlice'
 
 
 export default function Header() {
     const path = useLocation().pathname;
-    const [isMenuToggled, setIsMenuToggled] = useState(false);
-    const isAboveSmallScreens = useMediaQuery('(min-width: 768px)');
+    const [isMenuToggled, setIsMenuToggled] = useState(false)
+    const dispatch = useDispatch()
+    const isAboveSmallScreens = useMediaQuery('(min-width: 768px)')
+    const { theme } = useSelector(state => state.theme) 
 
     return (
-        <Navbar className='flex border-b-2 '>
+        <Navbar className='flex border-b-[1px] '>
             <Link to="/">
-                <img src={logo} alt="logo" className=' w-32 md:-w-[50%]' />
+                <img src={theme === 'dark' ? logoDarkMode : logo} alt="logo" className=' w-32 md:-w-[50%]' />
             </Link>
 
             <div className='flex gap-4'>
@@ -39,10 +44,11 @@ export default function Header() {
                                 <Dropdown
                                     color={'gradientDuoTone'}
                                     label='Register for free'
+                                    className='py-5 mt-1'
                                 >
-                                    <Dropdown.Header >
+                                    {/* <Dropdown.Header >
                                         <span>Register for free</span>
-                                    </Dropdown.Header>
+                                    </Dropdown.Header> */}
                                     <Link to="/as-doctor">
                                         <Dropdown.Item>as a doctor</Dropdown.Item>
                                     </Link>
@@ -55,14 +61,14 @@ export default function Header() {
                         </Navbar.Collapse>
                         <div className='flex items-center gap-4'>
                             <div className='flex gap-4'>
-                                <Button
-                                    className='w-12 h-10 sm:inline'
-                                    color='gray'
-                                    pill
-                                    
+                            <Button 
+                                className='w-12 h-10- hidden sm:inline' 
+                                color='gray' 
+                                pill
+                                onClick={() => dispatch(toogleTheme())}
                                 >
-                                    <FaMoon />
-                                </Button>
+                                {theme === 'light' ? <FaSun /> : <FaMoon />}
+                             </Button>
                                 <Link to='/login' >
                                     <Button outline gradientDuoTone="greenToBlue" size='sm'>
                                         Login
