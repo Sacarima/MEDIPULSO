@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
+import axios from 'axios'
 
 
 // Define the initial state of the user slice
@@ -36,5 +37,18 @@ export const {
     signInSuccess, 
     signInFailure 
 } = userSlice.actions
+
+export const appleSignIn = (idToken) => async (dispatch) => {
+    dispatch(signInStart())
+    try {
+        const response = await axios.post('http://localhost:7500/api/auth/apple', { id_token: idToken })
+        dispatch(signInSuccess(response.data))
+
+        // Save the user to the local storage or cookies if needed
+        localStorage.setItem('token', response.data.token)
+    } catch (error) {
+        dispatch(signInFailure(error.message))
+    }
+}
 
 export default userSlice.reducer

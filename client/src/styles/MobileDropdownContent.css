@@ -1,0 +1,46 @@
+/* MobileDropdownContent.css */
+
+/* Keyframes for sliding in from the left */
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Keyframes for sliding out to the right */
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Keyframes for sliding out to the left */
+@keyframes slideOutToLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Apply the slide-in animation */
+.animated-content.slide-in {
+  animation: slideInFromLeft 0.2s forwards;
+}
+
+/* Apply the slide-out animation */
+.animated-content.slide-out {
+  animation: slideOutToRight 0.8s backwards;
+}
+
+/* Apply the slide-out-to-left animation */
+.animated-content.slide-out-left {
+  animation: slideOutToLeft 0.15s backwards;
+}
