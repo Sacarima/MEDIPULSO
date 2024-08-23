@@ -27,11 +27,11 @@ const MedicalDropdownCategory = ({ options, selected, onSelect, isInvalid, class
     <div className="relative" ref={dropdownRef}>
       <button
         type="button"
-        className={`w-full opacity-70 text-left bg-white border ${isInvalid ? 'border-red-600' : 'border-gray-300'} rounded-sm p-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500`}
-         onClick={() => setIsOpen(!isOpen)}
+        className={`w-full text-gray-600 opacity-70 text-left bg-white border ${isInvalid ? 'border-red-600' : 'border-gray-300'} rounded-sm p-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        onClick={() => setIsOpen(!isOpen)}
       >
-        {selected || ' select from the list'}
-        <FaChevronDown className={`ml-2 transition-transform ${isOpen ? 'rotate-180 ease-in' : 'rotate-0 ease-out'}`} />
+        {selected || ' -- choose --'}
+        <FaChevronDown className={`ml-2 transition-transform text-gray-700 ${isOpen ? 'rotate-180 ease-in' : 'rotate-0 ease-out'}`} />
       </button>
       {isOpen && (
         <ul className="absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-[15rem] sm:max-h-[20rem] overflow-auto mt-1">

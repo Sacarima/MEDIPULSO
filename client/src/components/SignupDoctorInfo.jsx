@@ -46,6 +46,15 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
           setInvalidFields(invalidFields.filter((item) => item !== field));
         }
       }
+
+      // Toggle the checkbox when a individual checkbox is clicked
+  const handleCheckbox = (e) => {
+    const { name, checked } = e.target
+    setFormData({
+      ...formData,
+      [name]: checked,
+    })
+  }
     
 
 
@@ -79,12 +88,13 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                     value='doctor'
                     checked={formData.profile === 'doctor'}
                     onChange={handleRadioChange}
+                    className='cursor-pointer'
                   />
                   <label 
                     htmlFor='doctor' 
                     className='ml-2'
                   >
-                    medical specialist
+                    doctor / specialist
                   </label>
                 
               </div>
@@ -96,6 +106,7 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                     value='facility'
                     checked={formData.profile === 'facility'}
                     onChange={handleRadioChange}
+                    className='cursor-pointer'
                   />
                   <label 
                     htmlFor='facility' 
@@ -112,6 +123,7 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                     checked={formData.profile === 'patient'}
                     onChange={handleRadioChange}
                     value='patient'
+                    className='cursor-pointer'
                   />
                   <label 
                     htmlFor='patient' 
@@ -135,7 +147,7 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                   value={formData.medicalCategory}
                   id='medicalCategory'
                   name='medicalCategory'
-                  className={`block w-full mt-1 px-3 py-2 border rounded-md ${isFieldInvalid('medicalCategory') ? 'border-red-600' : 'border-gray-300'}`}
+                  className={`block w-full mt-1 px-3 py-2 border rounded-md ${isFieldInvalid('medicalCategory') ? 'border-red-500' : 'border-gray-300'}`}
                   onChange={(e) => setFormData({ ...formData, medicalCategory: e.target.value })}
                 />
               </div>
@@ -147,7 +159,7 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                   />
                   <input
                     type="text"
-                    className={`block w-full mt-1 px-3 py-2 border rounded-md ${isFieldInvalid('firstName') ? 'border-red-600' : 'border-gray-300'}`}
+                    className={`block w-full mt-1 px-3 py-2 border rounded-md ${isFieldInvalid('firstName') ? 'border-red-500' : 'border-gray-300'}`}
                     placeholder="Name"
                     id="firstName"
                     value={formData.firstName}
@@ -161,7 +173,7 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                   />
                   <input
                     type="text"
-                    className={`block w-full mt-1 px-3 py-2 border rounded-md ${isFieldInvalid('lastName') ? 'border-red-600' : 'border-gray-300'}`}
+                    className={`block w-full mt-1 px-3 py-2 border rounded-md ${isFieldInvalid('lastName') ? 'border-red-500' : 'border-gray-300'}`}
                     placeholder="Last name"
                     id="lastName"
                     value={formData.lastName}

@@ -228,7 +228,7 @@ const DoctorForm = () => {
                               handleSubmit(e); // Call the submit function on the last page
                             } else {
                               const isValid = validatePage();
-                              console.log('Validation result:', isValid);
+                              //console.log('Validation result:', isValid);
                               if (isValid) {
                                 setPage(page + 1); // Move to the next page only if valid
                               }

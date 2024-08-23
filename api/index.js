@@ -1,9 +1,11 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
+import cors from 'cors'
 import userRoutes from './routes/user.route.js'
 import doctorRoutes from './routes/doctor.route.js'
 import clinicRoutes from './routes/clinic.route.js'
+import doctorFormRoutes from './routes/doctorForm.route.js'
 import authRoutes from './routes/auth.route.js'
 
 // Load environment variables
@@ -18,16 +20,28 @@ mongoose
     console.log('Failed to connect to MongoDB', err)
 })
 
+// Create an Express app
 const app = express()
+
+// Use CORS middleware
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true,
+
+  // methods: 'GET,POST,PUT,DELETE',
+  // allowedHeaders: 'Content-Type, Authorization'
+}));
+
 
 // Create an Express app
 app.use(express.json())
 
-// add 
+// add routes
 app.use('/api/user', userRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/doctor', doctorRoutes)
 app.use('/api/clinic', clinicRoutes)
+app.use('/api/doctor-form', doctorFormRoutes)
 
 // error handler middleware
 app.use((err, req, res, next) => {

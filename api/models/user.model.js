@@ -2,11 +2,7 @@ import mongoose from 'mongoose'
 
 // Define the user schema
 const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-    },
+    // 
     email: {
         type: String,
         unique: true,
@@ -15,13 +11,16 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     }, 
-    profilePicture: {
-        type: String,
-        default:
-          'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
+    consentToMarketing: {
+        type: Boolean,
+        default: false,
       },
+      termsConditions: {
+            type: Boolean,
+            default: false,
+        },
     //
-}, {timestamps: true}, // this will add createdAt and updatedAt fields)
+}, {timestamps: true}, // this will add createdAt and updatedAt fields) in the database
 
 )
 // Create the model from the schema and export it

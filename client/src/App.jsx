@@ -13,6 +13,7 @@ import SignUp from './pages/SignUp'
 import DashBoard from './pages/DashBoard'
 import SignupDoctor from './pages/SignupDoctor'
 import DoctorForm from './pages/DoctorForm'
+import TermsAndCondition from './pages/TermsAndCondition'
 import ClinicForm from './pages/ClinicForm'
 // import Header from './components/Header'
 // import Footer from './components/Footer'
@@ -39,6 +40,7 @@ function App() {
         <Route path="signup/doctor" element={<SignupDoctor />} />
         <Route path="signup/doctor-form" element={<DoctorForm />} />
         <Route path="signup/clinic-form" element={<ClinicForm />} />
+        <Route path="terms-and-condition" element={<TermsAndCondition />} />
         <Route path="dashboard" element={<DashBoard />} />
       </Routes>
       {/* <Footer /> */}

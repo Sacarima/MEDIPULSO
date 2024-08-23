@@ -62,6 +62,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { createHtmlPlugin } from 'vite-plugin-html';
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig(({ mode }) => {
   // Load environment variables
@@ -91,6 +92,10 @@ export default defineConfig(({ mode }) => {
             googleMapsApiKey: env.VITE_GOOGLE_MAPS_API_KEY,
           },
         },
+      }),
+      nodePolyfills({
+        include: ['crypto', 'process', 'stream', 'util'],
+        globals: { global: true, process: true },
       }),
     ],
   }

@@ -1,8 +1,7 @@
 import mongoose from "mongoose"
 
-
-const clinicSchema = new mongoose.Schema({
-    facilityName: {
+const doctorFormSchema = new mongoose.Schema({
+    firstName: {
         type: String,
         required: true,
     },
@@ -10,36 +9,29 @@ const clinicSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    firstName: {
-        type: String,
-        required: true,
-    },
-    facilityPrograms: {
-        type: String,
-        required: true,
-    },
-    roleInFacility: {
-        type: String,
-        required: true,
-    },
-    numberOfDoctorsSpecialist: {
-        type: String,
-        required: true,
-    },
     email: {
         type: String,
-        required: true,
-    },
-    phoneNumber: {
-        type: String,
+        unique: true,
         required: true,
     },
     password: {
         type: String,
         required: true,
     },
-
+    
+    medicalCategory: {
+        type: String,
+        required: true,
+    },
     city: {
+        type: String,
+        required: true,
+    },
+    countryCode: {
+        type: String,
+        required: true,
+    },
+    phoneNumber: {
         type: String,
         required: true,
     },
@@ -51,15 +43,17 @@ const clinicSchema = new mongoose.Schema({
         type: Boolean,
         required: false,
     },
-    phoneNumber: {
-        type: String,
-        required: true,
+
+    selectAll: {
+        type: Boolean, 
+        required: false,
     }
 
-}, {timestamps: true},
-)
+    // add more fields as needed
+
+}, {timestamps: true}) // this will add createdAt and updatedAt fields))
 
 // Create the model from the schema and export it
-const Clinic = mongoose.model('Clinic', clinicSchema)
+const DoctorForm = mongoose.model('DoctorForm', doctorFormSchema)
 
-export default Clinic
+export default DoctorForm

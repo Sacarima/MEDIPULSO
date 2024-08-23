@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {Alert, Button, Checkbox, Label, Spinner, TextInput} from 'flowbite-react'
+import { BiSolidShow, BiSolidHide  } from "react-icons/bi";
 import { Link, useNavigate } from 'react-router-dom'
 import OAuth from '../components/OAuth'
 import AppleOAuth from '../components/AppleOAuth'
@@ -8,59 +9,97 @@ import PatientHeader from '../components/PatientHeader'
 
 const SignUp = () => {
   
-  const [formData, setFormData] =  useState({ 
-    username: '', 
+  const [formData, setFormData] =  useState({  
     email: '', 
     password: '',
-    consent: false,
-    marketing: false
+    termsConditions: false,
+    consentToMarketing: false
+
   })
   const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
-  
-  const handleChange = (e) => {
- 
+  const [invalidFields, setInvalidFields] = useState([])
+  const [showPassword, setShowPassword] = useState(false)
 
-    const { id, checked, value } = e.target
-    setFormData(prevState => ({
-      ...prevState,
-      [id]: id === 'consent' || id === 'marketing' ? checked : value
-    }))
-}
+  const navigate = useNavigate()
+
+  const isFieldInvalid = (field) => invalidFields.includes(field)
+
+
+  // handle input change
+  const handleInputChange = (e) => {
+    const { id, value } = e.target
+    setFormData({
+      ...formData,
+      [id]: value
+    })
+
+    // Remove the field from invalidFields when the user Starts typing
+    if (isFieldInvalid(id) && value.trim() !== '') {
+      setInvalidFields(invalidFields.filter((item) => item !== id))
+    }
+  }
+
+
+  // toggle the checkbox when individual checkbox is clicked
+  const handleCheckbox = (e) => {
+    const { id, checked } = e.target
+    setFormData({
+      ...formData,
+      [id]: checked
+    })
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     // Validate required fields
-    const requiredFields = ['username', 'email', 'password'];
-    const isEmptyField = requiredFields.some(field => !formData[field] || formData[field].trim() === '');
-    if (isEmptyField) {
-      return setErrorMessage('Please fill in all fields');
-    }
+    const requiredFields = ['email', 'password'];
+    const newInvalidFields = []
+   // const invalidFields = requiredFields.some(field => !formData[field] || formData[field].trim() === '')
 
+    requiredFields.forEach(field => {
+      if (!formData[field] || formData[field].trim() === '') {
+        newInvalidFields.push(field);
+      }
+    })
+
+    if (newInvalidFields.length > 0) {
+    setInvalidFields(newInvalidFields);
+    return setErrorMessage('Please fill in all fields');
+  }
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       return setErrorMessage('Please enter a valid email');
     }
-
-    // check if there's duplicate username
    
-
     // Validate password length
     if (formData.password.length < 6) {
       return setErrorMessage('Password must be at least 6 characters')
     }
 
+    // // validate password strength
+    // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/;
+    // if (!passwordRegex.test(formData.password)) {
+    //   return setErrorMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
+    // }
+
+     // Validate password strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[a-zA-Z\d!@#$%^&*(),.?":{}|<>]{6,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      return setErrorMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+    }
+
+
     // Trim form data before sending
     const trimmedFormData = {
       ...formData,
-      username: formData.username.trim(),
       email: formData.email.trim(),
       password: formData.password.trim(),
-      consent: formData.consent,
-      marketing: formData.marketing
+      consentToMarketing: formData.consentToMarketing,
+      marketing: formData.termsConditions
     }
 
     // console.log(formData.consent); // Check if this logs true or false
@@ -70,7 +109,7 @@ const SignUp = () => {
     try {
       setLoading(true)
       setErrorMessage(null)
-      const response = await fetch('/api/auth/signup', /** a proxy needs to be create in vite.config.js in order for the appropriate port number
+      const response = await fetch('http://localhost:7500/api/auth/signup', /** a proxy needs to be create in vite.config.js in order for the appropriate port number
         to be identified or simply put the port number in there */
       {
         method: 'POST',
@@ -85,7 +124,7 @@ const SignUp = () => {
 
       if(!response.ok) {
         setLoading(false)
-        return setErrorMessage(data.message || 'An error occurrerd during sign up. Please try again.')
+        return setErrorMessage(data.message || 'Signup failed. Please try again.')
       }
 
 
@@ -121,41 +160,62 @@ const SignUp = () => {
               <hr className='w-32 ml-2' />
             </div>
 
-            <div className=''>
+            {/* <div className=''>
               <input 
                 type="text" 
                 id="username" 
                 onChange={handleChange} 
                 placeholder="Username" 
                 className='w-full py-2 px-4 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'/>
-            </div>
+            </div> */}
 
             <div>
               <input 
                 type="text" 
                 id="email" 
-                onChange={handleChange}
+                //onChange={handleChange}
+                value={formData.email}
+                onChange={handleInputChange}
                 placeholder="Email" 
-                className='w-full py-2 px-4 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'/>
+                //className='w-full py-2 px-4 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
+                className={`block w-full mt-1 placeholder-gray-400 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out  ${isFieldInvalid('email') ? 'border-red-500' : 'border-gray-300'}`}
+                />
+                
                 
             </div>
 
-            <div>
-              <input 
-                type="password" 
-                id="password" 
-                onChange={handleChange} 
-                placeholder="Password" 
-                className='w-full py-2 px-4 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'/>
-            </div>
+            <div className='flex flex-col mt-4'>
+                    <div className='flex items-end '>
+                      <input
+                        //className='rounded-bl-sm rounded-tl-sm w-full border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
+                        className={`block w-full mt-1 placeholder-gray-400 px-3 py-2 border rounded-tl-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out  ${isFieldInvalid('password') ? 'border-red-500' : 'border-gray-300'}`}
+                        style={{height: '40px'}}
+                        placeholder='Password'
+                        type={showPassword ? 'text' : 'password'}
+                        id='password'
+                        value={formData.password}
+                        //onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        onChange={handleInputChange}
+                      />
+                      <button
+                      type='button'
+                        className='border px-2 rounded-br-sm rounded-tr-sm border-gray-300 bg-white text-gray-400 active:bg-gray-200 transition duration-300 ease-in-out'
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{height: '40px'}}
+                      >
+                        {showPassword ? <BiSolidHide  /> : <BiSolidShow  />}
+                      </button>
+                    </div>
+                  
+                  </div>
             <div>
               <div>
                 <input 
                   type="checkbox" 
                   className='mr-2'
-                  id="consent"
-                  checked={formData.consent}
-                  onChange={handleChange}
+                  id='termsConditions'
+                  checked={formData.termsConditions}
+                  onChange={handleCheckbox}
                 />
                 <label htmlFor="consent" className='text-[11px]'>I consent to Medi-Pluso processing my medical data in order to use the services</label>
               </div>
@@ -163,9 +223,10 @@ const SignUp = () => {
                 <input 
                   type="checkbox" 
                   className='mr-2'
-                  id="marketing"
-                  checked={formData.marketing}
-                  onChange={handleChange}
+                  id='consentToMarketing'
+                  checked={formData.consentToMarketing}
+                  onChange={handleCheckbox}
+                  
                 />
                 <label htmlFor="marketing" className='text-[11px]'>I want to receive marketing communications from Medi-Pulse "optional".</label>
               </div>
@@ -187,7 +248,7 @@ const SignUp = () => {
       
             </button>
             <div className='text-[11px]'>
-              <span>By registering, you accept ours <span className='text-blue-500 mr-1'>regulations</span>and confirm that you understand our<span className='text-blue-500 ml-1'>personal data processing policy</span></span>
+              <span>By registering, you accept ours <Link to='/regulation'><span className='text-blue-500 mr-1'>regulations</span></Link>and confirm that you understand our<span className='text-blue-500 ml-1'>personal data processing policy</span></span>
             </div>
       
           </form>
@@ -198,10 +259,17 @@ const SignUp = () => {
                 <span className='text-[12px]'>Log into your account</span>
               </Link>
             </div>
+
             {errorMessage && (
               <Alert className='mt-5' color='failure'>
                 {errorMessage}
               </Alert>
+            )}
+
+            {successMessage && (
+                <Alert className='mt-5' color='success'>
+                  {successMessage}
+                </Alert>
             )}
         </div>
       </div>
