@@ -160,15 +160,6 @@ const SignUp = () => {
               <hr className='w-32 ml-2' />
             </div>
 
-            {/* <div className=''>
-              <input 
-                type="text" 
-                id="username" 
-                onChange={handleChange} 
-                placeholder="Username" 
-                className='w-full py-2 px-4 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'/>
-            </div> */}
-
             <div>
               <input 
                 type="text" 
