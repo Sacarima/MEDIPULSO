@@ -15,8 +15,8 @@ import SignupDoctor from './pages/SignupDoctor'
 import DoctorForm from './pages/DoctorForm'
 import TermsAndCondition from './pages/TermsAndCondition'
 import ClinicForm from './pages/ClinicForm'
-// import Header from './components/Header'
-// import Footer from './components/Footer'
+import PrivateRoute from './components/PrivateRoute'
+import PatientAccount from './pages/PatientAccount'
 
 
 function App() {
@@ -37,6 +37,9 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="signup" element={<SignUp />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="my-account" element={<PatientAccount />} />
+        </Route>
         <Route path="signup/doctor" element={<SignupDoctor />} />
         <Route path="signup/doctor-form" element={<DoctorForm />} />
         <Route path="signup/clinic-form" element={<ClinicForm />} />

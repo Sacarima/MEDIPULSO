@@ -1,27 +1,28 @@
 import {useState} from 'react'
 import {Alert, Button, Checkbox, Label, Spinner, TextInput} from 'flowbite-react'
-import { BiSolidShow, BiSolidHide  } from "react-icons/bi";
+import { BiSolidShow, BiSolidHide  } from "react-icons/bi"
 import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { signInStart, signInFailure, signInSuccess } from '../redux/user/userSlice'
 import OAuth from '../components/OAuth'
 import AppleOAuth from '../components/AppleOAuth'
 import PatientHeader from '../components/PatientHeader'
 
 
 export default function Login() {
-  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({})
   const [showPassword, setShowPassword] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
+  const { loading, error: errorMessage } = useSelector((state) => state.user)
   const [successMessage, setSuccessMessage] = useState('')
   const navigate = useNavigate()
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
+  const dispatch = useDispatch()
+  
 
+  // handle form data
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.id]: e.target.value
+      [e.target.id]: e.target.value.trim()
     })
   }
 
@@ -29,9 +30,41 @@ export default function Login() {
     return !formData[field]
   }
 
+  // handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
+    
+    if (!formData.email || !formData.password) {
+      return dispatch(signInFailure('Please fill in all fields'))
+    }
+
+    if (formData.email.indexOf('@') === -1) {
+      return dispatch(signInFailure('Wrong credentials'))
+    }
+
+    // send form data to the server
+    try {
+      dispatch(signInStart())
+      const response = await fetch('http://localhost:7500/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+      const data = await response.json()
+      if (data.success === false) {
+        return dispatch(signInFailure(data.message))
+      }
+
+      if (response.ok) {
+        dispatch(signInSuccess(data))
+        setSuccessMessage('You have successfully logged in')
+        navigate('/my-account')
+      }
+    } catch (error) {
+      dispatch(signInFailure('An error occurred. Please try again later'))
+    }
   }
 
   const headerStyle = {
@@ -44,7 +77,7 @@ export default function Login() {
     <PatientHeader />
       <div className='min-h-screen mt-10'>
         <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-6'>
-        <div className=' m-auto w-ful sm:w-[60%]'>
+        <div className=' m-auto w-full sm:w-[60%]'>
           <form className='flex flex-col gap-4'  onSubmit={handleSubmit}>
             <h2 style={headerStyle}>Log in to your account</h2>
             <OAuth />
@@ -62,7 +95,7 @@ export default function Login() {
                 id="email" 
                 //onChange={handleChange}
                 value={formData.email}
-                
+                onChange={handleInputChange}
                 placeholder="Email" 
                 className='w-full py-2 px-4 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                 //className={`block w-full mt-1 placeholder-gray-400 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out  ${isFieldInvalid('email') ? 'border-red-500' : 'border-gray-300'}`}
@@ -82,7 +115,7 @@ export default function Login() {
                         id='password'
                         value={formData.password}
                         //onChange={(e) => setFormData({...formData, password: e.target.value})}
-                        //onChange={handleInputChange}
+                        onChange={handleInputChange}
                       />
                       <button
                       type='button'

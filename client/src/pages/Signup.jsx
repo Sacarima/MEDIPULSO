@@ -148,7 +148,7 @@ const SignUp = () => {
     <PatientHeader />
       <div className='min-h-screen mt-10'>
         <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-6'>
-        <div className=' m-auto w-ful sm:w-[60%]'>
+        <div className=' m-auto w-full sm:w-[60%]'>
           <form className='flex flex-col gap-4'  onSubmit={handleSubmit}>
             <h2 style={headerStyle}>Create a free account</h2>
             <OAuth />
