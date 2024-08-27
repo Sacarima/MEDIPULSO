@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import {Alert, Button, Checkbox, Label, Spinner, TextInput} from 'flowbite-react'
 import { BiSolidShow, BiSolidHide  } from "react-icons/bi"
 import { Link, useNavigate } from 'react-router-dom'
@@ -17,6 +17,12 @@ export default function Login() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   
+  useEffect(() => {
+    // Reset error message when the component mounts
+    if (errorMessage) {
+      dispatch(signInFailure(null))
+    }
+  }, [])
 
   // handle form data
   const handleInputChange = (e) => {
@@ -60,7 +66,7 @@ export default function Login() {
       if (response.ok) {
         dispatch(signInSuccess(data))
         setSuccessMessage('You have successfully logged in')
-        navigate('/my-account')
+        navigate('/')
       }
     } catch (error) {
       dispatch(signInFailure('An error occurred. Please try again later'))

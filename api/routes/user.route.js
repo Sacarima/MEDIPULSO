@@ -1,11 +1,12 @@
 import express from 'express'
-import { test } from '../controllers/user.controller.js'
+import { test, logout } from '../controllers/user.controller.js'
 
 
 
 const router = express.Router()
 
 router.use('/test', test)
+router.post('/logout', logout)
 
 
 

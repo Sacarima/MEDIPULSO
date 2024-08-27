@@ -272,6 +272,7 @@ export const login = async (req, res, next) => {
     }
 }
 
+
 // signup doctor form
 export const signupDoctorForm = async (req, res, next) => {
     const {

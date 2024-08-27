@@ -28,8 +28,7 @@ app.use(cors({
   origin: 'http://localhost:5173', 
   credentials: true,
 
-  // methods: 'GET,POST,PUT,DELETE',
-  // allowedHeaders: 'Content-Type, Authorization'
+
 }));
 
 
@@ -55,7 +54,7 @@ app.use((err, req, res, next) => {
 })
 
 //listen to port 6000
-app.listen(7500, '0.0.0.0', () => {
+app.listen(7500 || 7501, () => {
   console.log('Server is running on port 7500')
 })
 
