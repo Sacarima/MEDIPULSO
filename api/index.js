@@ -7,6 +7,7 @@ import doctorRoutes from './routes/doctor.route.js'
 import clinicRoutes from './routes/clinic.route.js'
 import doctorFormRoutes from './routes/doctorForm.route.js'
 import authRoutes from './routes/auth.route.js'
+import cookieParser from 'cookie-parser'
 
 // Load environment variables
 dotenv.config()
@@ -32,6 +33,10 @@ app.use(cors({
 }));
 
 
+// Use cookie parser middleware
+app.use(cookieParser()) // extracts cookies from the browser without problems
+
+
 // Create an Express app
 app.use(express.json())
 
@@ -52,6 +57,8 @@ app.use((err, req, res, next) => {
       message
   })
 })
+
+
 
 //listen to port 6000
 app.listen(7500 || 7501, () => {

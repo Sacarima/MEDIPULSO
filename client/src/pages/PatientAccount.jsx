@@ -8,9 +8,9 @@ import {
 import { FaTimes } from "react-icons/fa"
 
 import { 
-  updateUserStart, 
-  updateUserSuccess, 
-  updateUserFailure, 
+  updateStart, 
+  updateSuccess, 
+  updateFailure, 
   deleteUserStart, 
   deleteUserFailure, 
   deleteUserSuccess, 
@@ -23,6 +23,7 @@ import {
   useSelector 
 } from 'react-redux'
 
+import { Alert } from 'flowbite-react'
 import { Link } from 'react-router-dom'
 import AccountHeaderPatient from '../components/AccountHeaderPatient'
 import DeleteConfirmation from '../components/DeleteConfirmation'
@@ -31,67 +32,94 @@ import DeleteConfirmation from '../components/DeleteConfirmation'
 function PatientAccount() {
   const { currentUser, loading, error } = useSelector(state => state.user)
   const [formData, setFormData] = useState({})
-  const [updateSuccess, setUpdateSuccess] = useState(false)
-  const disptach = useDispatch()
+  const [updateUserSuccess, setUpdateUserSuccess] = useState(null)
+  const [updateUserError, setUpdateUserError] = useState(null)
+  const dispatch = useDispatch()
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-   // submit form
+
+   // update profile submit form
   const handleSubmit = async (e) => {
     e.preventDefault()
-    disptach(updateUserStart())
+    setUpdateUserError(null)
+    setUpdateUserSuccess(null)
+    
+
+    if(Object.keys(formData).length === 0) {
+      setUpdateUserError('No changes were made')
+      return
+    }
     try {
-      const response = await fetch(`http://localhost:7500/api/users/${currentUser._id}`, {
+      dispatch(updateStart())
+      //const token = localStorage.getItem('authToken');
+
+      const response = await fetch(`http://localhost:7500/api/user/update/${currentUser._id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          //'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
+        credentials: 'include', // include cookies
       })
+
+      console.log(response); 
+
       const data = await response.json()
-      if (data.success === false) {
-        disptach(updateUserFailure(data.message))
+      console.log(data)
+
+      if (!response.ok) {
+        dispatch(updateFailure(data.message))
+        setUpdateUserError(data.message)
+      }else {
+        dispatch(updateSuccess(data))
+        setUpdateUserSuccess('Your profile information updated successfully')
       }
     } catch (error) {
-      disptach(updateUserFailure(error.message))
+      console.log('Error:', error)
+      dispatch(updateFailure(error.message))
+      setUpdateUserError(error.message)
     }
   }
 
   // delete user
   const handleDeleteUser = async () => {
     try {
-      disptach(deleteUserStart())
+      dispatch(deleteUserStart())
       const response = await fetch(`http://localhost:7500/api/users/${currentUser._id}`, {
         method: 'DELETE'
       })
       const data = await response.json()
       if (data.success === false) {
-        disptach(deleteUserFailure(data.message))
+        dispatch(deleteUserFailure(data.message))
         return
       }
-      disptach(deleteUserSuccess(data))
+      dispatch(deleteUserSuccess(data))
     } catch (error) {
-      disptach(deleteUserFailure(error.message))
+      dispatch(deleteUserFailure(error.message))
     }
   }
 
   // logout user
   const handleLogout = async() => {
-   try {
-    disptach(logoutUserStart())
-    const response = await fetch('http://localhost:7500/api/auth/logout')
-    const data = await response.json()
-    if (data.success === false) {
-      disptach(logoutUserFailure(data.message))
-      return
+    try {
+      const res = await fetch('localhost:7500/api/user/logout', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSuccess());
+      }
+    } catch (error) {
+      console.log(error.message);
     }
-    disptach(logoutUserSuccess(data))
-   } catch (error) {
-    disptach(logoutUserFailure(error.message))
-   }
-  }
+  };
+
 
   return (
     <div className='bg-gray-200'>
@@ -135,19 +163,19 @@ function PatientAccount() {
                   </div>
                   <form onSubmit={handleSubmit}>
                     <div className='sm:flex flex-col sm:flex-row sm:items-center mt-3 mb-3 gap-3'>
-                      <label htmlFor='name' className='sm:w-1/4 font-semibold'>Name*</label>
+                      <label htmlFor='firstName' className='sm:w-1/4 font-semibold'>Name*</label>
                       <input 
                         type='text' 
                         className=' sm:w-[50%] w-full  rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
-                        id='name' 
-                        name='name'
-                        defaultValue={currentUser.name}
-                        value={formData.name} 
+                        id='firstName' 
+                        name='firstName'
+                        defaultValue={currentUser.firstName}
+                        value={formData.firstName} 
                         onChange={handleChange}  
                       />
                     </div>
                     <div className='sm:flex sm:flex-row flex-col items-center mb-3 gap-3'>
-                      <label htmlFor='name' className='w-1/4 font-semibold'>Last name *</label>
+                      <label htmlFor='lastName' className='w-1/4 font-semibold'>Last name *</label>
                       <input 
                         type='text' 
                         //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
@@ -161,28 +189,29 @@ function PatientAccount() {
                       />
                     </div>
                     <div className='sm:flex items-center mb-3 gap-3'>
-                      <label htmlFor='phone' className='w-1/4 font-semibold'>Phone</label>
+                      <label htmlFor='phoneNumber' className='w-1/4 font-semibold'>Phone</label>
                       <input 
                         type='text' 
                         //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                         className=' sm:w-[50%] w-full rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
-                        id='phone' 
-                        name='phone' 
-                        value={formData.phone} 
+                        id='phoneNumber' 
+                        name='phoneNumber'
+                        defaultValue={currentUser.phoneNumber}
+                        value={formData.phoneNumber} 
                         onChange={handleChange} 
                       />
                     </div>
                     <div className='sm:flex items-center mb-3 gap-3'>
-                      <label htmlFor='changePassword' className='w-1/4 font-semibold'>Change password</label>
+                      <label htmlFor='passsword' className='w-1/4 font-semibold'>Change password</label>
                       <input 
                         type='text' 
                         className=' sm:w-[50%] w-full rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                         
                         //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
-                        id='changePassword' 
-                        name='changePassword'
-                        defaultValue={currentUser.changePassword}
-                        value={formData.changePassword} 
+                        id='passsword' 
+                        name='passsword'
+                        defaultValue={currentUser.passsword}
+                        value={formData.passsword} 
                         onChange={handleChange} 
 
                       />
@@ -229,8 +258,20 @@ function PatientAccount() {
                     </div>
                   </form>
             </section>
+                
           </section>
-          
+          <div className='flex justify-center '>
+            {updateUserSuccess && (
+              <Alert color='success' className='mt-5'>
+                {updateUserSuccess}
+              </Alert>
+            )}
+            {updateUserError && (
+              <Alert color='failure' className='mt-5'>
+                {updateUserError}
+              </Alert>
+            )}
+          </div>
         </main>
       </div>
     </div>

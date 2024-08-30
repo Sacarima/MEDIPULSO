@@ -13,8 +13,11 @@ export const signup = async (req, res, next) => {
     const { 
             consentToMarketing, 
             email, 
-            password, 
-            termsConditions, 
+            password,
+            firstName,
+            lastName,
+            phoneNumber,
+            termsConditions,
      } = req.body
 
      // array of required fields
@@ -58,7 +61,10 @@ export const signup = async (req, res, next) => {
         consentToMarketing: consentToMarketing || false, 
         email, 
         password: hashedPassword, // save the hashed password
-        termsConditions: termsConditions || false
+        termsConditions: termsConditions || false,
+        firstName,
+        lastName,
+        phoneNumber
     })
 
     // Save the new user
@@ -254,9 +260,9 @@ export const login = async (req, res, next) => {
             return next(errorHandler(400, 'wrong credentials'))
         }
 
-        // Create a token
+        // Create a token for the user
         const token = jwt.sign({
-            _id: validUser._id
+            id: validUser._id, isAdmin: validUser.isAdmin  // changed the _id to id
         }, process.env.JWT_SECRET_TOKEN)
 
         // remove the password from the user object
@@ -265,8 +271,11 @@ export const login = async (req, res, next) => {
             .status(200)
             .cookie('access_token', token , {
                 httpOnly: true,
+                //secure: process.env.NODE_ENV === 'production',  // Ensures the cookie is only sent over HTTPS in production
+                sameSite: 'Strict',  // Helps protect against CSRF attacks
             })
             .json(rest)
+            console.log('Set-Cookie Header:', res.getHeaders()['set-cookie']);
     } catch (error) {
         next(error)
     }

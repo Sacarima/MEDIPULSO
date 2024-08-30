@@ -51,12 +51,16 @@ export default function Login() {
     // send form data to the server
     try {
       dispatch(signInStart())
+      
       const response = await fetch('http://localhost:7500/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
+        
       })
       const data = await response.json()
       if (data.success === false) {
@@ -64,6 +68,8 @@ export default function Login() {
       }
 
       if (response.ok) {
+        // return token and user data
+
         dispatch(signInSuccess(data))
         setSuccessMessage('You have successfully logged in')
         navigate('/')

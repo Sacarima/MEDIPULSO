@@ -1,5 +1,14 @@
 import express from 'express'
-import { signup, login, google, signupClinic, signupDoctor, apple, signupDoctorForm } from '../controllers/auth.controller.js'
+import { 
+    signup, 
+    login, 
+    google, 
+    signupClinic, 
+    signupDoctor, 
+    apple, 
+    signupDoctorForm 
+    
+} from '../controllers/auth.controller.js'
 
 const router = express.Router()
 

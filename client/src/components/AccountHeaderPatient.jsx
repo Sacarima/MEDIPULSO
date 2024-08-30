@@ -6,7 +6,8 @@ import logoDarkMode from '../assets/logoDarkMode-1.png'
 import { useSelector } from 'react-redux'
 
 function AccountHeaderPatient() {
-   const { theme } = useSelector(state => state.theme); 
+   const { theme } = useSelector(state => state.theme);
+   const { currentUser, loading, error } = useSelector(state => state.user)
   return (
     <div className='border-b-[1px] border-gray-300'>
         <header className="flex justify-between sm:items-center sm:px-0 px-4 py-8 sm:w-[80%] sm:m-auto">
@@ -22,7 +23,7 @@ function AccountHeaderPatient() {
                 <span className='text-3xl font-bold'>Account</span>
                 <div className='flex gap-1 mt-3 '>
                     <span className='text-sm text-[#666666e4] font-semibold'>Login:</span>
-                    <span className='text-sm text-[#666666e3] font-semibold'>testemail@gmail.com</span>
+                    <span className='text-sm text-[#666666e3] font-semibold'>{currentUser.email}</span>
                 </div>
             </div>
           </div>
