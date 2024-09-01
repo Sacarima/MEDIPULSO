@@ -106,3 +106,19 @@ export const getUser = async (req, res, next) => {
         next(errorHandler(500, 'Failed to get user information'))
     }
 }
+
+// delete user
+
+export const deleteUser = async (req, res, next) => {
+    // check if the user is authorized to perform this action
+    if (req.user.isAdmin && req.user.id !== req.params.userId) {
+        return next(errorHandler(403, 'You are not authorized to delete this user'))
+    }
+
+    try {
+        await User.findByIdAndDelete(req.params.userId)
+        res.status(200).json({ message: 'User has been deleted' })
+    } catch (error) {
+        next(errorHandler(500, 'Failed to delete user'))
+    }
+}

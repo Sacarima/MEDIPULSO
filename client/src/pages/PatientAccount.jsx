@@ -14,6 +14,7 @@ import {
   deleteUserStart, 
   deleteUserFailure, 
   deleteUserSuccess, 
+  clearError,
   logoutUserStart 
 
 } from '../redux/user/userSlice'
@@ -23,10 +24,10 @@ import {
   useSelector 
 } from 'react-redux'
 
-import { Alert } from 'flowbite-react'
+import { HiOutlineExclamationCircle } from 'react-icons/hi'
+import { Alert, Modal, ModalBody, Button } from 'flowbite-react'
 import { Link } from 'react-router-dom'
 import AccountHeaderPatient from '../components/AccountHeaderPatient'
-import DeleteConfirmation from '../components/DeleteConfirmation'
 
 
 function PatientAccount() {
@@ -34,7 +35,35 @@ function PatientAccount() {
   const [formData, setFormData] = useState({})
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null)
   const [updateUserError, setUpdateUserError] = useState(null)
+  const [originalData, setOriginalData] = useState({})
+  const [showModal, setShowModal] = useState(false)
   const dispatch = useDispatch()
+
+  useEffect(() => {
+    // whem user changes the input fields set the original data and the current user's data
+
+    if (currentUser) {
+      setOriginalData({
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        email: currentUser.email,
+        phoneNumber: currentUser.phoneNumber,
+        password: currentUser.password
+      })
+      setFormData({
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        email: currentUser.email,
+        phoneNumber: currentUser.phoneNumber,
+        password: currentUser.password
+      })
+    }
+  }, [currentUser])
+
+  useEffect(() => {
+    dispatch(clearError())
+  }, [dispatch])
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -66,10 +95,10 @@ function PatientAccount() {
         credentials: 'include', // include cookies
       })
 
-      console.log(response); 
+     // console.log(response); 
 
       const data = await response.json()
-      console.log(data)
+      //console.log(data)
 
       if (!response.ok) {
         dispatch(updateFailure(data.message))
@@ -79,25 +108,40 @@ function PatientAccount() {
         setUpdateUserSuccess('Your profile information updated successfully')
       }
     } catch (error) {
-      console.log('Error:', error)
+      //console.log('Error:', error)
       dispatch(updateFailure(error.message))
       setUpdateUserError(error.message)
     }
   }
 
+  const handleReset = () => {
+    // reveert the form data to the original data
+    setFormData(originalData)
+    setUpdateUserError(null)
+    setUpdateUserSuccess(null)
+  }
+
   // delete user
   const handleDeleteUser = async () => {
+    setShowModal(false)
     try {
       dispatch(deleteUserStart())
-      const response = await fetch(`http://localhost:7500/api/users/${currentUser._id}`, {
-        method: 'DELETE'
+      const response = await fetch(`http://localhost:7500/api/user/delete/${currentUser._id}`, {
+        method: 'DELETE',
+        credentials: 'include',
       })
       const data = await response.json()
-      if (data.success === false) {
+      if (!response.ok) {
         dispatch(deleteUserFailure(data.message))
-        return
+      }else {
+        dispatch(deleteUserSuccess(data))
+        //dispatch(logoutUserStart())
       }
-      dispatch(deleteUserSuccess(data))
+      // if (data.success === false) {
+      //   dispatch(deleteUserFailure(data.message))
+      //   return
+      // }
+      // dispatch(deleteUserSuccess(data))
     } catch (error) {
       dispatch(deleteUserFailure(error.message))
     }
@@ -243,17 +287,42 @@ function PatientAccount() {
                           {loading ? 'Loading...' : 'Save changes'}
                         </button>
                         <button 
+                          type='button'
                           className='text-blue-500  sm:ml-4 mb-4'
-                          onClick={() => DeleteConfirmation() && handleDeleteUser()}
+                          onClick={handleReset}
                         >
                           Cancel
                         </button>
                       </div>
                       <div>
-                        <button className='flex items-center gap-2'>
-                          <FaTimes className='text-red-500' onClick={handleDeleteUser} />
+                        <button className='flex items-center gap-2 ' onClick={() => setShowModal(true)} type='button'>
+                          <FaTimes className='text-red-500'  />
                           Delete my account
                         </button>
+                        <Modal
+                            show={showModal}
+                            onClose={() => setShowModal(false)}
+                            popup
+                            size='md'
+                          >
+                            <Modal.Header />
+                            <Modal.Body>
+                              <div className='text-center'>
+                                <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
+                                <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+                                  Are you sure you want to delete your account?
+                                </h3>
+                                <div className='flex justify-center gap-4'>
+                                  <Button color='failure' onClick={handleDeleteUser}>
+                                    Yes, I'm sure
+                                  </Button>
+                                  <Button color='gray' onClick={() => setShowModal(false)}>
+                                    No, cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            </Modal.Body>
+                      </Modal>
                       </div>
                     </div>
                   </form>
@@ -269,6 +338,11 @@ function PatientAccount() {
             {updateUserError && (
               <Alert color='failure' className='mt-5'>
                 {updateUserError}
+              </Alert>
+            )}
+             {error && (
+              <Alert color='failure' className='mt-5'>
+                {error}
               </Alert>
             )}
           </div>

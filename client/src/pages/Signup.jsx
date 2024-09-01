@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {Alert, Button, Checkbox, Label, Spinner, TextInput} from 'flowbite-react'
 import { BiSolidShow, BiSolidHide  } from "react-icons/bi";
 import { Link, useNavigate } from 'react-router-dom'
@@ -41,6 +41,14 @@ const SignUp = () => {
     }
   }
 
+ 
+  // 
+
+  useEffect(() => {
+    // Reset error and success messages when component mounts
+    setErrorMessage(null)
+    setSuccessMessage(null)
+  }, [])
 
   // toggle the checkbox when individual checkbox is clicked
   const handleCheckbox = (e) => {

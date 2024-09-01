@@ -15,6 +15,9 @@ const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
+        clearError: (state) => {
+            state.error = null
+        },
         signInStart: (state) => {
             state.loading = true
             state.error = null
@@ -29,7 +32,7 @@ const userSlice = createSlice({
             state.error = action.payload
         },
         updateStart: (state) => {
-            state.loading = true,
+            state.loading = true
             state.error = null
         },
         updateSuccess: (state, action) => {
@@ -42,7 +45,7 @@ const userSlice = createSlice({
             state.error = action.payload
         },
         deleteUserStart: (state) => {
-            state.loading = true,
+            state.loading = true
             state.error = null
         },
         deleteUserSuccess: (state) => {
@@ -83,7 +86,8 @@ export const {
     deleteUserFailure,
     logoutUserStart,
     logoutUserSuccess,
-    logoutUserFailure
+    logoutUserFailure,
+    clearError
 } = userSlice.actions
 
 export const appleSignIn = (idToken) => async (dispatch) => {
