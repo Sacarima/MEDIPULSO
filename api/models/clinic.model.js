@@ -54,7 +54,16 @@ const clinicSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         required: true,
-    }
+    },
+    role: {
+        type: String,
+        enum: ['user', 'doctor', 'clinic'],
+        default: 'clinic',
+    },
+    isLoggedIn: {
+        type: Boolean,
+        default: false,
+    },
 
 }, {timestamps: true},
 )
