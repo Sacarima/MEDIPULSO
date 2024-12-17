@@ -35,6 +35,10 @@ const doctorFormSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    address: {
+        type: String,
+        required: false,
+    },
     diseases: {
         type: [String],
         required: false,
@@ -133,6 +137,10 @@ const doctorFormSchema = new mongoose.Schema({
         required: false,
     },
     education: {
+        type: String,
+        required: false,
+    },
+    ratings: {
         type: String,
         required: false,
     },
