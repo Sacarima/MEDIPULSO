@@ -1,11 +1,23 @@
 import User from '../models/user.model.js'
-import Doctor from '../models/doctor.model.js'
 import Clinic from '../models/clinic.model.js'
 import DoctorForm from '../models/doctorForm.model.js'
+import Admin from '../models/admin.model.js'
 import bcryptjs from 'bcryptjs'
 import { errorHandler } from '../utils/error.js'
 import jwt from 'jsonwebtoken'
 import JwksClient from 'jwks-rsa'
+import Specialty from '../models/specialty.model.js'
+
+
+// Role-based access control middleware
+export const verifyToken = (allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user || !allowedRoles.includes(req.user.role)) {
+            return next(errorHandler(403, 'Forbidden: You do not have access to this resource'))
+        }
+        next()
+    }
+}
 
 //Create a new user
 export const signup = async (req, res, next) => { 
@@ -80,74 +92,221 @@ export const signup = async (req, res, next) => {
     
 }
 
-// create a Doctor 
-export const signupDoctor = async (req, res, next) => {
-    const { 
-        name, 
-        email, 
-        password, 
-        specialty, 
-        location,
-        experience,
-        medicalCategory,
-        profilePicture
-    } = req.body
 
-    // create an array of required fields
-    const requiredFields = {
-         name, 
-         email, 
-         password, 
-         specialty, 
-         location, 
-         experience, 
-         medicalCategory
+//getLoggedInDoctor.js:
+// export const getLoggedInDoctor = async (req, res, next) => {
+//     console.log("Cookies received:", req.cookies);
+//     const token = req.cookies.access_token;
+//     console.log("Token from cookie:", token);
+    
+//     if (!token) {
+//       return res.status(401).json({ message: 'No token found, please login' });
+//     }
+  
+//     try {
+//       const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN || "testsecret");
+//       const doctorId = decoded._id || decoded.id;
+//       const doctor = await DoctorForm.findById(doctorId).select('-password');
+//       if (!doctor) {
+//         return res.status(404).json({ message: 'Doctor not found' });
+//       }
+//       res.status(200).json(doctor);
+//     } catch (error) {
+//       console.error("Error in getLoggedInDoctor:", error);
+//       return res.status(401).json({ message: 'Invalid or expired token' });
+//     }
+//   };
+
+export const getLoggedInDoctor = async (req, res, next) => {
+    console.log("Cookies received:", req.cookies);
+    
+    const token = req.cookies.access_token;
+    console.log("Token from cookie:", token);
+    
+    if (!token) {
+      return res.status(401).json({ message: 'No token found, please login' });
     }
+  
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+      const doctorId = decoded._id;
+      const doctor = await DoctorForm.findById(doctorId).select('-password');
+  
+      if (!doctor) {
+        return res.status(404).json({ message: 'Doctor not found' });
+      }
+  
+      res.status(200).json(doctor);
+    } catch (error) {
+      console.error("Error in getLoggedInDoctor:", error);
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+  };
+  
+  
 
-    // Check if any of the required fields is missing
-    const missingField = Object.entries(requiredFields).find(([key, value]) => !value || value.trim() === '');
+
+
+
+// create a Doctor account
+
+// Signup Doctor
+export const signupDoctor = async (req, res, next) => {
+  console.log("🔵 Received Signup Request:", req.body);
+
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    medicalCategory,
+    city,
+    countryCode,
+    phoneNumber,
+    termsConditions,
+    profileStatistcs,
+    location, 
+    experience,
+    profilePicture,
+
+
+  } = req.body;
+
+
+  // create an array of required fields
+  const requiredFields = {
+    firstName,
+    lastName,
+    email,
+    password,
+    medicalCategory,
+    city,
+    countryCode,
+    phoneNumber,
+    termsConditions,
+    profileStatistcs,
+}
+
+
+    const missingField = Object.entries(requiredFields).find(([key, value]) => {
+        if (key === 'termsConditions' || key === 'profileStatistcs') {
+            return value !== true; // Boolean must be true
+        }
+        if (typeof value === 'string') {
+            return value.trim() === '';
+        }
+        return !value;
+    });
+
+
     if (missingField) {
         const [fieldName] = missingField;
         return next(errorHandler(400, `The field '${fieldName}' is required and cannot be empty`));
     }
 
-    
 
-        try {
-            // check if the email is already in use
-             const existingDoctor = await Doctor.findOne({ email })
-             if (existingDoctor) {
-            return  next(errorHandler(400, 'Email already in use'))
-        }
+  try {
+    // 1. Check if the email already exists
+    console.log("🟢 Checking if email already exists...");
+    const existingDoctor = await DoctorForm.findOne({ email });
+    if (existingDoctor) {
+      console.log("🔴 Email already exists:", email);
+      return next(errorHandler(400, 'Email already in use'));
+    }
 
-        // hash the password
-        const hashedPassword = bcryptjs.hashSync(password, 10)
-        const newDoctor = new Doctor({
-            name,
-            email,
-            password: hashedPassword,
-            specialty,
-            location,
-            experience,
-            medicalCategory,
-            profilePicture
-        })
-        // save the doctor to the database
-        const savedDoctor = await newDoctor.save()
-        
-        // generate JWT token for the doctor
-        const token = jwt.sign({
-            _id: savedDoctor._id
-        }, process.env.JWT_SECRET_TOKEN, { expiresIn: '1h' })
-        // return a success message
-           res.status(201).json('Doctor created successfully')
-        } catch (error) {
-            next(error)
-        }
-}
+    // 2. Hash the password
+    console.log("🟢 Hashing password...");
+    const hashedPassword = bcryptjs.hashSync(password, 10);
+
+    console.log("🔵 Looking up specialty for medicalCategory:", medicalCategory);
+    const specialtyDoc = await Specialty.findOne({ name: medicalCategory });
+
+    if (!specialtyDoc) {
+      console.error(`🔴 No specialty found for ${medicalCategory}`);
+      return next(errorHandler(400, `No specialty found for ${medicalCategory}`));
+    }
+
+    console.log("🟢 Found Specialty:", specialtyDoc.name);
 
 
-// Create a new clinic
+    // 3. Create a new doctor document
+    console.log("🟢 Creating new doctor document...");
+    const newDoctor = new DoctorForm({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      specialty: specialtyDoc._id,
+      location: location || 'Unknown',
+      experience: experience || 0,
+      medicalCategory,
+      treatments: specialtyDoc.treatments,
+      profilePicture,
+      city,          
+      countryCode,   
+      phoneNumber, 
+      role: 'doctor',
+    });
+
+    // 4. Save the doctor to the database
+    console.log("🟢 Saving new doctor to database...");
+    const savedDoctor = await newDoctor.save();
+    if (!savedDoctor) {
+      console.log("🔴 Failed to save doctor.");
+      return next(errorHandler(500, 'Failed to save doctor.'));
+    }
+
+    // 5. Generate a JWT token valid for 7 days
+    console.log("🟢 Generating JWT token...");
+    const token = jwt.sign(
+      { _id: savedDoctor._id, role: savedDoctor.role },
+      process.env.JWT_SECRET_TOKEN,
+      { expiresIn: '7d' }
+    );
+
+    console.log("🟢 Generated Token:", token);
+
+    // 6. Store token in HTTP-only cookie
+    console.log("🟢 Setting token in HTTP-only cookie...");
+    res.cookie('access_token', token, {
+      httpOnly: true,         // Prevents JavaScript access (protection against XSS)
+      secure: process.env.NODE_ENV === 'production', //e secure cookies in production
+      sameSite: 'lax',       // Allows cross-site requests from same origin
+      path: '/',
+    });
+
+    console.log("🟢 Token stored in cookie successfully.");
+
+    // 7. Return a response with doctor details
+    return res.status(201).json({
+      message: 'Doctor created successfully',
+      doctor: {
+        _id: savedDoctor._id,
+        firstName: savedDoctor.firstName,
+        lastName: savedDoctor.lastName,
+        email: savedDoctor.email,
+        specialty: savedDoctor.specialty,
+        location: savedDoctor.location,
+        experience: savedDoctor.experience,
+        medicalCategory: savedDoctor.medicalCategory,
+        treatments: savedDoctor.treatments,
+        profilePicture: savedDoctor.profilePicture,
+        city: savedDoctor.city,              
+        countryCode: savedDoctor.countryCode, 
+        phoneNumber: savedDoctor.phoneNumber, 
+        role: savedDoctor.role,
+      }
+    });
+
+  } catch (error) {
+    console.error("🔴 Signup error:", error);
+    next(error);
+  }
+};
+
+
+
+
 export const signupClinic = async (req, res, next) => {
     const {
         facilityName,
@@ -235,51 +394,123 @@ export const signupClinic = async (req, res, next) => {
         next(error)
     }
 }
-// Login a user
 
+// Login a user
 export const login = async (req, res, next) => {
-    // Get the user data from the request body
-    const { email, password } = req.body
-    // Validate the request body
+    console.log("🔵 Received Login Request: testing");
+    const { email,password } = req.body
+
     if (!email || !password || email === '' || password === '') {
-        next(errorHandler(400, 'Please fill in all fields'))
+        return next(errorHandler(400, 'All fields are required'))
     }
 
-    // Check if the user exists in the database
+    let validUser = null
+    let userRole = null
+
     try {
-        const validUser = await User.findOne({
-            email
-        })
-        // If the user does not exist
-        if (!validUser) {
-           return next(errorHandler(404, 'wrong credentials'))
+        // check across all models
+        validUser = await DoctorForm.findOne({ email })
+        if (validUser) {
+            userRole = 'doctor'
         }
-        // Compare the password
+        if (!validUser) {
+            validUser = await User.findOne({ email })
+            if (validUser) {
+                userRole = 'user'
+            }
+        }
+
+        if (!validUser) {
+            validUser = await Clinic.findOne({ email })
+            if (validUser) {
+                userRole = 'clinic'
+            }
+        }
+
+        if (!validUser) {
+            validUser = await Admin.findOne({ email })
+            if (validUser) {
+                userRole = 'admin'
+            }
+        }
+
+        // if no user is found in any model
+        if (!validUser) {
+            return next(errorHandler(404, 'User not found'))
+        }
+
+        // password validation 
         const validPassword = bcryptjs.compareSync(password, validUser.password)
         if (!validPassword) {
-            return next(errorHandler(400, 'wrong credentials'))
+            return next(errorHandler(400, 'Invalid password'))
         }
 
-        // Create a token for the user
+        // generate token and include role in the payload
         const token = jwt.sign({
-            id: validUser._id, isAdmin: validUser.isAdmin  // changed the _id to id
-        }, process.env.JWT_SECRET_TOKEN)
+            id: validUser._id,
+            role: userRole
+        }, process.env.JWT_SECRET_TOKEN, { expiresIn: '1d' })
 
-        // remove the password from the user object
-        const { password: pass, ...rest } = validUser._doc
+
+        const { password: pass, ...rest } = validUser._doc // exclude the password from the response
+
+        // determine redirection based on the user role
+        let redirectTo = '';
+        switch (userRole) {
+        case 'doctor':
+            redirectTo = '/doctor-profile';
+            break;
+        case 'user':
+            redirectTo = '/';
+            break;
+        case 'clinic':
+            redirectTo = '/clinic-profile';
+            break;
+        case 'admin':
+            redirectTo = '/dashboard'; // Admin specific redirect
+            break;
+        }
+
+
+        // return success response with user data and token and redirection
         res
             .status(200)
-            .cookie('access_token', token , {
-                httpOnly: true,
-                //secure: process.env.NODE_ENV === 'production',  // Ensures the cookie is only sent over HTTPS in production
-                sameSite: 'Strict',  // Helps protect against CSRF attacks
+            .cookie('access_token', token, {
+                httpOnly: true
             })
-            .json(rest)
-            console.log('Set-Cookie Header:', res.getHeaders()['set-cookie']);
+            .json({
+                success: true,
+                message: 'Login successful',
+                user: rest,
+                redirectTo
+            })
     } catch (error) {
         next(error)
     }
 }
+
+// logout user
+export const logout = async (req, res, next) => {
+    try {
+        res.clearCookie('access_token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+        })
+
+        res.status(200).json({
+            success: true,
+            message: 'User has been signed out',
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Logout failed',
+            error: error.message
+        })
+    }
+}
+  
 
 
 // signup doctor form
@@ -458,12 +689,12 @@ export const apple = async (req, res, next) => {
 
         // Get the public key using the 'kid'
         const publicKey = await getKey(kid)
-        console.log(publicKey)
+        console.log( publicKey)
 
         // Verify the JWT
         const verifiedToken = jwt.verify(id_token, publicKey, { algorithms: ['RS256'] })
 
-        console.log(verifiedToken)
+        //console.log(verifiedToken)
 
         // extract the user data from the verified token
         const { email, email_verified, sub, exp, aud, iss } = verifiedToken
