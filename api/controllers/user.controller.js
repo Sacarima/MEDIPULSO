@@ -8,23 +8,15 @@ export const test = (req, res) => {
 }
 
 
-// logout user
-export const logout = async (req, res) => {
-    try {
-        res
-            .clearCookie('access_token')
-            .status(200)
-            .json({ message: 'User has been signed out' })
-    } catch (error) {
-        res.status(500).json({ message: errorHandler(error) })
-    }
-}
-
 // update use information
+// This function allows users to update their own information
+// It checks if the user is authorized to perform this action
+// It validates the password length and strength
+// It hashes the password before saving it to the database
+// It returns the updated user information without the password field
+// If the user is not authorized, it returns a 403 error
 export const updateUser = async (req, res, next) => {
-    // check if the user is authorized to perform this action 
-    console.log('User ID from Token:', req.user.id);
-    console.log('User ID from Params:', req.params.userId);
+    
     if (req.user.id !== req.params.userId) {
         return next(errorHandler(403, 'You are not authorized to perform this action'))
     }
@@ -60,6 +52,14 @@ export const updateUser = async (req, res, next) => {
 }
 
 // get user information
+// This function retrieves user information for admin users
+// It checks if the user is an admin before allowing access
+// It supports pagination, sorting, and filtering of users
+// It returns the total number of users, the number of users created in the last month,
+// and the list of users without their password field
+// If the user is not an admin, it returns a 403 error
+// If there is an error during the process, it returns a 500 error
+// The function uses the User model to interact with the database
 export const getUser = async (req, res, next) => {
     if (!req.user.isAdmin) {
         return next(errorHandler(403, 'You are not authorized to perform this action'))
@@ -93,7 +93,7 @@ export const getUser = async (req, res, next) => {
         )
 
         const lastMonthUsers = await User.countDocuments({
-            createdAt: { $gte: oneMonthAgo, $lt: now } // Check this /* $ l t */ might the cause for the error
+            createdAt: { $gte: oneMonthAgo, $lt: now } 
         })
 
         res.status(200).json({
@@ -108,7 +108,14 @@ export const getUser = async (req, res, next) => {
 }
 
 // delete user
-
+// This function allows an admin to delete a user
+// It checks if the user is authorized to perform this action
+// If the user is an admin and not trying to delete themselves, it proceeds to delete the user
+// If the user is not authorized, it returns a 403 error
+// If there is an error during the deletion process, it returns a 500 error
+// The function uses the User model to interact with the database
+// It returns a success message upon successful deletion
+// If the user is not found, it returns a 404 error
 export const deleteUser = async (req, res, next) => {
     // check if the user is authorized to perform this action
     if (req.user.isAdmin && req.user.id !== req.params.userId) {
