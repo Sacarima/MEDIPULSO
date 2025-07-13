@@ -133,7 +133,7 @@ const doctorFormSchema = new mongoose.Schema({
         required: false,
     },
     languages: {
-        type: String,
+        type: [String],
         required: false,
     },
     education: {
@@ -210,8 +210,93 @@ const doctorFormSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    specialty: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Specialty",
+        required: false,
+      },
+      customTreatments: {
+        type: [String],
+        default: [],
+      },
+      heardAboutUs: {
+        type: String,
+        required: false,
+      },
+      priceList: {
+        type: Object,
+        required: false,
+      },
+      paymentMethods: {
+        type: Object,
+        required: false,
+      },
+      services: {
+        type: Object,
+        required: false,
+      },
+      calendar: {
+        type: Object,
+        required: false,
+      },
+        officeInformation: {
+            type: Object,
+            required: false,
+        },
+        services: {
+            type: String,
+            required: false,
+        },
+        certificateUpload: {
+            type: Object,
+            required: false,
+        },
+        services: {
+            type: [String],
+            required: false,
+        },
+        officeName: {
+            type: String,
+            required: false,
+        },
+        officeAddress: {
+            type: String,
+            required: false,
+        },
+        location: {
+            type: String,
+            required: false,
+        },
+        officeLocation: {
+            type: String,
+            required: false,
+        },
+       zipcode: {
+              type: String,
+              required: false,
+       },
+       licenseNumber: {
+        type: String,
+        required: false,
+    },
+    officePhoneNumber: {
+        type: String,
+        required: false,
+    },
+    onlineConsultation: {
+        type: Boolean,
+        required: false,
+    },
+    acceptChildren: {
+        type: Boolean,
+        required: false,
+    },
+    averageRating: {
+        type: Number,
+        default: 0, // Default to 0 if no reviews yet
+      },
 
-    // add more fields as needed
+
 
 }, {timestamps: true}) // this will add createdAt and updatedAt fields))
 
