@@ -93,29 +93,7 @@ export const signup = async (req, res, next) => {
 }
 
 
-//getLoggedInDoctor.js:
-// export const getLoggedInDoctor = async (req, res, next) => {
-//     console.log("Cookies received:", req.cookies);
-//     const token = req.cookies.access_token;
-//     console.log("Token from cookie:", token);
-    
-//     if (!token) {
-//       return res.status(401).json({ message: 'No token found, please login' });
-//     }
-  
-//     try {
-//       const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN || "testsecret");
-//       const doctorId = decoded._id || decoded.id;
-//       const doctor = await DoctorForm.findById(doctorId).select('-password');
-//       if (!doctor) {
-//         return res.status(404).json({ message: 'Doctor not found' });
-//       }
-//       res.status(200).json(doctor);
-//     } catch (error) {
-//       console.error("Error in getLoggedInDoctor:", error);
-//       return res.status(401).json({ message: 'Invalid or expired token' });
-//     }
-//   };
+
 
 export const getLoggedInDoctor = async (req, res, next) => {
     console.log("Cookies received:", req.cookies);
@@ -206,31 +184,24 @@ export const signupDoctor = async (req, res, next) => {
 
 
   try {
-    // 1. Check if the email already exists
-    console.log("🟢 Checking if email already exists...");
+    
     const existingDoctor = await DoctorForm.findOne({ email });
     if (existingDoctor) {
-      console.log("🔴 Email already exists:", email);
       return next(errorHandler(400, 'Email already in use'));
     }
 
-    // 2. Hash the password
-    console.log("🟢 Hashing password...");
     const hashedPassword = bcryptjs.hashSync(password, 10);
 
-    console.log("🔵 Looking up specialty for medicalCategory:", medicalCategory);
     const specialtyDoc = await Specialty.findOne({ name: medicalCategory });
 
     if (!specialtyDoc) {
-      console.error(`🔴 No specialty found for ${medicalCategory}`);
       return next(errorHandler(400, `No specialty found for ${medicalCategory}`));
     }
 
     console.log("🟢 Found Specialty:", specialtyDoc.name);
 
 
-    // 3. Create a new doctor document
-    console.log("🟢 Creating new doctor document...");
+
     const newDoctor = new DoctorForm({
       firstName,
       lastName,
@@ -248,36 +219,26 @@ export const signupDoctor = async (req, res, next) => {
       role: 'doctor',
     });
 
-    // 4. Save the doctor to the database
-    console.log("🟢 Saving new doctor to database...");
+
     const savedDoctor = await newDoctor.save();
     if (!savedDoctor) {
-      console.log("🔴 Failed to save doctor.");
       return next(errorHandler(500, 'Failed to save doctor.'));
     }
 
-    // 5. Generate a JWT token valid for 7 days
-    console.log("🟢 Generating JWT token...");
     const token = jwt.sign(
       { _id: savedDoctor._id, role: savedDoctor.role },
       process.env.JWT_SECRET_TOKEN,
       { expiresIn: '7d' }
     );
 
-    console.log("🟢 Generated Token:", token);
-
-    // 6. Store token in HTTP-only cookie
-    console.log("🟢 Setting token in HTTP-only cookie...");
     res.cookie('access_token', token, {
-      httpOnly: true,         // Prevents JavaScript access (protection against XSS)
-      secure: process.env.NODE_ENV === 'production', //e secure cookies in production
-      sameSite: 'lax',       // Allows cross-site requests from same origin
+      httpOnly: true,        
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'lax',  
       path: '/',
     });
 
-    console.log("🟢 Token stored in cookie successfully.");
 
-    // 7. Return a response with doctor details
     return res.status(201).json({
       message: 'Doctor created successfully',
       doctor: {
@@ -299,7 +260,7 @@ export const signupDoctor = async (req, res, next) => {
     });
 
   } catch (error) {
-    console.error("🔴 Signup error:", error);
+    console.error("Signup error:", error);
     next(error);
   }
 };
@@ -397,7 +358,6 @@ export const signupClinic = async (req, res, next) => {
 
 // Login a user
 export const login = async (req, res, next) => {
-    console.log("🔵 Received Login Request: testing");
     const { email,password } = req.body
 
     if (!email || !password || email === '' || password === '') {
@@ -452,7 +412,7 @@ export const login = async (req, res, next) => {
         }, process.env.JWT_SECRET_TOKEN, { expiresIn: '1d' })
 
 
-        const { password: pass, ...rest } = validUser._doc // exclude the password from the response
+        const { password: pass, ...rest } = validUser._doc 
 
         // determine redirection based on the user role
         let redirectTo = '';
