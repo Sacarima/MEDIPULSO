@@ -6,9 +6,12 @@ import {
     signupClinic, 
     signupDoctor, 
     apple, 
-    signupDoctorForm 
+    logout
     
 } from '../controllers/auth.controller.js'
+import { getLoggedInDoctor } from '../controllers/auth.controller.js'
+
+
 
 const router = express.Router()
 
@@ -16,10 +19,12 @@ const router = express.Router()
 router.post('/signup', signup)
 router.post('/signup/doctor', signupDoctor)
 router.post('/signup/clinic-form', signupClinic)
-router.post('/signup/doctor-form', signupDoctorForm)
+router.post('/signup/doctor-form', signupDoctor)
+router.get('/me', getLoggedInDoctor)
 router.post('/login', login)
 router.post('/google', google)
 router.post('/apple', apple)
+router.post('/logout', logout)
 
 
 export default router
