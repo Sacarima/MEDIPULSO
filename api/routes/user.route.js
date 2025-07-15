@@ -1,5 +1,11 @@
 import express from 'express'
-import { test, logout, getUser, updateUser, deleteUser } from '../controllers/user.controller.js'
+import { 
+    test, 
+    getUser, 
+    updateUser, 
+    deleteUser 
+} from '../controllers/user.controller.js'
+import { logout } from '../controllers/auth.controller.js'
 import { verifyToken } from '../utils/verifyUser.js'
 
 
