@@ -1,4 +1,4 @@
- export  const diseases = [
+export  const diseases = [
     "Arterial hypertension",
     "Diabetes",
     "Coronary heart diseases",
