@@ -18,6 +18,7 @@ import treatmentRoutes from './routes/treatment.route.js'
 import questionRoutes from './routes/question.route.js'
 import connectDB from './config/db.js'
 import StatsRoutes from './routes/stats.route.js'
+import locationRoutes from './routes/location.route.js'
 import path from 'path'
 
 
@@ -78,6 +79,7 @@ app.use('/api/specialties', specialtyRoutes)
 app.use("/api/treatments", treatmentRoutes)
 app.use("/api/questions", questionRoutes)
 app.use("/api", StatsRoutes)
+app.use('/api/location', locationRoutes)
 
 // Serve static files from the React app
 // This is necessary to serve the React app in production
