@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Label } from 'flowbite-react'
 import MedicalCategoryDropdown from '../components/MedicalCategoryDropdown';
 import { Alert, Spinner } from 'flowbite-react';
+import { medicalCategories } from '../data/medicalCategories'
 
 
 // UPDATE WITH REDUX FOR STATE MANAGEMENT
@@ -48,32 +49,15 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
       }
 
       // Toggle the checkbox when a individual checkbox is clicked
-  const handleCheckbox = (e) => {
-    const { name, checked } = e.target
-    setFormData({
-      ...formData,
-      [name]: checked,
-    })
-  }
+      const handleCheckbox = (e) => {
+        const { name, checked } = e.target
+        setFormData({
+          ...formData,
+          [name]: checked,
+        })
+      }
     
 
-
-    const medicalCategories = [
-        "Dentist", "Cardiologist", "Dermatologist", "Gynecologist",
-        "Neurologist", "Ophthalmologist", "Orthopedist", "Pediatrician",
-        "Psychiatrist", "Surgeon", "Urologist", "Allergist",
-        "Endocrinologist", "Gastroenterologist", "Hematologist",
-        "Nephrologist", "Oncologist", "Otolaryngologist", "Pulmonologist",
-        "Rheumatologist", "Radiologist", "Anesthesiologist", "Emergency physician",
-        "Family physician", "Internist", "Physical therapist", "Occupational therapist",
-        "Speech therapist", "Nutritionist", "Psychologist", "Pharmacist",
-        "Nurse", "Midwife", "Paramedic", "Medical assistant",
-        "Medical laboratory scientist", "Radiologic technologist", "Phlebotomist",
-        "Medical coder", "Medical transcriptionist", "Health information technician",
-        "Health educator", "Medical illustrator", "Medical writer", "Medical librarian",
-        "Medical interpreter", "Medical scribe", "Medical ethicist",
-        "Bariatrician", "Geriatrician", "Hospitalist"
-      ]
 
   return (
     <div>

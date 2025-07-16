@@ -1,43 +1,63 @@
-import { 
-  useRef, 
-  useState, 
-  useEffect
-
-} from 'react'
-
-import { FaTimes } from "react-icons/fa"
-
-import { 
-  updateStart, 
-  updateSuccess, 
-  updateFailure, 
-  deleteUserStart, 
-  deleteUserFailure, 
-  deleteUserSuccess, 
-  clearError,
-  logoutUserStart 
-
-} from '../redux/user/userSlice'
-
-import { 
-  useDispatch, 
-  useSelector 
-} from 'react-redux'
-
+import {  useState, useEffect } from 'react'
+import { LiaTimesSolid } from "react-icons/lia"
+import { useDispatch, useSelector } from 'react-redux'
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
-import { Alert, Modal, ModalBody, Button } from 'flowbite-react'
-import { Link } from 'react-router-dom'
+import { Alert, Modal, Button } from 'flowbite-react'
 import AccountHeaderPatient from '../components/AccountHeaderPatient'
+import UpcomingAppointment from '../components/appointment/UpcomingAppointment'
+import CancelAppointment from '../components/appointment/CancelAppointment'
+import {Link, useLocation } from 'react-router-dom'
+
+import { 
+  updateStart, updateSuccess, updateFailure, 
+  deleteUserStart, deleteUserFailure, deleteUserSuccess, clearError,
+  } from '../redux/user/userSlice'
+
 
 
 function PatientAccount() {
+  
+ 
+  const dispatch = useDispatch()
+  const location = useLocation()
   const { currentUser, loading, error } = useSelector(state => state.user)
-  const [formData, setFormData] = useState({})
+
+
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null)
   const [updateUserError, setUpdateUserError] = useState(null)
   const [originalData, setOriginalData] = useState({})
   const [showModal, setShowModal] = useState(false)
-  const dispatch = useDispatch()
+
+  const [activeSection, setActiveSection] = useState('account-settings')
+
+  useEffect(() => {
+    if (currentUser) {
+      setActiveSection('account-settings')
+    }
+  }, [currentUser])
+
+  // Check if there's a state directing to "my-visits"
+  useEffect(() => {
+    if (location.state?.section === "my-visits") {
+      setActiveSection("my-visits");
+    }
+  }, [location])
+
+
+  useEffect(() => {
+    dispatch(clearError())
+  }, [dispatch])
+
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    password: ''
+  })
+
+  // Select the current user and isLoggedIn status for both user and doctor
+  
 
   useEffect(() => {
     // whem user changes the input fields set the original data and the current user's data
@@ -83,13 +103,13 @@ function PatientAccount() {
     }
     try {
       dispatch(updateStart())
-      //const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('access_token');
 
       const response = await fetch(`http://localhost:7500/api/user/update/${currentUser._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          //'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
         credentials: 'include', // include cookies
@@ -98,7 +118,7 @@ function PatientAccount() {
      // console.log(response); 
 
       const data = await response.json()
-      //console.log(data)
+      console.log('Response:', data)
 
       if (!response.ok) {
         dispatch(updateFailure(data.message))
@@ -135,72 +155,85 @@ function PatientAccount() {
         dispatch(deleteUserFailure(data.message))
       }else {
         dispatch(deleteUserSuccess(data))
-        //dispatch(logoutUserStart())
       }
-      // if (data.success === false) {
-      //   dispatch(deleteUserFailure(data.message))
-      //   return
-      // }
-      // dispatch(deleteUserSuccess(data))
+
     } catch (error) {
       dispatch(deleteUserFailure(error.message))
     }
   }
 
-  // logout user
-  const handleLogout = async() => {
-    try {
-      const res = await fetch('localhost:7500/api/user/logout', {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log(data.message);
-      } else {
-        dispatch(signoutSuccess());
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
 
 
   return (
-    <div className='bg-gray-200'>
-      <AccountHeaderPatient />
-      <div className='bg-gray-200 h-screen'>
-        <main className=' sm:w-[80%]  m-auto  mt-8'>
-        
-          <section className=' sm:flex'>
-            <aside className=' sm:w-[20%] w-[90%] m-auto'>
-              <ul>
-                <li className='text-gray-400 text-[12px]'>Specialists</li>
-                <Link>
-                  <li className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'>My Visits</li>
-                </Link>
-                <Link>
-                  <li className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'>Registered Specialists</li>
-                </Link>
-                <hr className='bg-gray-300 h-[2px] w-full ' />
-                <li className='text-gray-400 pt-2 text-[12px]'>Communication with doctors</li>
-                <Link>
-                  <li className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800' >Public Questions</li>
-                </Link>
-                <hr className='bg-gray-300 h-[2px] w-full ' />
-                <li className='text-gray-400 pt-2 text-[12px]'>Account Settings</li>
-                <Link>
-                  <li className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'>Account Settings</li>
-                </Link>
-                <Link>
-                  <li className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'>Notification preferences</li>
-                </Link>
-                <Link>
-                  <li className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'>Social media accounts</li>
-                </Link>
-              </ul>
+    <div className='bg-gray-200 min-h-dvh'>
+      <AccountHeaderPatient className='sticky top-0'/>
+      <div className='bg-gray-200 min-h-dvh'>
+        <main className=' sm:w-[80%]  m-auto  mt-8 bg-gray-200'>
+          <section className=' sm:flex '>
+
+            {/* Sidebar Navigation */}
+            <aside 
+              //className=' sm:w-[20%] w-[90%] m-auto '
+              className='bg-gray-200 sm:w-[20%] w-[90%] m-auto sm:fixed p-4 mt-6  sm:left-0 sm:top-24 sm:h-full  shadow-mdoverflow-auto'>
+              <nav>
+                <ul>
+                  <li className='text-gray-400 text-[12px]'>Specialists</li>
+                  <Link>
+                    <li 
+                      //className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'
+                      className={`pl-4 my-2 py-1 text-sm cursor-pointer ${activeSection === "my-visits" ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-500 hover:bg-[#80808011] hover:text-blue-800"}`} 
+                      onClick={() => setActiveSection("my-visits")}
+                    >
+                      My Visits
+                    </li>
+                  </Link>
+                  <Link>
+                    <li 
+                      //className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'
+                      className={`pl-4 my-2 py-1 text-sm cursor-pointer ${activeSection === "register" ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-500 hover:bg-[#80808011] hover:text-blue-800"}`} 
+                      onClick={() => setActiveSection("register")}
+                    >
+                      Registered Specialists
+                    </li>
+                  </Link>
+                  <hr className='bg-gray-300 h-[2px] w-full ' />
+                  <li className='text-gray-400 pt-2 text-[12px]'>Communication with doctors</li>
+                  <Link>
+                    <li className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800' >Public Questions</li>
+                  </Link>
+                  <hr className='bg-gray-300 h-[2px] w-full ' />
+                  <li className='text-gray-400 pt-2 text-[12px]'>Account Settings</li>
+                  <Link>
+                    <li 
+                      //className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'
+                      className={`pl-4 my-2 py-1 text-sm cursor-pointer ${activeSection === "account-settings" ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-500 hover:bg-[#80808011] hover:text-blue-800"}`} 
+                      onClick={() => setActiveSection("account-settings")}
+                    >
+                      Account Settings
+                    </li>
+                  </Link>
+                  <Link>
+                    <li className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'>Notification preferences</li>
+                  </Link>
+                  <Link>
+                    <li className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'>Social media accounts</li>
+                  </Link>
+                </ul>
+              </nav>
             </aside>
 
-            <section className='bg-white sm:w-[80%] p-4 sm:ml-5 m-auto w-[95%] mt-4 rounded shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
+            {/* Main Content Area */}
+            <section 
+                //className='bg-white sm:w-[80%] p-4 sm:ml-5 m-auto w-[95%] mt-4 rounded shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'
+                className=' bg-white sm:w-[75%] p-4 sm:ml-[22%] mt-4 rounded shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
+                  {/* Conditionally render content based on active section */}
+                  {activeSection === 'my-visits' ? (
+                    <div className=' '>
+                      <UpcomingAppointment />
+                      <CancelAppointment />
+                    </div>
+                  ) : (
+                    <>
                   <div className='mb-2'>
                     <h3 className='text-xl font-semibold mb-2'>Account Settings</h3>
                     <span className='text-sm'>* Required fields</span>
@@ -214,7 +247,7 @@ function PatientAccount() {
                         id='firstName' 
                         name='firstName'
                         defaultValue={currentUser.firstName}
-                        value={formData.firstName} 
+                        //value={formData.firstName} 
                         onChange={handleChange}  
                       />
                     </div>
@@ -227,7 +260,7 @@ function PatientAccount() {
                         id='lastName' 
                         name='lastName' 
                         defaultValue={currentUser.lastName}
-                        value={formData.lastName} 
+                        //value={formData.lastName} 
                         onChange={handleChange} 
                         
                       />
@@ -241,7 +274,7 @@ function PatientAccount() {
                         id='phoneNumber' 
                         name='phoneNumber'
                         defaultValue={currentUser.phoneNumber}
-                        value={formData.phoneNumber} 
+                        //value={formData.phoneNumber} 
                         onChange={handleChange} 
                       />
                     </div>
@@ -254,8 +287,8 @@ function PatientAccount() {
                         //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                         id='passsword' 
                         name='passsword'
-                        defaultValue={currentUser.passsword}
-                        value={formData.passsword} 
+                        defaultValue={currentUser.password}
+                        //value={formData.password} 
                         onChange={handleChange} 
 
                       />
@@ -271,7 +304,7 @@ function PatientAccount() {
                         id='email' 
                         name='email'
                         defaultValue={currentUser.email}
-                        value={formData.email} 
+                       // value={formData.email} 
                         onChange={handleChange} 
                    
                       />
@@ -296,7 +329,7 @@ function PatientAccount() {
                       </div>
                       <div>
                         <button className='flex items-center gap-2 ' onClick={() => setShowModal(true)} type='button'>
-                          <FaTimes className='text-red-500'  />
+                        <LiaTimesSolid className='text-lg text-red-500 font-extralight'/>
                           Delete my account
                         </button>
                         <Modal
@@ -304,17 +337,18 @@ function PatientAccount() {
                             onClose={() => setShowModal(false)}
                             popup
                             size='md'
+                            
                           >
-                            <Modal.Header />
+                            <Modal.Header/>
                             <Modal.Body>
                               <div className='text-center'>
                                 <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
                                 <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
-                                  Are you sure you want to delete your account?
+                                  Your appointments will not be canceled. You will lose all other data.
                                 </h3>
                                 <div className='flex justify-center gap-4'>
                                   <Button color='failure' onClick={handleDeleteUser}>
-                                    Yes, I'm sure
+                                    Delete account
                                   </Button>
                                   <Button color='gray' onClick={() => setShowModal(false)}>
                                     No, cancel
@@ -326,6 +360,11 @@ function PatientAccount() {
                       </div>
                     </div>
                   </form>
+                  </> 
+              
+                  )}
+
+                  
             </section>
                 
           </section>
@@ -348,6 +387,8 @@ function PatientAccount() {
           </div>
         </main>
       </div>
+
+      
     </div>
   )
 }

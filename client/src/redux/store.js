@@ -1,15 +1,24 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit'
 import userReducer from './user/userSlice'
-import doctorSignupReducer from './doctor/doctorSignupSlice'
+import doctorReducer from './doctor/doctorSlice'
+import clinicReducer from './clinic/clinicSlice'
+import adminReducer from './admin/adminSlice' 
+import loginReducer from './shared/loginSlice'
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import themeReducer from './theme/themeSlice'
+import { visibilitySlice } from './shared/visibilitySlice'
+
 
 // Combine all reducers
 const rootReducer = combineReducers({
     user: userReducer,
+    doctor: doctorReducer,
+    clinic: clinicReducer,
+    admin: adminReducer,
+    login: loginReducer,
     theme: themeReducer,
-    doctorSignup: doctorSignupReducer,
+    visibility: visibilitySlice.reducer
   })
 
 
@@ -17,6 +26,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: 'root',
     storage,
+    whitelist: ['user', 'doctor', 'clinic', 'admin', 'theme', 'visibility'],
     version: 1,
   }
 

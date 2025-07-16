@@ -1,31 +1,31 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FaChevronLeft } from "react-icons/fa";
-import { FaUserDoctor } from "react-icons/fa6";
-import { HiMiniUsers } from "react-icons/hi2";
-import { RiHospitalFill } from "react-icons/ri";
-import logoDarkMode from '../assets/logoDarkMode-1.png';
-import '../styles/MobileDropdownContent.css';
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { FaChevronLeft } from "react-icons/fa"
+import { FaUserDoctor } from "react-icons/fa6"
+import { HiMiniUsers } from "react-icons/hi2"
+import { RiHospitalFill } from "react-icons/ri"
+import logoDarkMode from '../assets/logoDarkMode-1.png'
+import '../styles/MobileDropdownContent.css'
 import { FaTimes } from "react-icons/fa"
 
 const MobileDropdownContent = ({ onClose, onBack }) => {
-  const [animationClass, setAnimationClass] = useState('slide-in');
+  const [animationClass, setAnimationClass] = useState('slide-in')
 
   // Handle the closing of the dropdown
   const handleClose = () => {
-    setAnimationClass('slide-out');
+    setAnimationClass('slide-out')
     setTimeout(() => {
-      onClose();
-    }, 300); // Duration should match the CSS animation duration
-  };
+      onClose()
+    }, 300) // Duration should match the CSS animation duration
+  }
 
   // Handle the back action
   const handleBack = () => {
-    setAnimationClass('slide-out-left');
+    setAnimationClass('slide-out-left')
     setTimeout(() => {
-      onBack();
-    }, 300); // Duration should match the CSS animation duration
-  };
+      onBack()
+    }, 300) // Duration should match the CSS animation duration
+  }
 
   return (
     <div className='fixed inset-0 bg-[#00b39b] text-white w-full flex flex-col items-center z-50'>
@@ -72,7 +72,7 @@ const MobileDropdownContent = ({ onClose, onBack }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default MobileDropdownContent;
+export default MobileDropdownContent

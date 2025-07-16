@@ -2,12 +2,11 @@ import { createSlice } from "@reduxjs/toolkit"
 import axios from 'axios'
 
 
-// Define the initial state of the user slice
 const initialState = {
     currentUser: null,
     error: null,
+    isLoggedIn: false,
     loading: false,
-
 }
 
 // Create a slice for the user
@@ -25,7 +24,9 @@ const userSlice = createSlice({
         signInSuccess: (state, action) => {
             state.currentUser = action.payload
             state.loading = false
+            state.isLoggedIn = true
             state.error = null
+            localStorage.setItem("currentUser", JSON.stringify(action.payload)) // Save the user to the local storage or cookies if needed remove if not needed
         },
         signInFailure: (state, action) => {
             state.loading = false
@@ -61,14 +62,23 @@ const userSlice = createSlice({
             state.loading = true
         },
         logoutUserSuccess: (state) => {
-            state.currentUser = null
-            state.loading = false
-            state.error = null
+            state.currentUser = null;
+            state.loading = false;
+            state.isLoggedIn = false;
+            state.error = null;
+            localStorage.removeItem("currentUser"); // Remove from localStorage on logout, remove if not needed
         },
         logoutUserFailure: (state, action) => {
             state.loading = false
             state.error = action.payload
         },
+        resetUserState: (state) => {
+            state.currentUser = null
+            state.error = null
+            state.isLoggedIn = false
+            state.loading = false
+            localStorage.removeItem("currentUser") // Reset the user state and remove from localStorage
+        }
 
     }
 })
@@ -87,8 +97,10 @@ export const {
     logoutUserStart,
     logoutUserSuccess,
     logoutUserFailure,
-    clearError
+    clearError,
+    resetUserState
 } = userSlice.actions
+
 
 export const appleSignIn = (idToken) => async (dispatch) => {
     dispatch(signInStart())

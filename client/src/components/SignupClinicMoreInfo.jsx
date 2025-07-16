@@ -3,15 +3,9 @@ import { Link } from 'react-router-dom'
 import { BiSolidShow, BiSolidHide  } from "react-icons/bi"
 import { Label } from 'flowbite-react'
 import MedicalCategoryDropdown from '../components/MedicalCategoryDropdown'
-import { useNavigate } from 'react-router-dom'
 
-const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, setInvalidFields}) => {
-  
-  const [loading, setLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState(null)
-  const navigate = useNavigate()
+const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, setInvalidFields}) => {
   const [showPassword, setShowPassword] = useState(false)
-  //const [formData, setFormData] = useState({})
 
   // Helper function to determine if a field is invalid
   const isFieldInvalid = (field) => invalidFields.includes(field)
@@ -46,15 +40,6 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
     })
   }
 
-  // validate the form fields
-  // const validateFields = () => {
-  //   const requiredFields = ['firstName', 'surname', 'roleInFacility', 'email', 'verifyEmail', 'phoneNumber', 'password', 'confirmPassword']
-  //   const newInvalidFields = requiredFields.filter(field => !formData[field] || formData[field].trim() === '')
-
-  //   setInvalidFields(newInvalidFields)
-  //   return newInvalidFields.length === 0
-  // }
-
   const userRole = [
     "Owner", "Manager", "Receptionist", "Doctor", "Nurse", "Memberr of the medical staff", "Other", "Not applicable", "Member of the board", "Administrator", "IT specialist", "Accountant", "HR specialist", "Marketing specialist", "Sales specialist", "Other"
   ]
@@ -81,14 +66,11 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
                   <Label value="Name*" />
                   <input
                     type="text"
-                    //className='rounded-sm placeholder-gray-300 border text-sm mt-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                     className={`block w-full mt-1 px-3 py-2 border placeholder-gray-400 rounded-md ${isFieldInvalid('firstName') ? 'border-red-600' : 'border-gray-300'}`}
-                    //className={`form-input ${isFieldInvalid('firstName') ? 'border-red-500' : 'border-gray-300'}`}
                     placeholder="Enter your name"
                     id="firstName"
                     value={formData.firstName}
                     name='firstName'
-                    //onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
 
                     
@@ -98,7 +80,6 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
                   <Label  value="Last name*" />
                   <input
                     type="text"
-                    //className='rounded-sm border placeholder-gray-300 mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                     className={`block w-full mt-1 px-3 py-2 border placeholder-gray-400 rounded-md ${isFieldInvalid('lastName') ? 'border-red-600' : 'border-gray-300'}`}
                     placeholder="Enter your last name"
                     id="lastName"
@@ -118,7 +99,6 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
                 <MedicalCategoryDropdown
                   options={userRole}
                   selected={formData.roleInFacility}
-                  //onSelect={handleRoleSelect}
                   onSelect={(selectedRole) => handleInputChange('roleInFacility', selectedRole)}
                   isInvalid={isFieldInvalid('roleInFacility')}
                   value={formData.roleInFacility}
@@ -132,7 +112,6 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
         <div className='mb-4'>
             <span className='font-semibold'>Email *</span>
             <input
-              //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
               className={`block w-full mt-1 px-3 py-2 border placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out  ${isFieldInvalid('email') ? 'border-red-500' : 'border-gray-300'}`}
               type="text"
               placeholder='Enter your email'
@@ -147,7 +126,6 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
         <div className='mb-4'>
         <span className='font-semibold'>Verify your email *</span>
             <input
-              //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
               type="text"
               placeholder='Enter your email again'
               id='verifyEmail'
@@ -161,7 +139,6 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
         <div>
         <span className='font-semibold'>Phone number *</span>
             <input
-              //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
               className={`block w-full mt-1 placeholder-gray-400 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out  ${isFieldInvalid('phoneNumber') ? 'border-red-500' : 'border-gray-300'}`}
               type="text"
               placeholder='Enter your phone number'
@@ -178,7 +155,6 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
         <span className='font-semibold'>Password *</span>
         <div className='flex items-end '>
           <input
-            //className='rounded-bl-sm rounded-tl-sm w-[35%] border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
             className={`block w-full mt-1 px-3 placeholder-gray-400 py-2 border rounded-tl-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out  ${isFieldInvalid('password') ? 'border-red-500' : 'border-gray-300'}`}
             style={{height: '40px'}}
             type={showPassword ? 'text' : 'password'}
@@ -203,7 +179,6 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
         <span className='font-semibold'>Confirm password *</span>
         <div className='flex items-end  mb-4'>
           <input
-            //className='rounded-bl-sm placeholder-gray-300 rounded-tl-sm w-[35%] border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
             className={`block w-full sm:w-[35%] placeholder-gray-400  mt-1 px-3 py-2 border rounded-tl-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out  ${isFieldInvalid('confirmPassword') ? 'border-red-500' : 'border-gray-300'}`}
             style={{height: '40px'}}
             type={showPassword ? 'text' : 'password'}
@@ -225,7 +200,6 @@ const SignupClinicMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
       <div>
         <div className='flex items-start gap-2'>
           <input
-            //className='rounded-smborder mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
             className={`rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out ${isFieldInvalid('profileStatistcs') ? 'border-red-600' : 'border-gray-300'}`}
             type="checkbox"
             id='termsConditions'

@@ -122,7 +122,7 @@ const runSeeder = async () => {
                     { $addToSet: { doctors: doctor._id } },
                     { new: true }
                 );
-                console.log(`✅ Assigned ${doctor.firstName} ${doctor.lastName} to ${mappedSpecialty}`);
+               
             } else {
                 console.warn(` No specialty found for ${mappedSpecialty}`);
             }

@@ -7,11 +7,15 @@ import { MdOutlineStarPurple500 } from "react-icons/md"
 import SignupDoctorInfo from '../components/SignupDoctorInfo'
 import SignupDoctorMoreInfo from '../components/SignupDoctorMoreInfo'
 import DoctorHeader from '../components/DoctorHeader'
+import { signInDoctorSuccess } from '../redux/doctor/doctorSlice'
+import { useDispatch } from 'react-redux'
 import doctorImg from '../assets/doc.jpg'
 import doctorImage from '../assets/doc-1.jpg'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import ProgressBar from '../components/ProgressBar'
 import axios from 'axios'
+import { ROUTES } from '../config/routes'
+
 
 
 
@@ -43,15 +47,29 @@ const DoctorForm = () => {
   })
 
   const [successMessage, setSuccessMessage] = useState(null)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
 
 
   
   const PageDisplay = () => {
     if (page === 0) {
-      return <SignupDoctorInfo formData={formData} setFormData={setFormData} invalidFields={invalidFields} setInvalidFields={setInvalidFields}/>
+
+      return <SignupDoctorInfo 
+                formData={formData} 
+                setFormData={setFormData} 
+                invalidFields={invalidFields} 
+                setInvalidFields={setInvalidFields}
+              />
+
     } else if (page === 1) {
-      return <SignupDoctorMoreInfo formData={formData} setFormData={setFormData} invalidFields={invalidFields} setInvalidFields={setInvalidFields}/>
+
+      return <SignupDoctorMoreInfo 
+                formData={formData} 
+                setFormData={setFormData} 
+                invalidFields={invalidFields} 
+                setInvalidFields={setInvalidFields}
+              />
     }
   }
 
@@ -103,6 +121,8 @@ const DoctorForm = () => {
     setErrorMessage(null) // Clear the error message if there are no invalid fields
     return true
   }
+
+  // HANDLE SUBMIT
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -161,19 +181,31 @@ const DoctorForm = () => {
       password: formData.password.trim(),
       termsConditions: formData.termsConditions,
       profileStatistcs: formData.profileStatistcs,
-      selectAll: formData.selectAll
+      selectAll: formData.selectAll,
+      role: 'doctor'
     }
 
     // send form data to the server
     try {
       setLoading(true);  // Set loading to true when the request starts
   
-      const response = await axios.post('http://localhost:7500/api/auth/signup/doctor-form', trimmedFormData);
-      
+      const response = await axios.post('http://localhost:7500/api/auth/signup/doctor-form', 
+        formData, 
+        { withCredentials: true } // Ensures cookies are sent
+      );
+
+
+       console.log('Response data:', response.data)
+
       if (response.status === 201) {
-          setSuccessMessage('Signup successful! Redirecting to sign in...');
-          setTimeout(() => navigate('/login'), 4000);  // Redirect after 3 seconds
+        dispatch(signInDoctorSuccess(response.data.doctor)); // Store doctor in Redux
+  
+        // Redirect to confirmation page
+        navigate(ROUTES.DOCTOR_SIGNUP_CONFIRMATION);
+      } else {
+        setErrorMessage("Signup failed. Invalid response from server.");
       }
+
   } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Signup failed. Please try again.');
   } finally {
@@ -185,32 +217,29 @@ const DoctorForm = () => {
   // Calculate progress percentage
   const progressPercentage = ((page + 1) / totalSteps) * 100;
 
+
+
   return (
     <div className=''>
         <DoctorHeader />
         
-        <div className='w-full sm:flex h-screen min-h-full md:h-screen '>
-           <div className='sm:w-[55%] p-4'>
-                <div className=' sm:w-[70%] sm:ml-auto sm:mr-9 sm:mt-8'>
+        <div className='w-full lg:flex h-screen min-h-full md:h-screen '>
+           <div className='lg:w-[55%] p-4 '>
+                <div className=' lg:w-[70%] sm:ml-auto sm:mr-9 sm:mt-8'>
                   
                   <div>
                       <h1 className='text-2xl sm:w-full font-semibold pb-3 sm:text-start'>{titles[page]}</h1>
                       <div className="w-full">
-          {/* <div
-          className="bg-green-600 p-0.5 mb-2 text-center text-xs font-medium leading-none text-slate-100"
-          style={{ width: "25%" }}
-          >
-          25%
-          </div> */}
+       
           <ProgressBar currentStep={page + 1} totalSteps={totalSteps} />
           
           </div>
-                      <div className='sm:mt-2'>{PageDisplay()}</div>
+                      <div className='sm:mt-2 '>{PageDisplay()}</div>
                   </div>
                   <div className='flex  flex-col sm:flex sm:flex-col gap-3 sm:w-full sm:ml-auto sm:mr-8'>
                       <div className='sm:flex flex gap-2 mt-6 w-full'>
                         <button
-                            className='bg-blue-500 w-full text-white px-4 py-2 rounded-sm'
+                            className='bg-blue-500 w-full text-white px-4 py-2 rounded-sm cursor-pointer'
                             onClick={() => setPage(page - 1)}
                             disabled={page === 0}
                             style={{ display: page === 0 ? 'none' : 'block' }}
@@ -221,14 +250,14 @@ const DoctorForm = () => {
 
 
                         <button
-                          className="bg-blue-500 w-full text-white px-4 py-2 rounded-sm"
+                          className="bg-blue-500 w-full text-white px-4 py-2 rounded-sm cursor-pointer"
+                          
                           onClick={(e) => {
-                            e.preventDefault(); // Prevent default behavior to avoid unexpected issues
+                            e.preventDefault()
                             if (page === titles.length - 1) {
                               handleSubmit(e); // Call the submit function on the last page
                             } else {
                               const isValid = validatePage();
-                              //console.log('Validation result:', isValid);
                               if (isValid) {
                                 setPage(page + 1); // Move to the next page only if valid
                               }
@@ -265,10 +294,10 @@ const DoctorForm = () => {
             </div>
 
            { page === 0 && ( 
-              <div className=' sm:w-[45%]'>
-                <section className='bg-gray-100 sm:h-screen sm:w-full' style={{ display: page === 1 ? 'none' : 'block'}}>
-                <div className='sm:max-w-[80%] xl:[85%] lg:w-[80%] p-4 pb-36 sm:p-12'>
-                <div className='flex flex-col sm:max-w-[75%]'>
+              <div className=' lg:w-[45%] order-2 lg:order-none'>
+                <section className='bg-gray-100 lg:h-screen lg:w-full' style={{ display: page === 1 ? 'none' : 'block'}}>
+                <div className=' lg:w-[80%] p-4 pb-36 md:p-12'>
+                <div className='lg:flex flex-col lg:max-w-[75%]'>
                   <div className='flex'>
                     <TbStarsFilled className='text-5xl text-teal-500' />
                     <div className='flex flex-col pl-2 pb-4'>
@@ -297,13 +326,13 @@ const DoctorForm = () => {
            )}
             
             { page === 1 && (
-              <div className='sm:w-[45%]'>
+              <div className='lg:w-[45%]'>
               <section
                 className='bg-gray-100 sm:h-screen sm:w-full'
                 style={{ display: page === 0 ? 'none' : 'block'}}
               >
-                <div className='sm:w-[60%] xl:[85%] md lg:w-[80%] p-4 pb-36 sm:p-12'>
-                <div className='flex flex-col sm:max-w-[75%]'>
+                <div className=' xl:[85%] md lg:w-[80%] p-4 pb-36 sm:p-12'>
+                <div className='flex flex-col lg:max-w-[75%]'>
                 <h3 className='text-lg font-semibold'>How do we help our specialists?</h3>
                 <p className='text-[0.9rem] italic mt-3'>The appointment management system is a really convenient solution - I no longer have to deal with a constantly ringing phone. Medi-Pulso offers real support for busy doctors.</p>
                   <div className='flex mt-4 '>

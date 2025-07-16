@@ -245,8 +245,8 @@ const ClinicForm = () => {
         <DoctorHeader />
         
         <div className='w-full sm:flex h-screen min-h-full md:h-screen '>
-           <div className='sm:w-[55%] p-4'>
-                <div className=' sm:w-[70%] sm:ml-auto sm:mr-9 sm:mt-8'>
+           <div className='lg:w-[55%] p-4'>
+                <div className=' lg:w-[70%] sm:ml-auto sm:mr-9 sm:mt-8'>
                   
                   <div>
                       <h1 className='text-2xl sm:w-full font-semibold pb-3 sm:text-start'>{titles[page]}</h1>
@@ -256,8 +256,8 @@ const ClinicForm = () => {
           </div>
                       <div className='sm:mt-2'>{PageDisplay()}</div>
                   </div>
-                  <div className='flex  flex-col sm:flex sm:flex-col gap-3 sm:w-full sm:ml-auto sm:mr-8'>
-                      <div className='sm:flex flex gap-2 mt-6 w-full'>
+                  <div className=' flex-col lg:flex-row lg:flex sm:flex-col gap-3 sm:w-full sm:ml-auto sm:mr-8'>
+                      <div className='lg:flex flex gap-2 mt-6 w-full'>
                         <button
                         className='bg-blue-500 w-full text-white px-4 py-2 rounded-sm'
                             onClick={() => setPage(page - 1)}
@@ -310,10 +310,10 @@ const ClinicForm = () => {
             </div>
 
            { page === 0 && ( 
-              <div className=' sm:w-[45%]'>
+              <div className=' lg:w-[45%]'>
                 <section className='bg-gray-100 sm:h-screen sm:w-full' style={{ display: page === 1 ? 'none' : 'block'}}>
-                <div className='sm:max-w-[80%] xl:[85%] lg:w-[80%] p-4 pb-36 sm:p-12'>
-                <div className='flex flex-col sm:max-w-[75%]'>
+                <div className='lg:max-w-[80%] lg:w-[80%] p-4 pb-36 sm:p-12'>
+                <div className='lg:flex flex-col lg:max-w-[75%]'>
                   <div className='flex'>
                     {/* <TbStarsFilled className='text-5xl text-teal-500' /> */}
                     <div className='flex flex-col pl-2 pb-4 sm:mt-8'>
@@ -355,8 +355,8 @@ const ClinicForm = () => {
                 className='bg-gray-100 sm:h-screen sm:w-full'
                 style={{ display: page === 0 ? 'none' : 'block'}}
               >
-                <div className='sm:w-[60%] xl:[85%] md lg:w-[80%] p-4 pb-36 sm:p-12'>
-                <div className='flex flex-col sm:max-w-[75%]'>
+                <div className='lg:w-[60%]  p-4 pb-36 lg:p-12'>
+                <div className='flex flex-col lg:w-[75%]'>
                 <h3 className='text-lg font-semibold'>How do we help our specialists?</h3>
                 <p className='text-[0.9rem] italic mt-3'>The appointment management system is a really convenient solution - I no longer have to deal with a constantly ringing phone. Medi-Pulso offers real support for busy doctors.</p>
                   <div className='flex mt-4 '>

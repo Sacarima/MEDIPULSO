@@ -2,16 +2,16 @@ import { useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Label } from 'flowbite-react'
 import MedicalCategoryDropdown from '../components/MedicalCategoryDropdown';
-import { Alert, Spinner } from 'flowbite-react'
+import { Alert } from 'flowbite-react'
 import LocationSearch from '../components/LocationSearch'
 
 
-const SignupClinicInfo = ({formData, setFormData, invalidFields, isInvalid, setInvalidFields}) => {
-    // Helper function to determine if a field is valid
-    const isFieldInvalid = (field) => invalidFields.includes(field)
-    const [loading, setLoading] = useState(false)
+const SignupClinicInfo = ({formData, setFormData, invalidFields, setInvalidFields}) => {
     const [errorMessage, setErrorMessage] = useState(null)
     const navigate = useNavigate()
+
+    // Helper function to determine if a field is valid
+    const isFieldInvalid = (field) => invalidFields.includes(field)
 
 
     const handleRadioChange = (e) => {
@@ -151,7 +151,6 @@ const SignupClinicInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                     isInvalid={isFieldInvalid('city')}
                     onSelect={(city) => handleInputChange('city', city)}
                     options={formData.city}
-                    //onSelect={(city) => handleInputChange('city', city)}
                     value={formData.city}
 
                     id="city"
@@ -170,7 +169,6 @@ const SignupClinicInfo = ({formData, setFormData, invalidFields, isInvalid, setI
               <MedicalCategoryDropdown
                 options={numberOfDoctorsSpecialist}
                 selected={formData.numberOfDoctorsSpecialist}
-                //onSelect={(selectedValue) => handleCategorySelect('numberOfDoctorsSpecialist', selectedValue)}
                 onSelect={(numberOfDoctorsSpecialist) => handleInputChange('numberOfDoctorsSpecialist', numberOfDoctorsSpecialist)}
                 isInvalid={isFieldInvalid('numberOfDoctorsSpecialist')}
                 id="numberOfDoctorsSpecialist"

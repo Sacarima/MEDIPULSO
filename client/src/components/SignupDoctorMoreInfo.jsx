@@ -2,11 +2,11 @@ import {useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BiSolidShow, BiSolidHide  } from "react-icons/bi";
 
-// FIX THE FUNCTIONALITY  TO VALIDATE THE INPUTS WHEN TYPING
+
 
 // UPDATE WITH REDUX FOR STATE MANAGEMENT
 
-const SignupDoctorMoreInfo = ({formData, setFormData, invalidFields, isInvalid, setInvalidFields}) => {
+const SignupDoctorMoreInfo = ({formData, setFormData, invalidFields,  setInvalidFields}) => {
   // Helper function to determine if a field is invalid
   const isFieldInvalid = (field) => invalidFields.includes(field)
 
@@ -70,18 +70,6 @@ const SignupDoctorMoreInfo = ({formData, setFormData, invalidFields, isInvalid, 
         <div className='flex flex-col mt-5'>
           <span className='font-semibold'>City *</span>
           <input
-            //className='rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
-            //className={`block w-full mt-1 px-3 py-2 border rounded-md ${isFieldInvalid('city') ? 'border-red-600' : 'border-gray-300'}`}
-            // style={isFieldInvalid('city') ? { borderColor: 'red' } : {}}
-            // className='block w-full mt-1 px-3 py-2 border rounded-md'
-            // type="text"
-            // name='city'
-            // id='city'
-            // value={formData.city}
-            // onChange={(e) => setFormData({...formData, city: e.target.value})}
-            // value={formData.city}
-            // //isInvalid={isFieldInvalid('city')}
-            // onChange={(e) => handleInputChange('city', e.target.value)}
             type="text"
             className={`block w-full mt-1 px-3 py-2 border rounded-md ${isFieldInvalid('city') ? 'border-red-600' : 'border-gray-300'}`}
             placeholder="city"

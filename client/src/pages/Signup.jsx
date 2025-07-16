@@ -7,7 +7,7 @@ import AppleOAuth from '../components/AppleOAuth'
 import PatientHeader from '../components/PatientHeader'
 
 
-const SignUp = () => {
+const Signup = () => {
   
   const [formData, setFormData] =  useState({  
     email: '', 
@@ -88,11 +88,6 @@ const SignUp = () => {
       return setErrorMessage('Password must be at least 6 characters')
     }
 
-    // // validate password strength
-    // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/;
-    // if (!passwordRegex.test(formData.password)) {
-    //   return setErrorMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
-    // }
 
      // Validate password strength
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[a-zA-Z\d!@#$%^&*(),.?":{}|<>]{6,}$/;
@@ -110,8 +105,6 @@ const SignUp = () => {
       marketing: formData.termsConditions
     }
 
-    // console.log(formData.consent); // Check if this logs true or false
-    // console.log(formData.marketing);
 
     //  send the form data to the server
     try {
@@ -154,7 +147,7 @@ const SignUp = () => {
   return (
     <>
     <PatientHeader />
-      <div className='min-h-screen mt-10'>
+      <div className='max-h-screen mt-10'>
         <div className='flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-6'>
         <div className=' m-auto w-full sm:w-[60%]'>
           <form className='flex flex-col gap-4'  onSubmit={handleSubmit}>
@@ -277,6 +270,6 @@ const SignUp = () => {
   )
 }
 
-export default SignUp
+export default Signup
 
 // Fixed the bug in the button, the loading effect is working when an error occurs
