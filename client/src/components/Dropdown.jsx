@@ -28,7 +28,7 @@ const DropdownMenu = () => {
             <Link to="/doctors" className="w-full text-center hover:font-semibold md:hover:text-blue-500">
               As a Doctor
             </Link>
-            <Link to="/clinic" className="w-full text-center hover:font-semibold md:hover:text-blue-500">
+            <Link to="/signup/clinic-form" className="w-full text-center hover:font-semibold md:hover:text-blue-500">
               As a Facility
             </Link>
           </div>

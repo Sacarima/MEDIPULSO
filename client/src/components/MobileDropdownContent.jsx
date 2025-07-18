@@ -63,7 +63,7 @@ const MobileDropdownContent = ({ onClose, onBack }) => {
           </Link>
         </div>
         <div className={`py-5 pl-2 animated-content ${animationClass}`}>
-          <Link to='/signup/facility' className='mb-4 font-bold hover:underline'>
+          <Link to='/signup/clinic-form' className='mb-4 font-bold hover:underline'>
             <div className='flex items-center gap-4'>
               <RiHospitalFill />
               <span>as a facility</span>

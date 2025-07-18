@@ -1,4 +1,3 @@
-import React from 'react'
 import { IoCheckmark } from "react-icons/io5"
 import securityImage from '../assets/ilustratorgray.png'
 import logo from '../assets/fivicon.png'

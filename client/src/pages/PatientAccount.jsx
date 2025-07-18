@@ -115,7 +115,7 @@ function PatientAccount() {
         credentials: 'include', // include cookies
       })
 
-     // console.log(response); 
+     
 
       const data = await response.json()
       console.log('Response:', data)
@@ -173,14 +173,12 @@ function PatientAccount() {
 
             {/* Sidebar Navigation */}
             <aside 
-              //className=' sm:w-[20%] w-[90%] m-auto '
               className='bg-gray-200 sm:w-[20%] w-[90%] m-auto sm:fixed p-4 mt-6  sm:left-0 sm:top-24 sm:h-full  shadow-mdoverflow-auto'>
               <nav>
                 <ul>
                   <li className='text-gray-400 text-[12px]'>Specialists</li>
                   <Link>
                     <li 
-                      //className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'
                       className={`pl-4 my-2 py-1 text-sm cursor-pointer ${activeSection === "my-visits" ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-500 hover:bg-[#80808011] hover:text-blue-800"}`} 
                       onClick={() => setActiveSection("my-visits")}
                     >
@@ -189,7 +187,6 @@ function PatientAccount() {
                   </Link>
                   <Link>
                     <li 
-                      //className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'
                       className={`pl-4 my-2 py-1 text-sm cursor-pointer ${activeSection === "register" ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-500 hover:bg-[#80808011] hover:text-blue-800"}`} 
                       onClick={() => setActiveSection("register")}
                     >
@@ -205,7 +202,6 @@ function PatientAccount() {
                   <li className='text-gray-400 pt-2 text-[12px]'>Account Settings</li>
                   <Link>
                     <li 
-                      //className='pl-4 my-2 py-1 text-sm text-gray-500 hover:bg-[#80808011] hover:text-blue-800'
                       className={`pl-4 my-2 py-1 text-sm cursor-pointer ${activeSection === "account-settings" ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-500 hover:bg-[#80808011] hover:text-blue-800"}`} 
                       onClick={() => setActiveSection("account-settings")}
                     >
@@ -223,9 +219,7 @@ function PatientAccount() {
             </aside>
 
             {/* Main Content Area */}
-            <section 
-                //className='bg-white sm:w-[80%] p-4 sm:ml-5 m-auto w-[95%] mt-4 rounded shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'
-                className=' bg-white sm:w-[75%] p-4 sm:ml-[22%] mt-4 rounded shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
+            <section  className=' bg-white sm:w-[75%] p-4 sm:ml-[22%] mt-4 rounded shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
                   {/* Conditionally render content based on active section */}
                   {activeSection === 'my-visits' ? (
                     <div className=' '>
@@ -247,7 +241,6 @@ function PatientAccount() {
                         id='firstName' 
                         name='firstName'
                         defaultValue={currentUser.firstName}
-                        //value={formData.firstName} 
                         onChange={handleChange}  
                       />
                     </div>
@@ -255,12 +248,10 @@ function PatientAccount() {
                       <label htmlFor='lastName' className='w-1/4 font-semibold'>Last name *</label>
                       <input 
                         type='text' 
-                        //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                         className=' sm:w-[50%] w-full rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                         id='lastName' 
                         name='lastName' 
                         defaultValue={currentUser.lastName}
-                        //value={formData.lastName} 
                         onChange={handleChange} 
                         
                       />
@@ -269,12 +260,10 @@ function PatientAccount() {
                       <label htmlFor='phoneNumber' className='w-1/4 font-semibold'>Phone</label>
                       <input 
                         type='text' 
-                        //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                         className=' sm:w-[50%] w-full rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                         id='phoneNumber' 
                         name='phoneNumber'
                         defaultValue={currentUser.phoneNumber}
-                        //value={formData.phoneNumber} 
                         onChange={handleChange} 
                       />
                     </div>
@@ -283,12 +272,9 @@ function PatientAccount() {
                       <input 
                         type='text' 
                         className=' sm:w-[50%] w-full rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
-                        
-                        //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                         id='passsword' 
                         name='passsword'
                         defaultValue={currentUser.password}
-                        //value={formData.password} 
                         onChange={handleChange} 
 
                       />
@@ -298,13 +284,9 @@ function PatientAccount() {
                       <input 
                         type='email' 
                         className=' sm:w-[50%] w-full rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
-                        
-                        
-                        //className='w-full placeholder-gray-300 rounded-sm border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                         id='email' 
                         name='email'
                         defaultValue={currentUser.email}
-                       // value={formData.email} 
                         onChange={handleChange} 
                    
                       />

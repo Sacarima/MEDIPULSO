@@ -29,12 +29,6 @@ const  Header = ({ handleLogout }) => {
 
     const [isOpen, setIsOpen] = useState(false)
 
-
-   useEffect(() => {
-    if (currentUser) {
-        console.log('Currnet user after login: ', currentUser)
-    }
-}, [currentUser])
     // Close menu handler
     const closeMenu = () => {
         setIsMenuToggled(false)
@@ -206,7 +200,7 @@ const  Header = ({ handleLogout }) => {
                             </Button>
 
                             <button
-                                className='p-2  rounded-md text-white cursor-pointer'
+                                className='p-2  rounded-md text-white  cursor-pointer'
                                 onClick={handleMenuToggle}
                                 id='hamburger-button'
                             >
@@ -233,7 +227,7 @@ const  Header = ({ handleLogout }) => {
                                 <div className="flex justify-between items-center w-[100%] m-auto py-4">
                                     <img src={logoDarkMode} alt='logo' className='w-[35.5%]' />
                                     <button onClick={handleMenuToggle} className='font-bold '>
-                                        <FaTimes className='text-2xl text-white mr-8'/>
+                                        <FaTimes className='text-2xl text-white mr-'/>
                                     </button>
                                 </div>
                             </header>
@@ -242,33 +236,76 @@ const  Header = ({ handleLogout }) => {
                                 <MobileDropdownContent onBack={() => setShowDropdownContent(false)} onClose={closeMenu} />
                             ) : (
                                 <nav>
-                                    <div className='flex flex-col m-auto justify-start list-none w-[93%]'>
-                                        <div className='flex flex-col divide-y divide-[#343a4018] divide-y-reverse'>
-                                            <div className='border-b-[1px] border-[#343a4018]'>
-                                                <Navbar.Link active={path === '/job-offers-for-doctors'} as='div' className='border-none list-none py-5 hover:bg-transparent bg-transparent'>
-                                                    <Link to="/job-offers-for-doctors"><span className=' mb-4  text-white border-none hover:font-semibold'>Job offers for doctors</span></Link>
-                                                </Navbar.Link>
-                                            </div>
-                                            <Navbar.Link active={path === '/questions'} as='div' className='border-none bg-transparent hover:bg-transparent py-5'>
-                                                <Link to="/data-privacy"><span className=' text-white hover:font-semibold'>Data privacy</span></Link>
+                                    <div className="flex flex-col m-auto justify-start list-none w-[93%]">
+                                        <div className="flex flex-col divide-y divide-[#343a4018] divide-y-reverse">
+                                        <div className="border-b-[1px] border-[#343a4018]">
+                                            <Navbar.Link active={path === '/job-offers-for-doctors'} as="div" className="border-none list-none py-5 hover:bg-transparent bg-transparent">
+                                            <Link to="/job-offers-for-doctors">
+                                                <span className="mb-4 text-white border-none hover:font-semibold">Job offers for doctors</span>
+                                            </Link>
                                             </Navbar.Link>
-                                            <Navbar.Link active={path === '/questions'} as='div' className='border-none bg-transparent hover:bg-transparent py-5'>
-                                                <Link to="/login"><span className=' text-white hover:font-extrabold'>Log in</span></Link>
+                                        </div>
+
+                                        <Navbar.Link active={path === '/data-privacy'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                            <Link to="/data-privacy">
+                                            <span className="text-white hover:font-semibold">Data privacy</span>
+                                            </Link>
+                                        </Navbar.Link>
+
+                                        <Navbar.Link active={path === '/ask-doctor'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                            <Link to="/questions">
+                                            <span className="text-white hover:font-semibold">Ask your doctor</span>
+                                            </Link>
+                                        </Navbar.Link>
+
+                                        {!currentUser ? (
+                                            <>
+                                            <Navbar.Link active={path === '/login'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                                <Link to="/login">
+                                                <span className="text-white hover:font-extrabold">Log in</span>
+                                                </Link>
                                             </Navbar.Link>
-                                            <Navbar.Link active={path === '/questions'} as='div' className='border-none py-5 bg-transparent hover:bg-transparent'>
-                                                <Link to="/questions"><span className=' text-white hover:font-semibold'>Ask your doctor</span></Link>
-                                            </Navbar.Link>
-                                            <div className='py-4'>
+
+                                            <div className="py-4">
                                                 <button
-                                                    className='w-full flex items-center pl-2 justify-between gap-1 rounded-lg tracking-wider border-4 border-transparent'
-                                                    onClick={() => setShowDropdownContent(true)}
+                                                className="w-full flex items-center pl-2 justify-between gap-1 rounded-lg tracking-wider border-4 border-transparent"
+                                                onClick={() => setShowDropdownContent(true)}
                                                 >
-                                                    <span>Register for free</span> <FaAngleRight />
+                                                <span>Register for free</span> <FaAngleRight />
                                                 </button>
                                             </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                            <Navbar.Link as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                                <Link to="/patient-profile">
+                                                <span className="text-white hover:font-semibold">My Account</span>
+                                                </Link>
+                                            </Navbar.Link>
+                                            <Navbar.Link as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                                <Link to="">
+                                                <span className="text-white hover:font-semibold">Settings</span>
+                                                </Link>
+                                            </Navbar.Link>
+                                            <Navbar.Link as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                                <Link to="/notifications">
+                                                <span className="text-white hover:font-semibold">Notifications</span>
+                                                </Link>
+                                            </Navbar.Link>
+                                            <Navbar.Link as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                                <button
+                                                onClick={handleLogout}
+                                                className="text-white w-full text-left hover:font-semibold px-2"
+                                                >
+                                                Logout
+                                                </button>
+                                            </Navbar.Link>
+                                            </>
+                                        )}
                                         </div>
                                     </div>
                                 </nav>
+
                             )}
                         </div>
                     )}

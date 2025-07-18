@@ -11,12 +11,6 @@ const LocationSearch = ({isInvalid, value, onSelect, id, name }) => {
     const [selectedPlace, setSelectedPlace] = useState('')
     const searchBoxRef = useRef(null)
 
-    // const { isLoaded, loadError } = useJsApiLoader({
-    //     googleMapsApiKey: googleMapsApiKey,
-    //     libraries: libraries,
-    //     id: 'google-map-script', // Ensure the script is uniquely identified
-    // })
-
     const onLoad = (ref) => {
         setSearchBox(ref)
         searchBoxRef.current = ref

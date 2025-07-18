@@ -1,6 +1,6 @@
 // PatientHeader.jsx
 import { Link } from 'react-router-dom';
-import logo from '../assets/medipulso.png'; // Replace with your logo path
+import logo from '../assets/medipulso.png'; 
 import logoDarkMode from '../assets/logoDarkMode-1.png';
 import { Button } from 'flowbite-react';
 import { useSelector } from 'react-redux';
