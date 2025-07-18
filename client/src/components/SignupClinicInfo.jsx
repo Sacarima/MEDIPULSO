@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { Label } from 'flowbite-react'
 import MedicalCategoryDropdown from '../components/MedicalCategoryDropdown';
 import { Alert } from 'flowbite-react'
-import LocationSearch from '../components/LocationSearch'
 import LocationSearchFree from './LocationSearchFree';
 
 
@@ -160,21 +159,6 @@ const SignupClinicInfo = ({formData, setFormData, invalidFields, setInvalidField
                   />
                   {/* <AutoPlacesComplete /> */}
                 </div>
-
-                {/* <div>
-                  <Label value="Address*" />
-                  <LocationSearchFree
-                    isInvalid={isFieldInvalid('city')}
-                    onSelect={(city) => handleInputChange('city', city)}
-                    options={formData.city}
-                    value={formData.city}   
-                    id="city"
-                    name="city"
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  />
-                 
-                </div> */}
-
                 <div className='mt-4 flex flex-col'>
                 <Label 
                     value="How many doctors and specialists does the facility employ?*" 
