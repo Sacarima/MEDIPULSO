@@ -36,11 +36,12 @@ import SearchResults from './pages/SearchResults'
 import AskDoctorForm from './components/questions/AskQuestionForm'
 import Settings from './components/dashboard/Settings'
 
+const libraries = ['places']
 
 const App = () => {
  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries: ['places'],
+    libraries,
     id: 'google-map-script',
   })
 
