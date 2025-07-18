@@ -198,8 +198,6 @@ export const signupDoctor = async (req, res, next) => {
       return next(errorHandler(400, `No specialty found for ${medicalCategory}`));
     }
 
-    console.log("🟢 Found Specialty:", specialtyDoc.name);
-
 
 
     const newDoctor = new DoctorForm({

@@ -91,7 +91,6 @@ export const getDoctorReviews = async (req, res, next) => {
 // If successful, it returns the doctors with their latest review; if an error occurs, it returns a 500 error.
 // The function uses async/await for asynchronous operations 
 export const getDoctorsWithLatestReview = async (req, res, next) => {
-    console.log("getDoctorsWithLatestReview endpoint hit");
   
     try {
       // Fetch doctors with their latest reviews (limit to 3 for testing)

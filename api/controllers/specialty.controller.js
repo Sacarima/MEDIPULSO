@@ -9,7 +9,6 @@ import { errorHandler } from "../utils/error.js"
 // It logs the process of fetching specialties for debugging purposes.
 export const getSpecialties = async (req, res, next) => {
     try {
-        console.log("Fetching specialties from database...");
 
         const specialties = await Specialty.find().populate('doctors', 'firstName lastName');
 
