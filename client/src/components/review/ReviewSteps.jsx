@@ -150,9 +150,9 @@ return (
 
       <div className="">
         {step === 1 && (
-          <div className="flex">
-            <div className="w-[50%] pr-12">
-              <div className="my-8 p-4 max-w-[70%] ml-auto">
+          <div className="flex flex-col lg:flex-row">
+            <div className="lg:w-[50%] w-full pr-12">
+              <div className="my-8 p-4 lg:max-w-[70%] ml-auto">
                 <span className="text-3xl font-semibold">
                   How would you like to rate your visit?
                 </span>
@@ -183,8 +183,8 @@ return (
               </div>
             </div>
   
-            <div className="bg-gray-100 w-[50%]">
-              <div className="w-[70%]">
+            <div className="bg-gray-100 lg:w-[50%]">
+              <div className="lg:w-[70%]">
                 <div className="h-screen">
                   <div className="pl-8 py-8 pr-24">
                     <div className="flex gap-2 border-[1px] bg-white rounded-sm border-gray-100">
@@ -205,7 +205,7 @@ return (
                     <img
                       src={ratingImg}
                       alt="rating Image"
-                      className="w-[50%] m-6"
+                      className="lg:w-[50%] m-6"
                     />
                   </div>
                 </div>
@@ -214,9 +214,9 @@ return (
           </div>
         )}
         {step === 2 && (
-          <div className="flex">
-            <div className="w-[50%] pr-12">
-              <div className="my-8 p-4 max-w-[70%] ml-auto">
+          <div className="flex flex-col lg:flex-row">
+            <div className="lg:w-[50%] pr-12">
+              <div className="my-8 p-4 lg:max-w-[70%] lg:ml-auto">
                 <span className="text-3xl font-semibold">
                   Please provide more details
                 </span>
@@ -248,8 +248,8 @@ return (
               </div>
             </div>
   
-            <div className="bg-gray-100 w-[50%]">
-              <div className="w-[70%]">
+            <div className="bg-gray-100 lg:w-[50%]">
+              <div className="lg:w-[70%]">
                 <div className="h-screen">
                   <div className="pl-8 py-8 pr-24">
                     <div className="flex gap-2 border-[1px] bg-white rounded-sm border-gray-100">
@@ -270,7 +270,7 @@ return (
                     <img
                       src={ratingImg}
                       alt="rating Image"
-                      className="w-[50%] m-6"
+                      className="lg:w-[50%] m-6"
                     />
                   </div>
                 </div>
@@ -279,9 +279,9 @@ return (
           </div>
         )}
         {step === 3 && (
-          <div className="flex">
-            <div className="w-[50%] pr-12">
-              <div className="my-8 p-4 max-w-[70%] ml-auto">
+          <div className="flex flex-col lg:flex-row">
+            <div className="lg:w-[50%] pr-12">
+              <div className="my-8 p-4 lg:max-w-[70%] ml-auto">
                 <span className="text-3xl font-semibold">Share your experience</span>
                 <div className="flex justify-between border-[1px] rounded-md border-gray-200 p-6 my-8">
                   <div className="flex gap-4">
@@ -311,15 +311,15 @@ return (
               </div>
             </div>
   
-            <div className="bg-gray-100 w-[50%]">
-              <div className="w-[70%]">
+            <div className="bg-gray-100 lg:w-[50%]">
+              <div className="lg:w-[70%]">
                 <div className="h-screen">
-                  <div className="pl-8 py-8 pr-24">
+                  <div className="lg:pl-8 py-8 lg:pr-24">
                     <div className="flex gap-2 border-[1px] bg-white rounded-sm border-gray-100">
                       <div className="py-4">
                         <FaLightbulb className="text-[#00c3a5] text-4xl" />
                       </div>
-                      <div className="py-6 pr-6">
+                      <div className="py-6 lg:pr-6">
                         <span className="font-bold">Tips on how to write reviews</span>
                         <p className="font-medium mt-4">Share your experience</p>
                         <p className="mb-6 pr-1">
