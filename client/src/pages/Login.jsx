@@ -29,7 +29,6 @@ export default function Login() {
 
   useEffect(() => {
     if (errorMessage) {
-      console.log('Error message updated:', errorMessage)
       const timer = setTimeout(() => {
         dispatch(clearError())
       }, 5000)
