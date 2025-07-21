@@ -29,7 +29,6 @@ import ConfirmationPage from './components/appointment/ConfirmationPage'
 import DoctorSpecialtiesPage from './pages/DoctorSpecialiesPage'
 import DoctorProfileCompletion from './components/doctor/DoctorProfileCompletion'
 import DoctorSignupConfirmation from './components/DoctorSignupConfirmation'
-import TestApiCall from './pages/TestApiCall'
 import PageNotFound from './pages/PageNotFound'
 import Calendar from './components/doctor/Calendar'
 import SearchResults from './pages/SearchResults'
@@ -121,7 +120,6 @@ const App = () => {
         <Route path="/doctor-specialties" element={<DoctorSpecialtiesPage />} />
         <Route path="/doctor-profile-completion" element={<DoctorProfileCompletion />} />
         <Route path="/doctor-signup-confirmation" element={<DoctorSignupConfirmation />} />
-        <Route path="/test-api-call" element={<TestApiCall />} />
         <Route path="/search-results" element={<SearchResults />} />
         <Route path="/ask-doctor" element={<AskDoctorForm />} />
 
