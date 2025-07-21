@@ -1,0 +1,17 @@
+.progress-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 100px;
+}
+
+.progress-circle {
+    transform: rotate(0deg);
+}
+
+.progress-indicator {
+  transition: stroke-dashoffset 0.35s;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
