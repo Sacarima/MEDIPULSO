@@ -51,8 +51,6 @@ export default function OAuth() {
         <button 
             type='button' 
             className="w-full flex justify-center items-center py-2 px-4 rounded-sm bg-[#4285F4] text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#4285F4] focus:ring-[#4285F4] hover:bg-[#4285F4] hover:text-white hover:shadow-lg transition duration-300 ease-in-out"
-            // gradientDuoTone='pinkToOrange' 
-            // outline="gray" 
             onClick={handleGoogleClick}>
             <AiFillGoogleCircle className='w-6 h-6 mr-2'/>
             <span className="text-center">Continue with Google</span>
