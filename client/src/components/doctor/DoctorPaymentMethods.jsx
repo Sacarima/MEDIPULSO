@@ -46,7 +46,7 @@ const DoctorPaymentMethods = ({ handleNext, handleBack, setPaymentMethods }) => 
 
           {error && <p className="text-red-500">{error}</p>}
 
-          {/* ✅ Payment Methods List */}
+          {/* Payment Methods List */}
           {['Blik', 'Cash', 'Card payment', 'Bank transfer', 'Installment transfer', 'Revolut'].map((method, index) => (
             <div key={index} className="flex items-center gap-2 mt-2">
               <input

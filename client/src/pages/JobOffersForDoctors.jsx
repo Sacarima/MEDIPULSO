@@ -117,19 +117,6 @@ export default function JobOffersForDoctors() {
         onAddPhotos={handleAddPhotos} // Pass photos from modal
       />
           </div>
-          
-          {/* <div>
-            <Button onClick={() => setShowModal(true)}>Toggle modal</Button>
-            <Modal show={showModal} size='md' onClose={() => setShowModal(false)} popup>
-              <ModalBody>
-                <ModalForDiseases />
-              </ModalBody>
-            </Modal>
-          </div>
-          <div className='w-[70%] m-auto'>
-              <h1>Circular progressbR</h1>
-              <CircularProgressbar progress={progress} />
-          </div> */}
           </div>
         
       </div>

@@ -3,7 +3,7 @@ import { FaChevronDown } from 'react-icons/fa'
 import { BiSolidBriefcase } from "react-icons/bi"
 import { motion } from 'framer-motion'
 
-const MedicalDropdownCategory = ({ options, selected, onSelect, isInvalid, className }) => {
+const MedicalDropdownCategory = ({ options, selected, onSelect, isInvalid }) => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -58,7 +58,7 @@ const MedicalDropdownCategory = ({ options, selected, onSelect, isInvalid, class
       </button>
       {isOpen && (
         <motion.ul 
-          className="absolute min-w-[500px] bg-white border border-gray-300 rounded-lg shadow-lg max-h-[15rem] sm:max-h-[20rem] overflow-auto mt-1"
+          className="absolute min-w-full md:min-w-[500px] bg-white  rounded-lg shadow-lg max-h-[15rem] sm:max-h-[20rem] overflow-auto mt-1"
           variants={container}
           initial="hidden"
           animate="visible"
@@ -74,7 +74,7 @@ const MedicalDropdownCategory = ({ options, selected, onSelect, isInvalid, class
               <BiSolidBriefcase className='text-blue-500'/>
                 {option}
             </div>
-              <span className='text-gray-400'>Specialty</span>
+              <span className='text-gray-400 hidden md:block'>Specialties</span>
             </motion.li>
             
             

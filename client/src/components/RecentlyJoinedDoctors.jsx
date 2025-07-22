@@ -11,10 +11,12 @@ const  RecentlyJoinedDoctors = () => {
     const [recentDoctors, setRecentDoctors] = useState([])
     const navigate = useNavigate()
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
     useEffect(() => {
         const fetchRecentDoctors = async () => {
             try {
-                const response = await fetch('http://localhost:7500/api/doctor-form/recently-added-public', {
+                const response = await fetch(`${API_BASE_URL}/api/doctor-form/recently-added-public`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

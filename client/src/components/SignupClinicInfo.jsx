@@ -152,7 +152,7 @@ const SignupClinicInfo = ({formData, setFormData, invalidFields, setInvalidField
                     onSelect={(city) => handleInputChange('city', city)}
                     options={formData.city}
                     value={formData.city}
-
+                    className={`block w-full mt-1 px-3 py-2 rounded-md border ${isFieldInvalid('city') ? 'border-red-600' : 'border-gray-300'}`}
                     id="city"
                     name="city"
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}

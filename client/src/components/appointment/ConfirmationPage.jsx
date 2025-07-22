@@ -9,7 +9,6 @@ import { useDoctor } from '../context/DoctorContext'
 
 const ConfirmationPage = () => {
     const location = useLocation()
-    console.log("Received location.state:", location.state)
     const { currentUser } = useSelector((state) => state.user)
     const [loading, setLoading] = useState(true)
     const doctorData = useDoctor()
@@ -17,8 +16,7 @@ const ConfirmationPage = () => {
     const finalAppointment = appointment || JSON.parse(localStorage.getItem("lastAppointment")) || {};
   
 
-      if (!doctorData) {
-        console.log("Doctor data is missing.");
+      if (!doctorData) {;
         return <div>Loading doctor details...</div>;
     }
 

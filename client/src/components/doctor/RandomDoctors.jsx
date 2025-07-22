@@ -6,10 +6,12 @@ const RandomDoctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await fetch("http://localhost:7500/api/doctor-form/random-doctors");  
+        const res = await fetch(`${API_BASE_URL}/api/doctor-form/random-doctors`);  
         const data = await res.json();
         if (res.ok) {
           setDoctors(data.doctors);  // Set the doctors' data with their latest reviews

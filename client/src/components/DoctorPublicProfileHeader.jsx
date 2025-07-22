@@ -35,6 +35,8 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
     const { theme } = useSelector(state => state.theme)
     const navigate = useNavigate()
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
     const [isOpen, setIsOpen] = useState(false)
 
     const handleChange = (e) => {
@@ -121,7 +123,7 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
 
     const handleSearch = async () => {
         if (!formData.medicalSpecialtyCategory && !formData.location) {
-          console.log("❌ Please select at least a specialty or location.");
+          console.log(" Please select at least a specialty or location.");
           return;
         }
       
@@ -136,8 +138,8 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
             queryParams.append("location", formData.location);
           }
       
-          const requestUrl = `http://localhost:7500/api/doctor-form/search?${queryParams.toString()}`;
-          console.log("🚀 Submitting search to:", requestUrl);
+          const requestUrl = `${API_BASE_URL}/api/doctor-form/search?${queryParams.toString()}`;
+         
       
           const response = await fetch(requestUrl);
           const data = await response.json();
@@ -155,7 +157,7 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
 
             setShowSpecialtyFilter(true)
           } else {
-            console.warn("⚠️ No results found.");
+            console.warn(" No results found.");
             navigate("/search-results", {
               state: {
                 specialty: formData.medicalSpecialtyCategory || "",
@@ -165,7 +167,7 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
             });
           }
         } catch (error) {
-          console.error("❌ Search failed:", error.message);
+          console.error("Search failed:", error.message);
         }
       };
       

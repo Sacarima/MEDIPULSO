@@ -16,6 +16,8 @@ import { resetUserState } from "../redux/user/userSlice"
 // Usage: Wrap your component with `WithLogout` to get access to the `handleLogout` function as a prop.
 // Example: export default WithLogout(MyComponent);
 const WithLogout = (WrappedComponent) => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
     return (props) => {
         const dispatch = useDispatch()
         const navigate = useNavigate()
@@ -26,13 +28,13 @@ const WithLogout = (WrappedComponent) => {
                 let logoutRoute;
                 
                 if (role === 'admin') {
-                    logoutRoute = 'http://localhost:7500/api/admin/logout';  // Admin logout route
+                    logoutRoute = `${API_BASE_URL}/api/admin/logout`;  // Admin logout route
                 } else if (role === 'doctor') {
-                    logoutRoute = 'http://localhost:7500/api/doctor/logout';
+                    logoutRoute = `${API_BASE_URL}/api/doctor/logout`;
                 } else if (role === 'clinic') {
-                    logoutRoute = 'http://localhost:7500/api/clinic/logout';
+                    logoutRoute = `${API_BASE_URL}/api/clinic/logout`;
                 } else {
-                    logoutRoute = 'http://localhost:7500/api/user/logout';
+                    logoutRoute = `${API_BASE_URL}/api/user/logout`;
                 }
 
                 // Call the logout API for the appropriate route

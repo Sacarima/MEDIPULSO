@@ -11,6 +11,8 @@ const DoctorServices = ({  handleNext, handleBack, setServices }) => {
   const [customService, setCustomService] = useState([])
   const [errors, setErrors ] = useState(false)
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   useEffect(() => {
     if (currentDoctor?.medicalCategory) {
         fetchTreatments(currentDoctor.medicalCategory);
@@ -21,14 +23,14 @@ const DoctorServices = ({  handleNext, handleBack, setServices }) => {
 
 const fetchTreatments = async (medicalCategory) => {
   try {
-      const response = await axios.get(`http://localhost:7500/api/specialties/treatments/${medicalCategory}`);
+      const response = await axios.get(`${API_BASE_URL}/api/specialties/treatments/${medicalCategory}`);
       if (response.data.success) {
           setTreatments(response.data.treatments);
       } else {
           setErrors('No treatments found for this specialty.');
       }
   } catch (error) {
-      setErrors('Failed to fetch treatments. Please try again.');
+      setErrors('Failed to fetch treatments. Please try again.')
   }
 }
 

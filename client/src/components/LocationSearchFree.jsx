@@ -6,11 +6,13 @@ const LocationSearchFree = ({ onSelect, value, id, name }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
     useEffect(() => {
         const fetchLocation = async (latitude, longitude) => {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:7500/api/location/reverse-geocode`, {
+                const response = await axios.get(`${API_BASE_URL}/api/location/reverse-geocode`, {
                     params: {
                         lat: latitude,
                         lon: longitude,
@@ -57,7 +59,7 @@ const LocationSearchFree = ({ onSelect, value, id, name }) => {
                     onSelect(e.target.value);
                 }}
                 placeholder={loading ? "Detecting location..." : "Enter city"}
-                className="border-gray-200 border-none py-[13px] rounded w-full focus:outline-none "
+                className="border-gray-200 border py-[13px] rounded w-full focus:outline-none "
             />
         </div>
     );

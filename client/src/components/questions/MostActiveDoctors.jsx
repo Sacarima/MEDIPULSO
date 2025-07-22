@@ -7,11 +7,13 @@ const MostActiveDoctors = () => {
   const [activeDoctors, setActiveDoctors] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   // Fetch the most active doctors
   const fetchActiveDoctors = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:7500/api/questions/most-active-doctors");
+      const res = await fetch(`${API_BASE_URL}/api/questions/most-active-doctors`);
       const data = await res.json();
       if (res.ok) {
         setActiveDoctors(data.activeDoctors); // Set the data received from backend
@@ -30,7 +32,7 @@ const MostActiveDoctors = () => {
   }, []);
 
   return (
-    <div className="p-4 rounded bg-white">
+    <div className="p-4 w-full rounded bg-white">
       <div className="border-b-[.5px] border-gray-300 pb-2 ">
         <span className="text-xl font-medium">Most Active Doctors in the Last 30 Days</span>
     </div>
@@ -39,7 +41,7 @@ const MostActiveDoctors = () => {
       ) : activeDoctors.length === 0 ? (
         <p>No active doctors found.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className=" w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {activeDoctors.slice(0, 3).map((doctor) => (
             <div>
                 <div key={doctor.doctorId} className="doctor-card mt-8 flex gap-4">

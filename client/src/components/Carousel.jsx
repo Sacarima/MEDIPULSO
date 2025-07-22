@@ -58,11 +58,13 @@ const Carousel = ({ doctorId }) => {
   const doctorData = useDoctor()
   const navigate = useNavigate()
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   
 
   const fetchMonthlyAvailability = async (doctorId) => {
     try {
-      const response = await fetch(`http://localhost:7500/api/doctor-availability/${doctorId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/doctor-availability/${doctorId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Include credentials for authentication

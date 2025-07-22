@@ -10,10 +10,12 @@ const AdminDashboard = () => {
 
     const [loading, setLoading] = useState(true);
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const res = await fetch('http://localhost:7500/api/admin/dashboard', {
+                const res = await fetch(`${API_BASE_URL}/api/admin/dashboard`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

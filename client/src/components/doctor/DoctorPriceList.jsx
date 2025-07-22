@@ -8,6 +8,8 @@ const DoctorPriceList = ({  handleNext, handleBack, setPriceList }) => {
     const [selectedPrices, setSelectedPrices] = useState({});
     const [errors, setErrors] = useState('');
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
     useEffect(() => {
         if (currentDoctor?.medicalCategory) {
             fetchTreatments(currentDoctor.medicalCategory);
@@ -16,7 +18,7 @@ const DoctorPriceList = ({  handleNext, handleBack, setPriceList }) => {
 
     const fetchTreatments = async (medicalCategory) => {
         try {
-            const response = await axios.get(`http://localhost:7500/api/specialties/treatments/${medicalCategory}`);
+            const response = await axios.get(`${API_BASE_URL}/api/specialties/treatments/${medicalCategory}`);
             if (response.data.success) {
                 setTreatments(response.data.treatments);
             } else {

@@ -125,7 +125,6 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                 <MedicalCategoryDropdown
                   options={medicalCategories}
                   selected={formData.medicalCategory}
-                  //onSelect={handleCategorySelect}
                   onSelect={(selectedCategory) => handleInputChange('medicalCategory', selectedCategory)}
                   isInvalid={isFieldInvalid('medicalCategory')}
                   value={formData.medicalCategory}

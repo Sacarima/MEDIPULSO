@@ -27,20 +27,10 @@ const LocationSearch = ({isInvalid, value, onSelect, id, name }) => {
     }
 
     const handleInputChange = (e) => {
-        // setSelectedPlace(e.target.value)
-        // onSelect(e.target.value)
         const newValue = e.target.value
         setSelectedPlace(newValue)  // Update the input field with the typed value
         onSelect(newValue)
     }
-
-    // if (loadError) {
-    //     return <div>Error loading Google Maps API</div>
-    // }
-
-    // if (!isLoaded) {
-    //     return <div>Loading...</div>
-    // }
 
     return (
         <>
@@ -54,11 +44,7 @@ const LocationSearch = ({isInvalid, value, onSelect, id, name }) => {
                     onChange={handleInputChange}
                 />
             </StandaloneSearchBox>
-            {/* <ul className=''>
-                {suggestedPlaces.map((place, index) => (
-                    <li key={index}>{place}</li>
-                ))}
-            </ul> */}
+    
         </>
     )
 }

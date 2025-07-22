@@ -25,7 +25,9 @@ const SearchResults = () => {
     const [activeTabs, setActiveTabs] = useState({}); // Maintain active tab per doctor
 
     const { specialty, locationQuery, results } = location.state || {}
-    const [showSpecialtyFilter, setShowSpecialtyFilter] = useState(true);
+    const [showSpecialtyFilter, setShowSpecialtyFilter] = useState(true)
+
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
 
     // Set user's location from the query if available
@@ -48,7 +50,7 @@ const SearchResults = () => {
             try {
                 const reviewRequests = results.map(async (doctor) => {
                     try {
-                        const reviewResponse = await axios.get(`http://localhost:7500/api/reviews/${doctor._id}`);
+                        const reviewResponse = await axios.get(`${API_BASE_URL}/api/reviews/${doctor._id}`);
                         const reviews = reviewResponse.data || [];
 
                         console.log(` Doctor ${doctor.firstName} acceptChildren:`, doctor.acceptChildren)

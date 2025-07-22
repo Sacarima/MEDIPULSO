@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react'
 const PopularServiceTreatment = () => {
   const [services, setServices] = useState([])
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await fetch('http://localhost:7500/api/services-treatment/services')
+        const response = await fetch(`${API_BASE_URL}/api/services-treatment/services`)
         const data = await response.json()
         setServices(data.services)
       } catch (error) {

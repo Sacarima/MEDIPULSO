@@ -42,6 +42,8 @@ const ClinicForm = () => {
     profileStatistcs: false,
 
   })
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
  
 
   const PageDisplay = () => {
@@ -222,7 +224,7 @@ const ClinicForm = () => {
     // send the form data to the server
     try {
       setLoading(true)
-      const response = await axios.post('http://localhost:7500/api/auth/signup/clinic-form', trimmedFormData)
+      const response = await axios.post(`${API_BASE_URL}/api/auth/signup/clinic-form`, trimmedFormData)
 
       if (response.status === 201) {
         setSuccessMessage('Account created successfully')
@@ -256,7 +258,7 @@ const ClinicForm = () => {
           </div>
                       <div className='sm:mt-2'>{PageDisplay()}</div>
                   </div>
-                  <div className=' flex-col lg:flex-row lg:flex sm:flex-col gap-3 sm:w-full sm:ml-auto sm:mr-8'>
+                  <div className='flex items-center flex-col lg:flex-row  gap-3 '>
                       <div className='lg:flex flex gap-2 mt-6 w-full'>
                         <button
                         className='bg-blue-500 w-full text-white px-4 py-2 rounded-sm'
@@ -268,14 +270,13 @@ const ClinicForm = () => {
                         </button>
                         
                         <button
-                          className="bg-blue-500 w-full text-white px-4 py-2 rounded-sm"
+                          className="bg-blue-500 w-full lg:w-auto text-white px-4 py-2 rounded-sm"
                           onClick={(e) => {
                             e.preventDefault(); // Prevent default behavior to avoid unexpected issues
                             if (page === titles.length - 1) {
                               handleSubmit(e); // Call the submit function on the last page
                             } else {
                               const isValid = validatePage();
-                              //console.log('Validation result:', isValid);
                               if (isValid) {
                                 setPage(page + 1); // Move to the next page only if valid
                               }
@@ -293,7 +294,7 @@ const ClinicForm = () => {
                           )}
                         </button>
                       </div>
-                      <span className='text-center  text-gray-400 pb-3'>*Required fields</span>
+                      <span className='text-center text-gray-400 text-sm'>*Required fields</span>
                       {errorMessage && (
                             <Alert className='mt-5' color='failure'>
                                 {errorMessage}

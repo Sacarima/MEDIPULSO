@@ -5,17 +5,20 @@ import moment from 'moment'
 
 
 
+
 const  CancelAppointment = () => {
     const { currentUser } = useSelector((state) => state.user)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [appointments, setAppointments] = useState([])
+    
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await axios.get(`http://localhost:7500/api/appointments/user/${currentUser?._id}`, {
+        const res = await axios.get(`${API_BASE_URL}/api/appointments/user/${currentUser?._id}`, {
           withCredentials: true,
         });
         setAppointments(res.data);
@@ -33,7 +36,7 @@ const  CancelAppointment = () => {
     if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
 
     try {
-      await axios.delete(`http://localhost:7500/api/appointments/cancel/${appointmentId}`, {
+      await axios.delete(`${API_BASE_URL}/api/appointments/cancel/${appointmentId}`, {
         withCredentials: true,
       });
 

@@ -9,12 +9,14 @@ const DoctorTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredDoctors, setFilteredDoctors] = useState([]);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   // Fetching doctor data with pagination
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
         const response = await fetch(
-          `http://localhost:7500/api/doctor-form/recently-added-public?page=${currentPage}`,
+          `${API_BASE_URL}/api/doctor-form/recently-added-public?page=${currentPage}`,
           {
             method: "GET",
             headers: {

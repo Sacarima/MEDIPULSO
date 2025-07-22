@@ -22,6 +22,8 @@ const ReviewSteps = () => {
     const [successMessage, setSuccessMessage] = useState(null)
     const [invalidFields, setInvalidFields] = useState([])
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
 
     const doctorData = useDoctor()
     const { _id, firstName, lastName, doctorSpecialization, profilePicture, medicalSpecialtyCategory } = doctorData
@@ -106,7 +108,7 @@ const ReviewSteps = () => {
             doctorId: _id
         }
 
-        const response = await fetch(`http://localhost:7500/api/reviews/${_id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/reviews/${_id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

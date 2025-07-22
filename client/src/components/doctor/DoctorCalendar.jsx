@@ -12,7 +12,9 @@ const localizer = momentLocalizer(moment);
 
 const DoctorCalendar = () => {
   const { currentDoctor } = useSelector((state) => state.doctor);
-  const doctorId = currentDoctor?._id;
+  const doctorId = currentDoctor?._id
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
   
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -49,6 +51,8 @@ const DoctorCalendar = () => {
     (event.title.toLowerCase().includes(searchQuery.toLowerCase()) || // Keep the search filter
       moment(event.start).format("YYYY-MM-DD").includes(searchQuery))
   )
+
+
   
 
 const fetchCalendarData = useCallback(async () => {
@@ -57,11 +61,13 @@ const fetchCalendarData = useCallback(async () => {
   setLoading(true);
   setError(null);
 
+  
+
   try {
-    const timestamp = new Date().getTime();
+    const timestamp = new Date().getTime()
     
     const [availabilityRes, appointmentsRes] = await Promise.all([
-      axios.get(`http://localhost:7500/api/doctor-availability/${doctorId}?t=${timestamp}`, { withCredentials: true })
+      axios.get(`${API_BASE_URL}/doctor-availability/${doctorId}?t=${timestamp}`, { withCredentials: true })
         .catch(error => {
           if (error.response?.status === 404) {
             console.warn("No availability found for this doctor.");
@@ -69,7 +75,7 @@ const fetchCalendarData = useCallback(async () => {
           }
           throw error;
         }),
-      axios.get(`http://localhost:7500/api/appointments/doctor/${doctorId}`, { withCredentials: true })
+      axios.get(`${API_BASE_URL}/api/appointments/doctor/${doctorId}`, { withCredentials: true })
         .catch(error => {
           if (error.response?.status === 500) {
             console.warn("No appointments found or server error.");
@@ -164,7 +170,7 @@ useEffect(() => {
       const timeSlot = moment(selectedAvailability.start).format("HH:mm");
   
       await axios.put(
-        `http://localhost:7500/api/doctor-availability/update/${doctorId}`,
+        `${API_BASE_URL}/api/doctor-availability/update/${doctorId}`,
         {
           month: moment(selectedAvailability.start).month() + 1,
           year: moment(selectedAvailability.start).year(),
@@ -199,10 +205,10 @@ useEffect(() => {
       setSelectedAppointment(event);
       setNewDate(moment(event.start).format("YYYY-MM-DD")); // Pre-fill current date
       setNewTime(moment(event.start).format("HH:mm")); // Pre-fill current time
-      setIsModalOpen(true); // ✅ Open the reschedule modal
+      setIsModalOpen(true); // Open the reschedule modal
     } 
     else if (event.type === "availability") {
-      // ✅ Handle availability deletion
+      // Handle availability deletion
       setSelectedAvailability(event);
       setIsDeleteModalOpen(true);
     }
@@ -233,7 +239,7 @@ useEffect(() => {
   
     try {
       const response = await axios.put(
-        `http://localhost:7500/api/appointments/reschedule/${selectedAppointment.id}`,
+        `${API_BASE_URL}/api/appointments/reschedule/${selectedAppointment.id}`,
         { newDate, newTime },
         { withCredentials: true }
       );
@@ -269,7 +275,7 @@ useEffect(() => {
   
     try {
       await axios.patch(
-        `http://localhost:7500/api/appointments/${selectedAppointment.id}/status`,
+        `${API_BASE_URL}/api/appointments/${selectedAppointment.id}/status`,
         { status: "confirmed" },
         { withCredentials: true }
       );
@@ -291,11 +297,10 @@ useEffect(() => {
       return;
     }
   
-    console.log("Saving availability for:", selectedAvailabilityDate, "Times:", availableTimes);
   
     try {
       const response = await axios.put(
-        `http://localhost:7500/api/doctor-availability/update/${doctorId}`,
+        `${API_BASE_URL}/api/doctor-availability/update/${doctorId}`,
         {
           month: moment(selectedAvailabilityDate).month() + 1,
           year: moment(selectedAvailabilityDate).year(),
@@ -333,7 +338,7 @@ useEffect(() => {
   const createNewAvailability = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:7500/api/doctor-availability/monthly`,
+        `${API_BASE_URL}/api/doctor-availability/monthly`,
         {
           doctorId: doctorId,
           month: moment(selectedAvailabilityDate).month() + 1,
@@ -343,13 +348,12 @@ useEffect(() => {
         { withCredentials: true }
       );
   
-      console.log("New Availability Created:", response.data);
   
       if (response.data.success) {
         setSuccessMessage("Availability created successfully!");
         setTimeout(() => setSuccessMessage(null), 3000);
         setIsAvailabilityModalOpen(false);
-        fetchCalendarData(); // ✅ Refresh calendar
+        fetchCalendarData(); // Refresh calendar
       } else {
         console.error("Error: API did not return success.");
       }

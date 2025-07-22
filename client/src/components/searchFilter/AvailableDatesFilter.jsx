@@ -7,7 +7,9 @@ import dayjs from "dayjs";
 const AvailableDatesFilter = ({ originalDoctors, setFilteredDoctors }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("whenever");
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef(null)
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
   useClickOutside(dropdownRef, () => setIsDropdownOpen(false));
 
@@ -30,7 +32,7 @@ const AvailableDatesFilter = ({ originalDoctors, setFilteredDoctors }) => {
     const formattedDate = targetDate.format("YYYY-MM-DD");
 
     try {
-      const response = await axios.get(`http://localhost:7500/api/doctor-form/search?availability=${formattedDate}`);
+      const response = await axios.get(`${API_BASE_URL}/api/doctor-form/search?availability=${formattedDate}`);
       const availableDoctors = response.data.doctors || [];
 
       const filtered = originalDoctors.filter((doc) =>

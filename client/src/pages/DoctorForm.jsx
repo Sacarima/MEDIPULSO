@@ -46,6 +46,8 @@ const DoctorForm = () => {
 
   })
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   const [successMessage, setSuccessMessage] = useState(null)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -189,13 +191,12 @@ const DoctorForm = () => {
     try {
       setLoading(true);  // Set loading to true when the request starts
   
-      const response = await axios.post('http://localhost:7500/api/auth/signup/doctor-form', 
+      const response = await axios.post(`${API_BASE_URL}/api/auth/signup/doctor-form`, 
         formData, 
         { withCredentials: true } // Ensures cookies are sent
       );
 
 
-       console.log('Response data:', response.data)
 
       if (response.status === 201) {
         dispatch(signInDoctorSuccess(response.data.doctor)); // Store doctor in Redux

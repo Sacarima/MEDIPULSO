@@ -3,13 +3,15 @@ import { useTable } from 'react-table';
 import axios from 'axios';
 
 const AppointmentTable = ({ doctorId }) => {
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState([])
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
   // Fetch appointments on component mount
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await axios.get(`http://localhost:7500/api/appointments/doctor/${doctorId}`);
+        const res = await axios.get(`${API_BASE_URL}/appointments/doctor/${doctorId}`);
         setAppointments(res.data.appointments);
       } catch (error) {
         console.error('Error fetching appointments:', error);

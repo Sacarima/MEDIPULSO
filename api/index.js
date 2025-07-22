@@ -110,7 +110,8 @@ app.use((err, req, res, next) => {
 
 
 
-//listen to port 6000
+//listen to port
+const PORT = process.env.PORT || 7500
 app.listen(process.env.PORT, () => {
-  console.log('Server is running on port 7500')
+  console.log(`Server is running on port ${PORT}`)
 })

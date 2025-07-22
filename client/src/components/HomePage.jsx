@@ -49,6 +49,8 @@ const  HomePage = () => {
     const backgroundSize = isSmallScreen ? 'cover' : isMediumScreen ? '30%' : '40%'
     const backgroundImage = isSmallScreen ? doctorBackground2 : doctorBackground
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
 
 
     const handleSearch = async () => {
@@ -68,7 +70,7 @@ const  HomePage = () => {
           if (formData.city) queryParams.append("location", formData.city);
   
           // Build the final API URL
-          const requestUrl = `http://localhost:7500/api/doctor-form/search?${queryParams.toString()}`;
+          const requestUrl = `${API_BASE_URL}/api/doctor-form/search?${queryParams.toString()}`;
   
           // Fetch doctors from the API
           const response = await axios.get(requestUrl);
@@ -94,11 +96,11 @@ const  HomePage = () => {
   };
   
 
-    // ✅ Fetch Specialties
+    // Fetch Specialties
     useEffect(() => {
       const fetchSpecialties = async () => {
           try {
-              const response = await axios.get("http://localhost:7500/api/specialties");
+              const response = await axios.get(`${API_BASE_URL}/api/specialties`);
               setSpecialties(response.data.specialties || []);
              
           } catch (error) {
@@ -108,11 +110,11 @@ const  HomePage = () => {
       fetchSpecialties();
     }, []);
 
-    // ✅ Fetch Treatments
+    // Fetch Treatments
     useEffect(() => {
       const fetchTreatments = async () => {
           try {
-              const response = await axios.get("http://localhost:7500/api/treatments");
+              const response = await axios.get(`${API_BASE_URL}/api/treatments`);
               setTreatments(response.data.treatments || []);
           } catch (error) {
               console.error(" Failed to fetch treatments:", error.response?.data || error.message);
@@ -244,7 +246,7 @@ const  HomePage = () => {
 
 
           <div>
-            {/* ✅ Show Loading if Data is Empty */}
+            {/* Show Loading if Data is Empty */}
             {specialties.length === 0 ? (
                 <p className="text-center text-gray-500">Loading specialties...</p>
             ) : (
@@ -269,11 +271,11 @@ const  HomePage = () => {
 
  
 
-        {/* ✅ Show Loading if Data is Empty */}
+        {/*  Show Loading if Data is Empty */}
         <div className="container-visible 2xl:w-[70%] md:w-[90%] m-auto p-6 mt-5 rounded-md bg-[#f7f9fa]">
                     <h2 className="text-lg font-semibold mb-4">Medical Treatments</h2>
 
-                {/* ✅ Show treatments if data is available */}
+                {/* Show treatments if data is available */}
                 {treatments.length > 0 ? (
                     <ul className="flex flex-wrap">
                         {treatments.slice(0, displayedTreatments).map((treatment, index) => (
@@ -282,7 +284,7 @@ const  HomePage = () => {
                             </li>
                         ))}
                         
-                        {/* ✅ Show "More" Button Only If There Are More Treatments */}
+                        {/* Show "More" Button Only If There Are More Treatments */}
                         {showMoreServices && treatments.length > displayedTreatments && (
                             <li 
                                 className="mr-4 underline cursor-pointer text-blue-600 font-medium"

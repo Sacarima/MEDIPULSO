@@ -6,12 +6,14 @@ import { Link } from 'react-router-dom';
 const DoctorLatestReview = () => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
   useEffect(() => {
     const fetchDoctorsWithReviews = async () => {
       try {
-        const res = await fetch("http://localhost:7500/api/reviews/doctors-with-latest-reviews");  
+        const res = await fetch(`${API_BASE_URL}/api/reviews/doctors-with-latest-reviews`);  
         const data = await res.json();
         if (res.ok) {
           setDoctors(data.doctors);  // Set the doctors' data with their latest reviews
@@ -76,7 +78,7 @@ const DoctorLatestReview = () => {
               {doctor.latestReview ? (
                 <div className="mt-2">
                     <div className='flex items-center justify-between gap-2'>
-                        <span className="text-blue-500 font-medium ">{doctor.firstName} {doctor.lastName}</span>
+                        <span className="text-blue-500 font-medium cursor-pointer">{doctor.firstName} {doctor.lastName}</span>
                         <div className="flex text-[#00c3a5] text-xl">{renderStars(doctor.latestReview.rating)}</div>
                     </div>
                   

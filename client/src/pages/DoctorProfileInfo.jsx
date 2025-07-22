@@ -54,6 +54,8 @@ const  DoctorProfileInfo = ()=> {
  const [isPreviewImageModalOpen, setIsPreviewImageModalOpen] = useState(false)
  const [previewImageModal, setPreviewImageModal] = useState(null)
 
+ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
  const [languagesText, setLanguagesText] = useState(
   Array.isArray(formData.languages) ? formData.languages.join(", ") : ""
 )
@@ -404,7 +406,7 @@ useEffect(() => {
       const token = localStorage.getItem('access_token')
 
 
-      const response = await fetch(`http://localhost:7500/api/doctor-form/update/${currentDoctor._id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/doctor-form/update/${currentDoctor._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -20,12 +20,15 @@ const DoctorSignupConfirmation = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch()
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   const data = {
     heardAboutUs
   }
 
   useEffect(() => {
-    axios.get('http://localhost:7500/api/auth/me', { withCredentials: true })
+    axios.get(`${API_BASE_URL}/api/auth/me`, { withCredentials: true })
       .then(response => {
         dispatch(signInDoctorSuccess(response.data));
       })
@@ -47,7 +50,7 @@ const handleSubmit = async () => {
       setErrorMessage('');
 
       const response = await axios.put(
-          `http://localhost:7500/api/doctor-form/update/${currentDoctor?._id}`,
+          `${API_BASE_URL}/api/doctor-form/update/${currentDoctor?._id}`,
           { heardAboutUs },
           {
               withCredentials: true, // Ensure cookies are sent with the request

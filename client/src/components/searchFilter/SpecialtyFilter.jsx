@@ -11,7 +11,9 @@ const SpecialtyFilter = ({ allDoctors, setFilteredDoctors , onSpecialtySelect, s
   const [specialties, setSpecialties] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSpecialty, setSelectedSpecialty] = useState(null);
+  const [selectedSpecialty, setSelectedSpecialty] = useState(null)
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
 
 
@@ -24,7 +26,7 @@ const SpecialtyFilter = ({ allDoctors, setFilteredDoctors , onSpecialtySelect, s
   useEffect(() => {
     const fetchSpecialties = async () => {
       try {
-        const response = await axios.get("http://localhost:7500/api/specialties");
+        const response = await axios.get(`${API_BASE_URL}/api/specialties`);
         setSpecialties(response.data.specialties || []);
       } catch (error) {
         console.error("Failed to fetch specialties:", error.message);

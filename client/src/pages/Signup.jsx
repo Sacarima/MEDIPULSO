@@ -22,6 +22,8 @@ const Signup = () => {
   const [invalidFields, setInvalidFields] = useState([])
   const [showPassword, setShowPassword] = useState(false)
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   const navigate = useNavigate()
 
   const isFieldInvalid = (field) => invalidFields.includes(field)
@@ -65,7 +67,6 @@ const Signup = () => {
     // Validate required fields
     const requiredFields = ['email', 'password'];
     const newInvalidFields = []
-   // const invalidFields = requiredFields.some(field => !formData[field] || formData[field].trim() === '')
 
     requiredFields.forEach(field => {
       if (!formData[field] || formData[field].trim() === '') {
@@ -110,7 +111,7 @@ const Signup = () => {
     try {
       setLoading(true)
       setErrorMessage(null)
-      const response = await fetch('http://localhost:7500/api/auth/signup', /** a proxy needs to be create in vite.config.js in order for the appropriate port number
+      const response = await fetch(`${API_BASE_URL}/api/auth/signup`, /** a proxy needs to be create in vite.config.js in order for the appropriate port number
         to be identified or simply put the port number in there */
       {
         method: 'POST',
@@ -165,11 +166,9 @@ const Signup = () => {
               <input 
                 type="text" 
                 id="email" 
-                //onChange={handleChange}
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Email" 
-                //className='w-full py-2 px-4 rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
                 className={`block w-full mt-1 placeholder-gray-400 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out  ${isFieldInvalid('email') ? 'border-red-500' : 'border-gray-300'}`}
                 />
                 
@@ -179,14 +178,13 @@ const Signup = () => {
             <div className='flex flex-col mt-4'>
                     <div className='flex items-end '>
                       <input
-                        //className='rounded-bl-sm rounded-tl-sm w-full border mt-2 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out'
+                        
                         className={`block w-full mt-1 placeholder-gray-400 px-3 py-2 border rounded-tl-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-300 focus:ring-gray-300 hover:border-gray-400 transition duration-300 ease-in-out  ${isFieldInvalid('password') ? 'border-red-500' : 'border-gray-300'}`}
                         style={{height: '40px'}}
                         placeholder='Password'
                         type={showPassword ? 'text' : 'password'}
                         id='password'
                         value={formData.password}
-                        //onChange={(e) => setFormData({...formData, password: e.target.value})}
                         onChange={handleInputChange}
                       />
                       <button

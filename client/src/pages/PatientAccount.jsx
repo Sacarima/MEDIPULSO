@@ -30,6 +30,8 @@ function PatientAccount() {
 
   const [activeSection, setActiveSection] = useState('account-settings')
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   useEffect(() => {
     if (currentUser) {
       setActiveSection('account-settings')
@@ -105,7 +107,7 @@ function PatientAccount() {
       dispatch(updateStart())
       const token = localStorage.getItem('access_token');
 
-      const response = await fetch(`http://localhost:7500/api/user/update/${currentUser._id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/user/update/${currentUser._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +148,7 @@ function PatientAccount() {
     setShowModal(false)
     try {
       dispatch(deleteUserStart())
-      const response = await fetch(`http://localhost:7500/api/user/delete/${currentUser._id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/user/delete/${currentUser._id}`, {
         method: 'DELETE',
         credentials: 'include',
       })

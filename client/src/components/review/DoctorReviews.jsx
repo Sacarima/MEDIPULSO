@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { IoMdStar, IoMdStarHalf, IoMdStarOutline } from 'react-icons/io';
 
 const DoctorReviews = ({ doctorId }) => {
-  const [averageRating, setAverageRating] = useState(0);
+  const [averageRating, setAverageRating] = useState(0)
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await fetch(`http://localhost:7500/api/reviews/${doctorId}`);
+        const res = await fetch(`${API_BASE_URL}/api/reviews/${doctorId}`);
         const data = await res.json();
         if (res.ok) {
           // Calculate the average rating

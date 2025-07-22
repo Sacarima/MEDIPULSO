@@ -119,14 +119,14 @@ const  Header = ({ handleLogout }) => {
                             </Navbar.Collapse>
                             <div className='flex items-center gap-4'>
                                 <div className='flex items-center gap-4'>
-                                    <Button
+                                    {/* <Button
                                         className='w-12 h-10 sm:inline'
                                         color=''
                                         pill
                                         onClick={() => dispatch(toogleTheme())}
                                     >
                                         {theme === 'light' ? <RxSun className='text-white cursor-pointer'/> : <FaMoon />}
-                                    </Button>
+                                    </Button> */}
                                     
                                     {currentUser ? (
                                         <div className='relative' ref={dropdownRef}>
@@ -190,14 +190,14 @@ const  Header = ({ handleLogout }) => {
                         </div>
                     ) : (
                         <div className=' flex '>
-                            <Button
+                            {/* <Button
                                 className='w-12 h-10 sm:inline mr-5'
                                 color=''
                                 pill
                                 onClick={() => dispatch(toogleTheme())}
                             >
                                 {theme === 'light' ? <RxSun className='text-white text-2xl cursor-pointer'/> : <FaMoon />}
-                            </Button>
+                            </Button> */}
 
                             <button
                                 className='p-2  rounded-md text-white  cursor-pointer'
@@ -253,7 +253,7 @@ const  Header = ({ handleLogout }) => {
                                         </Navbar.Link>
 
                                         <Navbar.Link active={path === '/ask-doctor'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
-                                            <Link to="/questions">
+                                            <Link to="/ask-doctor">
                                             <span className="text-white hover:font-semibold">Ask your doctor</span>
                                             </Link>
                                         </Navbar.Link>

@@ -6,12 +6,14 @@ import axios from 'axios';
 const MedicalSpecialtyDropdownForHeader = ({ selected, onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [specialties, setSpecialties] = useState([]);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef(null)
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
   useEffect(() => {
     const fetchSpecialties = async () => {
       try {
-        const res = await axios.get("http://localhost:7500/api/specialties");
+        const res = await axios.get(`${API_BASE_URL}/api/specialties`);
         setSpecialties(res.data.specialties || []);
       } catch (error) {
         console.error(" Failed to fetch specialties:", error);

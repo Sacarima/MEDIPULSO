@@ -3,10 +3,12 @@ import React, {useState, useEffect} from 'react'
 const PopularMedicalCategory = ()  => {
     const [ popularCategories, setPopularCategories ] = useState([])
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
     useEffect(() => {
         const fetchPopularCategories = async () => {
             try {
-                const response = await fetch('http://localhost:7500/api/categories/popular-categories')
+                const response = await fetch(`${API_BASE_URL}/api/categories/popular-categories`)
                 const data = await response.json()
                 setPopularCategories(data.popularCategories)
             } catch (error) {

@@ -7,7 +7,9 @@ const ModalForDiseases = ({ openModal, onCloseModal, onSaveDiseases }) => {
   const { currentDoctor } = useSelector((state) => state.doctor)
   const doctorId = currentDoctor?._id
   const specialtyName = currentDoctor?.specialty?.name
-  const [diseases, setDiseases] = useState([]);
+  const [diseases, setDiseases] = useState([])
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
 
   const handleDiseaseChange = (event) => {
@@ -31,11 +33,11 @@ const ModalForDiseases = ({ openModal, onCloseModal, onSaveDiseases }) => {
       try {
         let url
         if (doctorId) {
-          url = `http://localhost:7500/api/doctor-form/treatments/${doctorId}`
+          url = `${API_BASE_URL}/api/doctor-form/treatments/${doctorId}`
         } else if (specialtyName) {
-           url = `http://localhost:7500/api/treatments/specialty/${specialtyName}`
+           url = `${API_BASE_URL}/api/treatments/specialty/${specialtyName}`
         } else {
-          url = `http://localhost:7500/api/treatments`
+          url = `${API_BASE_URL}/api/treatments`
         }
 
         const res =  await fetch(url)

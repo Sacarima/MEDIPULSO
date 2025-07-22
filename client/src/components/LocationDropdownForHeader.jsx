@@ -40,7 +40,7 @@ const LocationDropdownForHeader = ({ value, id, onSelect, }) => {
                   fetchLocation(latitude, longitude);
               },
               (error) => {
-                  console.warn("⚠️ Location access denied by user:", error);
+                  console.warn("Location access denied by user:", error);
                   setError("Location access denied");
               }
           );

@@ -5,10 +5,12 @@ import axios from 'axios';
 const AdminAppointmentsTable = () => {
   const [appointments, setAppointments] = useState([]);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await axios.get('http://localhost:7500/api/appointments');
+        const res = await axios.get(`${API_BASE_URL}/api/appointments`);
         setAppointments(res.data.appointments);
       } catch (error) {
         console.error('Error fetching appointments:', error);

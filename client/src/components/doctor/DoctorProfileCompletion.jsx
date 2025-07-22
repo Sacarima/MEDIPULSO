@@ -92,7 +92,6 @@ const DoctorProfileCompletion = () => {
             }
         );
 
-        console.log("Server Response:", response.data);
 
         if (response.data.success) {
             setSuccessMessage("Profile updated successfully");

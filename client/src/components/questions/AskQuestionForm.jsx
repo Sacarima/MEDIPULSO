@@ -29,6 +29,8 @@ const AskDoctorForm = () => {
        doctorsSpecialists: 0,
      });
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
  const loadMoreQuestions = () => {
     setVisibleQuestions(visibleQuestions + 3)
   }
@@ -38,7 +40,7 @@ const AskDoctorForm = () => {
      useEffect(() => {
         const fetchSpecialties = async () => {
             try {
-                const response = await axios.get("http://localhost:7500/api/specialties");
+                const response = await axios.get(`${API_BASE_URL}/api/specialties`);
                 setSpecialties(response.data.specialties || []);
             } catch (error) {
                 console.error(" Failed to fetch specialties:", error.response?.data || error.message);
@@ -51,7 +53,7 @@ const AskDoctorForm = () => {
       const fetchPopularQuestions = async () => {
         setLoading(true);
         try {
-          const res = await fetch('http://localhost:7500/api/questions/popular');
+          const res = await fetch(`${API_BASE_URL}/api/questions/popular`);
           const data = await res.json();
           if (res.ok) {
             setPopularQuestions(data.questions);
@@ -85,7 +87,7 @@ const AskDoctorForm = () => {
       useEffect(() => {
         const fetchStats = async () => {
           try {
-            const res = await fetch("http://localhost:7500/api/stats"); 
+            const res = await fetch(`${API_BASE_URL}/api/stats`); 
             const data = await res.json();
       
             if (res.ok) {
@@ -120,7 +122,7 @@ const AskDoctorForm = () => {
         setErrorMsg("")
     
         try {
-          const res = await fetch("http://localhost:7500/api/questions/ask", {
+          const res = await fetch(`${API_BASE_URL}/api/questions/ask`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -156,16 +158,16 @@ const AskDoctorForm = () => {
         
         <DoctorPublicProfileHeader />
         {loading && <LoadingOverlay isLoading={loading} delay={4000} />}
-        <nav className="w-[70%] mx-auto">
-            <ul className="flex items-center space-x-2 text-gray-500 text-sm mt-4  ">
+        <nav className="lg:w-[70%] w-full mx-auto">
+            <ul className="flex ml-2 items-center space-x-2 text-gray-500 text-sm mt-4  ">
                 <li className="cursor-pointer hover:underline">Home Page</li>
                 <li>/</li>
                 <li className="cursor-pointer hover:underline">Questions and Answers</li>
             </ul>
         </nav>
-        <div className="w-[70%] mx-auto bg-white p-6 mt-4 rounded">
-            <div className="flex mt-4">
-                <div className="w-[60%]">
+        <div className="lg:w-[70%] w-full mx-auto bg-white p-6 mt-4 rounded">
+            <div className="flex flex-col lg:flex-row mt-4">
+                <div className="lg:w-[60%] w-full">
                     <h2 className="text-3xl">Ask our doctors a question</h2>
                     <p className="mt-2">Get help with your health concerns using the knowledge of our doctors and specialists.</p>
                     <div className="flex items-center gap-2 mt-4">
@@ -182,7 +184,7 @@ const AskDoctorForm = () => {
                     </div>
                 </div>
 
-                <div className="w-[40%]">
+                <div className="lg:w-[40%]">
                     <img src={questionImg} alt="two people inquiring" />
                 </div>
             </div>
@@ -244,11 +246,11 @@ const AskDoctorForm = () => {
         </div>
         </div>   
 
-        <div className="w-[70%] mx-auto bg-white p-6 mt-4 pb-14 rounded">
+        <div className="lg:w-[70%] mx-auto bg-white p-6 mt-4 pb-14 rounded">
             <div className="border-b pb-4">
                 <span className="text-xl font-medium">How does it work?</span>
             </div>
-            <div className="flex items-center gap-4 mt-4">
+            <div className="flex flex-col lg:flex-row items-center gap-4 mt-4">
                 <div className="text-center">
                     <div className="bg-slate-100 w-12 h-12 mx-auto rounded-full text-center my-4">
                         <p className="p-3">1</p>
@@ -282,7 +284,7 @@ const AskDoctorForm = () => {
         
 
 
-        <div className="w-[70%] mx-auto">
+        <div className="lg:w-[70%] w-full mx-auto">
         {/* Display popular questions */}
         <div className="bg-white p-6 mt-8 rounded">
             <div className="border-b pb-4">
@@ -320,7 +322,7 @@ const AskDoctorForm = () => {
                     {(() => {
                         const { limited: limitedAnswerText, isTruncated: answerTruncated } = truncateByWords(answer.text);
                         return (
-                        <div className="w-[70%] pr-6 bg-gray-100 p-4 rounded ">
+                        <div className="lg:w-[70%] w-full pr-6 bg-gray-100 p-4 rounded ">
                             <strong>Doctor's Answer:</strong> {limitedAnswerText}
                             {answerTruncated && (
                             
@@ -367,7 +369,7 @@ const AskDoctorForm = () => {
 
         
 
-        <div className="w-[70%] mx-auto mt-8">
+        <div className="lg:w-[70%] w-full mx-auto mt-8">
             <MostActiveDoctors />
         </div>
 

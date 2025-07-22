@@ -18,13 +18,15 @@ const Questions = () => {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
   
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQuestionDetails = async () => {
       try {
-        const res = await fetch(`http://localhost:7500/api/questions/${questionId}`);
+        const res = await fetch(`${API_BASE_URL}/api/questions/${questionId}`);
         const data = await res.json();
         if (res.ok) {
           setQuestion(data.question);  // Set the question data
@@ -72,7 +74,7 @@ const Questions = () => {
     setErrorMsg("")
 
     try {
-      const res = await fetch("http://localhost:7500/api/questions/ask", {
+      const res = await fetch(`${API_BASE_URL}/api/questions/ask`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

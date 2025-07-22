@@ -9,11 +9,14 @@ const UpcomingAppointment = () => {
     const [error, setError] = useState(null)
 
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
+
     // Function to fetch the appointment
     useEffect (() => {
         const fetchAppointments = async () => {
             try {
-                const response = await fetch(`http://localhost:7500/api/appointments/upcoming/${currentUser._id}`, {
+                const response = await fetch(`${API_BASE_URL}/api/appointments/upcoming/${currentUser._id}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include'

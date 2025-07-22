@@ -10,5 +10,3 @@ export  const diseases = [
     "Heart diseases",
     "Heart defects"
 ]
-
-//export default diseases

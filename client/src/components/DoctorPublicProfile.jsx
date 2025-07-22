@@ -50,6 +50,8 @@ const DoctorPublicProfile = ({ isLoaded }) => {
     const [isFocused, setIsFocused] = useState(false)
     const isMobile = useMediaQuery('(max-width: 768px)')
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
 
 
     const days = ['Today', 'Tomorrow', 'Wed', 'Thu', 'Fri']
@@ -85,10 +87,10 @@ const DoctorPublicProfile = ({ isLoaded }) => {
         const fetchDoctorDetails = async () => {
             try {
                 const [doctorResponse, reviewResponse] = await Promise.all([
-                    fetch(`http://localhost:7500/api/doctor-form/profile-info/${doctorId}`, {
+                    fetch(`${API_BASE_URL}/api/doctor-form/profile-info/${doctorId}`, {
                         headers: { 'Content-Type': 'application/json' },
                     }),
-                    fetch(`http://localhost:7500/api/reviews/${doctorId}`, {
+                    fetch(`${API_BASE_URL}/api/reviews/${doctorId}`, {
                         headers: { 'Content-Type': 'application/json' },
                     }),
                 ])

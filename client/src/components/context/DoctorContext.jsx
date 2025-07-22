@@ -10,10 +10,12 @@ export const DoctorProvider = ({ children }) => {
     const [doctorData, setDoctorData] = useState(null)
     const [loading, setLoading] = useState(true)
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+
     useEffect(() => {
         const fetchDoctorData = async () => {
             try {
-                const response = await fetch(`http://localhost:7500/api/doctor-form/profile-info/${doctorId}`)
+                const response = await fetch(`${API_BASE_URL}/api/doctor-form/profile-info/${doctorId}`)
                 const data = await response.json()
                 setDoctorData(data)
             } catch (error) {
