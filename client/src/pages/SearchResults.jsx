@@ -24,7 +24,7 @@ const SearchResults = () => {
 
     const [activeTabs, setActiveTabs] = useState({}); // Maintain active tab per doctor
 
-    const { specialty, locationQuery, results } = location.state || {}
+    const { specialty, locationQuery, results , message} = location.state || {}
     const [showSpecialtyFilter, setShowSpecialtyFilter] = useState(true)
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
@@ -39,10 +39,12 @@ const SearchResults = () => {
 
     
     useEffect(() => {
-        if (!results || results.length === 0) {
-            setErrorMessage("No doctors found for the selected criteria.");
+        if (!results && results.length === 0) {
+            setSearchResults([]);
+            setFilteredDoctors([]);
+            setErrorMessage(message || "No doctors found for the selected criteria.");
             setIsLoading(false);
-            return;
+           
         }
 
 
@@ -86,7 +88,6 @@ const SearchResults = () => {
 
       useEffect(() => {
         if (location.state?.results?.length > 0) {
-          console.log("🎯 Received new search results:", location.state.results);
           setSearchResults(location.state.results);
           setFilteredDoctors(location.state.results);
           setErrorMessage(""); // Clear previous error
@@ -169,7 +170,7 @@ const SearchResults = () => {
                 {isLoading ? (
                     <p>Loading...</p>
                 ) : errorMessage ? (
-                    <p className="">{errorMessage}</p>
+                    <p className="text">{errorMessage}</p>
                 ) : filteredDoctors.length > 0 ? (
                     <ul>
                         {filteredDoctors.map((doctor) => {
@@ -244,11 +245,11 @@ const SearchResults = () => {
                         })}
                     </ul>
                 ) : (
-                    <p>No doctors found for your search criteria.</p>
+                    <p className="text-slate-500 text-xl">No doctors found for your search criteria.</p>
                 )}
             </div>
         </div>
     );
-};
+}
 
 export default SearchResults;

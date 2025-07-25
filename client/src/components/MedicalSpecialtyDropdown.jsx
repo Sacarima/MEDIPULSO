@@ -58,7 +58,7 @@ const MedicalDropdownCategory = ({ options, selected, onSelect, isInvalid }) => 
       </button>
       {isOpen && (
         <motion.ul 
-          className="absolute min-w-full md:min-w-[500px] bg-white  rounded-lg shadow-lg max-h-[15rem] sm:max-h-[20rem] overflow-auto mt-1"
+          className="absolute min-w-full md:min-w-[500px] lg:w-full bg-white  rounded-lg shadow-lg max-h-[15rem] sm:max-h-[20rem] overflow-auto mt-1"
           variants={container}
           initial="hidden"
           animate="visible"

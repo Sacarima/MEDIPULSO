@@ -188,7 +188,7 @@ const AskDoctorForm = () => {
                     <img src={questionImg} alt="two people inquiring" />
                 </div>
             </div>
-            <div className="p-8 bg-[#e0f7f4] rounded  mx-auto">
+            <div className="p-8 bg-[#e0f7f4] w-full rounded  mx-auto">
               <h2 className="text-lg font-semibold mb-4">Your question</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <textarea

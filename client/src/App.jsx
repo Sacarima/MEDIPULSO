@@ -1,3 +1,4 @@
+import {useState, useEffect} from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 import LoginForm from './pages/LoginForm'
@@ -34,15 +35,23 @@ import Calendar from './components/doctor/Calendar'
 import SearchResults from './pages/SearchResults'
 import AskDoctorForm from './components/questions/AskQuestionForm'
 import Settings from './components/dashboard/Settings'
+import LoadingOverlay from './components/LoadingOverlay'
 
 const libraries = ['places']
 
 const App = () => {
+const [appLoading, setAppLoading] = useState(true)
  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries,
     id: 'google-map-script',
   })
+
+    // Simulate loading screen on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setAppLoading(false), 3000);
+    return () => clearTimeout(timer);
+  }, [])
 
   if (loadError) {
     return <div>Error loading Google Maps API</div>
@@ -50,6 +59,10 @@ const App = () => {
 
   if (!isLoaded) {
     return <div>Loading...</div>
+  }
+
+    if (appLoading || !isLoaded) {
+    return <LoadingOverlay isLoading={true} />
   }
 
   return (

@@ -1,11 +1,13 @@
 import { useState, useEffect} from 'react'
 import axios from 'axios'
-import doctorBackground from '../assets/thumbs.png'
+import officeImage from '../assets/thumbs.png'
 import doctorBackground2 from '../assets/thumbs1.png'
+import doctorBackground from '../assets/thumbs1.png'
 import { HiBuildingOffice2 } from "react-icons/hi2"
 import { BsCameraReelsFill } from "react-icons/bs"
 import { FaThumbsUp } from "react-icons/fa6"
 import { BsFileEarmarkPost } from "react-icons/bs"
+import onlineImage from '../assets/online-doc.png'
 import { FaClock } from "react-icons/fa6"
 import { FaSearch } from "react-icons/fa"
 import statistic from '../assets/one.jpg'
@@ -21,6 +23,7 @@ import { toggleShowMore, toggleShowMoreService, setShowMore, setShowMoreService 
 import LatestQuestionsFeed from './questions/LatestQuestionsFeed.jsx'
 import { ROUTES } from '../config/routes.js'
 import DoctorLatestReview from './review/DoctorLatestReview.jsx'
+import { times } from 'lodash'
 
 
 
@@ -44,59 +47,77 @@ const  HomePage = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
+    const [onlineConsultation, setOnlineConsultation] = useState(false)
     
   
     const backgroundSize = isSmallScreen ? 'cover' : isMediumScreen ? '30%' : '40%'
-    const backgroundImage = isSmallScreen ? doctorBackground2 : doctorBackground
+    const backgroundImage = isSmallScreen ?  doctorBackground2 : doctorBackground
+    const backgroundImage2 = isSmallScreen ? onlineConsultation : doctorBackground2
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
+    const handleOnlineConsultationToggle = () => {
+      setOnlineConsultation(prev => !prev);
+      setFormData(prev => ({
+        ...prev,
+        onlineConsultation: !prev.onlineConsultation
+      }));
+    }
 
 
+ 
     const handleSearch = async () => {
-      if (!formData.speciality && !formData.city) {
-          setErrorMessage("Please select at least a specialty or location.");
-          return;
-      }
-  
-      setIsLoading(true);
-      setErrorMessage("");
-  
-      try {
-          //Construct query parameters dynamically
-          let queryParams = new URLSearchParams();
-  
-          if (formData.speciality) queryParams.append("specialty", formData.speciality);
-          if (formData.city) queryParams.append("location", formData.city);
-  
-          // Build the final API URL
-          const requestUrl = `${API_BASE_URL}/api/doctor-form/search?${queryParams.toString()}`;
-  
-          // Fetch doctors from the API
-          const response = await axios.get(requestUrl);
-  
-          if (response.data.doctors && response.data.doctors.length > 0) {
-              navigate("/search-results", {
-                  state: {
-                      specialty: formData.speciality || "", 
-                      locationQuery: formData.city || "", 
-                      results: response.data.doctors, // Pass the search results
-                      // timestamp: Date.now()
-                  },
-              });
-          } else {
-              setErrorMessage("No doctors found for the selected criteria.");
-          }
-      } catch (error) {
-          console.error(" Search Error:", error.response?.data || error.message);
-          setErrorMessage(error.response?.data?.message || "Failed to fetch doctors.");
-      } finally {
-          setIsLoading(false);
-      }
-  };
-  
+    if (!formData.speciality && !formData.city) {
+      setErrorMessage("Please select at least a specialty or location.");
+      return;
+    }
 
-    // Fetch Specialties
+  setIsLoading(true);
+  setErrorMessage("");
+
+  try {
+    const queryParams = new URLSearchParams();
+    if (formData.speciality) queryParams.append("specialty", formData.speciality);
+    if (formData.city) queryParams.append("location", formData.city);
+    if (onlineConsultation) queryParams.append("onlineConsultation", "true");
+
+    const requestUrl = `${API_BASE_URL}/api/doctor-form/search?${queryParams.toString()}`;
+    const response = await axios.get(requestUrl);
+    const doctors = response.data.doctors || [];
+
+    // Always navigate, even if no doctors
+    navigate("/search-results", {
+      state: {
+        specialty: formData.speciality || "",
+        locationQuery: isOnlineSearch ? "" : formData.city || "",
+        results: doctors,
+        message: doctors.length > 0 ? "" : "No doctors found for the selected criteria.",
+        isOnlineSearch: true,
+        timestamp: Date.now(),
+      },
+    });
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || "No doctors found for the selected criteria.";
+    console.error("Search Error:", errorMsg);
+
+    //  avigate with empty results
+    navigate("/search-results", {
+      state: {
+        specialty: formData.speciality || "",
+        locationQuery: "",
+        results: [],
+        message: error.response?.data?.message || "No online doctors found.",
+        isOnlineSearch: true,
+        timestamp: Date.now(),
+      },
+    });
+  } finally {
+    setIsLoading(false);
+  }
+}
+
+    
     useEffect(() => {
       const fetchSpecialties = async () => {
           try {
@@ -155,10 +176,12 @@ const  HomePage = () => {
         <section  
           className='pb-14 pt-12 px-2  bg-[#00b39be6] sm:bg-[#00c3a5] sm:py-32 '
           style={{
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundPosition: isLargeScreen ? 'center top' : '100% bottom',
-            backgroundPosition: isMediumScreen ? 'left top' : '100% bottom',
-            backgroundPosition: isSmallScreen ? 'center top' : '100% bottom',
+            backgroundImage: `url(${onlineConsultation ? onlineImage :officeImage })`, //`url(${backgroundImage})`,
+            backgroundPosition: isLargeScreen
+            ? 'center top'
+            : isMediumScreen
+            ? 'right top'
+            : 'center top',
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'contain',
             opacity: 5,
@@ -177,68 +200,85 @@ const  HomePage = () => {
                   Search among 146,000 doctors.
                 </span>
               </div>
-              <div className='bg-[#00b39b] bg-opacity-50 2xl:w-[70%] md:w-[90%] p-3 rounded-md'>
-
-                  <div className='flex gap-2 mb-2'>
-                    <div className='flex  items-center gap-2 bg-white rounded-3xl px-3 py-2'>
-                      <HiBuildingOffice2 className='text-blue-500'/>
-                      <span>In the office</span>
-                    </div>
-                    <div className='flex border-[1px] text-white items-center gap-[4px] rounded-3xl px-3 py-2 border-white'>
-                      <BsCameraReelsFill />
-                      <span>Online</span>
-                    </div>
-                  </div>
-
-                  <div className='lg:flex'>
-                    <div className='mb-4 lg:w-[40%] w-full  sm:mr-2 bg-white'>
-                      <MedicalSpecialtyDropdown 
-                        className=""
-                        options={specialties.map((specialty) => specialty.name)}
-                        selected={formData.speciality}
-                        onSelect={handleSpecialitySelect}
-                        value={formData.speciality}
-                        id='speciality'
-                        name='speciality'
-                        
-                      />
-                    </div>
-
-                    <div className='mb-4 lg:w-[40] grow bg-white'>
-                      <LocationSearchFree
-                        onSelect={(city) => handleInputChange('city', city)}
-                        options={formData.city}
-                        value={formData.city}
-    
-                        id="city"
-                        name="city"
-                      />
-                    </div>
- 
-                    <div className='bg-blue-500 flex lg:w-[20%]  h-[52px]'>
-                        <button 
-                            className='flex w-full text-white justify-center items-center gap-2' 
-                            onClick={handleSearch}
-                            disabled={isLoading} // Prevents multiple clicks while loading
-                        >
-                            {/* Show Spinner & "Searching..." When Loading */}
-                            {isLoading ? (
-                                <>
-                                    <Spinner show={isLoading} />  {/* Ensure Spinner is visible */}
-                                    <span>Searching...</span>   {/* Replace icon with text */}
-                                </>
-                            ) : (
-                                <>
-                                    <FaSearch className='mr-2' />
-                                    Search
-                                </>
-                            )}
-                        </button>
-                    </div>
-
-
-                  </div>
+            
+              <div className="bg-[#00b39b] bg-opacity-50 2xl:w-[70%] md:w-[90%] p-3 rounded-md">
+              {/* Toggle Buttons */}
+              <div className="flex gap-2 mb-2">
+                {/* In the office */}
+                <button
+                  onClick={() => setOnlineConsultation(false)}
+                  className={`flex items-center gap-2 rounded-3xl px-3 py-2 transition 
+                    ${!onlineConsultation ? 'bg-white text-blue-500 border border-blue-500' : ' text-white font-extrabold border border-white'}`}
+                >
+                  <HiBuildingOffice2 className='t' />
+                  <span className=''>In the office</span>
+                </button>
+              
+                {/* Online */}
+                <button
+                  onClick={() => setOnlineConsultation(true)}
+                  className={`flex items-center gap-2 rounded-3xl px-3 py-2 transition 
+                    ${onlineConsultation ? 'bg-white text-blue-500 border border-blue-500' : 'text-white font-extrabold border border-white'}`}
+                >
+                  <BsCameraReelsFill />
+                  <span>Online</span>
+                </button>
               </div>
+              
+              {/* ===== Search Form (Shared Specialty) ===== */}
+              <div className="lg:flex w-full">
+                <div
+                   className={`mb-4 bg-white ${
+                    onlineConsultation ? 'w-full' : 'lg:w-[40%] w-full sm:mr-2'
+                }`}
+                >
+                  <MedicalSpecialtyDropdown
+                    className=""
+                    options={specialties.map((specialty) => specialty.name)}
+                    selected={formData.speciality}
+                    onSelect={handleSpecialitySelect}
+                    value={formData.speciality}
+                    id="speciality"
+                    name="speciality"
+                  />
+                </div>
+
+                {/* Only show location input for in-person */}
+                {!onlineConsultation && (
+                  <div className="mb-4 lg:w-[40%] grow bg-white">
+                    <LocationSearchFree
+                      onSelect={(city) => handleInputChange('city', city)}
+                      options={formData.city}
+                      value={formData.city}
+                      id="city"
+                      name="city"
+                    />
+                  </div>
+                )}
+
+                <div className="bg-blue-500  flex lg:w-[20%] h-[52px]">
+                  <button
+                    className="flex w-full text-white justify-center items-center gap-2"
+                    onClick={handleSearch}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Spinner show={isLoading} />
+                        <span>Searching...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaSearch className="mr-2" />
+                        Search
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+
             </div>
           </div>
   

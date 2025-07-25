@@ -378,6 +378,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                 { showMore ? <IoIosArrowUp className='text-gray-400 cursor-pointer' onClick={handleShowMore}/> : <IoIosArrowDown className='text-gray-400 cursor-pointer' onClick={handleShowMore}/>}
                             </div>
                         </section>
+
                         {/* DOCTORS' PRICE LIST AND SERVICES*/}
                         <section ref={priceListRef} className=' mt-4 bg-white w-full  p-4 rounded-t-sm shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px]'>
                             <h2 className='text-xl font-medium '>Services and prices</h2>
@@ -522,9 +523,9 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                             <h2 className='text-2xl font-medium py-2'>My experience</h2>
         
                             <div className='mt-2'>
-                                <div className='w-auto mb-6'>
+                                {doctorData?.photo && (<div className='w-auto mb-6'>
                                     <img className='h-[300px] w-full object-fill rounded-md' src={doctorData?.photo} alt="" />
-                                </div>
+                                </div>)}
         
                                 <p className=''>{truncatedText}</p>
                                 {/* Show more text when there's more text than the truncated */}
