@@ -315,7 +315,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                     <div className='w-full   text-silver-500 pb-4'>
                                             <p className='font-medium'>{doctorData?.location}</p>
                                             <div className='flex gap-2'>
-                                                <p className='text-gray-900'>{doctorData?.address},</p>
+                                                <p className='text-gray-900'>{doctorData?.officeAddress},</p>
                                                 <p className='text-gray-400'>{doctorData?.city}</p>
                                             </div>
                                     </div>
@@ -549,7 +549,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                             }
                                         }}
                                     >
-                                        <div className='bg-white w-[30%] m-auto mt-20 p-6 rounded-md shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
+                                        <div className='bg-white lg:w-[30%] w-full m-auto mt-20 p-6 rounded-md shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
                                             <div className='flex justify-between'>
                                                 <h2 className='text-xl font-medium mb-4'>About me</h2>
                                                 <LiaTimesSolid className='text-gray-500 cursor-pointer text-2xl ' onClick={() => setShowModal(false)}/>

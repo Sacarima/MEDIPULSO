@@ -78,7 +78,9 @@ const DoctorLatestReview = () => {
               {doctor.latestReview ? (
                 <div className="mt-2">
                     <div className='flex items-center justify-between gap-2'>
-                        <span className="text-blue-500 font-medium cursor-pointer">{doctor.firstName} {doctor.lastName}</span>
+                        <Link to={`/profile-info/${doctor._id}`} className='w-full'>
+                          <span className="text-blue-500 font-medium cursor-pointer">{doctor.firstName} {doctor.lastName}</span>
+                        </Link>
                         <div className="flex text-[#00c3a5] text-xl">{renderStars(doctor.latestReview.rating)}</div>
                     </div>
                   

@@ -66,4 +66,8 @@ span, p, button, input, label, li, ul, ol, textarea{
   }
 }
 
-
+/* For iphone select input */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}

@@ -216,7 +216,12 @@ export const getDoctorPublicProfile = async (req, res) => {
             firstName: new RegExp(`^${firstName}$`, 'i'), 
             lastName: new RegExp(`^${lastName}$`, 'i'),
             medicalCategory: new RegExp(`^${medicalCategory}$`, 'i'),
-            city: new RegExp(`^${city}$`, 'i')
+            city: new RegExp(`^${city}$`, 'i'),
+            officeAddress: new RegExp(`^${req.params.officeAddress}$`, 'i'),
+            officeName: new RegExp(`^${req.params.officeName}$`, 'i'),
+            phoneNumber: new RegExp(`^${req.params.phoneNumber}$`, 'i'),
+            photo: new RegExp(`^${req.params.photo}$`, 'i'),   
+            
         })
 
         if (!doctor) {

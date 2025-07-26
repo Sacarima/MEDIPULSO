@@ -66,9 +66,8 @@ const MedicalDropdownCategory = ({ options, selected, onSelect, isInvalid }) => 
           {options.map((option, index) => (
             <motion.li
               key={index}
-              className=" p-2 hover:bg-gray-100 hover:text-black cursor-pointer flex justify-between w-full"
-              onTouchStart={() => handleSelect(option)}
-              onMouseDown={() => handleSelect(option)}
+              className=" p-2 hover:bg-gray-100 hover:text-black cursor-pointer flex justify-between w-full touch-manipulation"
+              onClick={() => handleSelect(option)}
               variants={item}
             >
               <div className='flex items-center gap-1'>
