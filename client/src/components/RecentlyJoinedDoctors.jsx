@@ -2,6 +2,7 @@ import { useState, useEffect} from 'react'
 import { MdLocationOn } from 'react-icons/md'
 import Slider from 'react-slick'
 import { useNavigate } from 'react-router-dom'
+import { useRef } from 'react'
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
 import '../styles/CustomCarousel.css'
@@ -10,6 +11,7 @@ import '../styles/CustomCarousel.css'
 const  RecentlyJoinedDoctors = () => {
     const [recentDoctors, setRecentDoctors] = useState([])
     const navigate = useNavigate()
+    const sliderRef = useRef(null)
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
@@ -30,9 +32,16 @@ const  RecentlyJoinedDoctors = () => {
                 const data = await response.json()
                 //setRecentDoctors(data)
                 if (Array.isArray(data)) {
-                  setRecentDoctors(data);  // If it's an array, set it to state
+                  setRecentDoctors(data); 
+                  setTimeout(() => {
+                    sliderRef.current?.slickGoTo(0); // Reset to the first slide after setting state
+                  }, 100);
+                  // If it's an array, set it to state
               } else if (data && Array.isArray(data.data.doctors)) {
                   setRecentDoctors(data.data.doctors); // Update this based on actual structure
+                  setTimeout(() => {
+                    sliderRef.current?.slickGoTo(0); // Reset to the first slide after setting state
+                  }, 100);
               } else {
                   console.error('Unexpected data format:', data);
               }
@@ -42,6 +51,15 @@ const  RecentlyJoinedDoctors = () => {
         }
         fetchRecentDoctors()
     }, [])
+
+    useEffect(() => {
+      const handleResize = () => {
+        sliderRef.current?.slickGoTo(0);
+      };
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
 
 
   const handleDoctorProfile = (doctor) => {
@@ -88,12 +106,16 @@ const  RecentlyJoinedDoctors = () => {
               }
             }
           ],
+
+          
       }
+
+      
 
 
   return (
     <div className=' mt-4'>
-        <Slider {...settings}>
+        <Slider ref={sliderRef} {...settings}>
         {recentDoctors.map((doctor) => (
             <div key={doctor._id} className='carousel-slide' onClick={() => handleDoctorProfile(doctor)}>
                 <div  className='bg-white flex items-center gap-2 shadow-sm  transition-shadow overflow-hidden border-gray-200 border p-3 rounded-lg w-full sm:w-full'>

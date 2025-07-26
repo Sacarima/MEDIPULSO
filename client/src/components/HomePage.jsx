@@ -1,13 +1,14 @@
 import { useState, useEffect} from 'react'
 import axios from 'axios'
-import officeImage from '../assets/thumbs.png'
-import doctorBackground2 from '../assets/thumbs1.png'
-import doctorBackground from '../assets/thumbs1.png'
+import officeImage from '../assets/thumbss.png'
+import doctorBackground2 from '../assets/online-doc.png'
+import doctorBackground from '../assets/thumbs-mobile.png'
 import { HiBuildingOffice2 } from "react-icons/hi2"
 import { BsCameraReelsFill } from "react-icons/bs"
 import { FaThumbsUp } from "react-icons/fa6"
 import { BsFileEarmarkPost } from "react-icons/bs"
-import onlineImage from '../assets/online-doc.png'
+import onlineImage from '../assets/online-docc.png'
+import onlineImagMobile from '../assets/online-doc-mobile.png'
 import { FaClock } from "react-icons/fa6"
 import { FaSearch } from "react-icons/fa"
 import statistic from '../assets/one.jpg'
@@ -52,8 +53,8 @@ const  HomePage = () => {
     
   
     const backgroundSize = isSmallScreen ? 'cover' : isMediumScreen ? '30%' : '40%'
-    const backgroundImage = isSmallScreen ?  doctorBackground2 : doctorBackground
-    const backgroundImage2 = isSmallScreen ? onlineConsultation : doctorBackground2
+    const backgroundImage = isSmallScreen ? doctorBackground : officeImage
+    const onlinebackground = isSmallScreen ? onlineImagMobile :  doctorBackground2
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
@@ -69,7 +70,7 @@ const  HomePage = () => {
  
     const handleSearch = async () => {
     if (!formData.speciality && !formData.city) {
-      setErrorMessage("Please select at least a specialty or location.");
+      setErrorMessage("Please select at least a specialty, location or online consultation.");
       return;
     }
 
@@ -90,10 +91,10 @@ const  HomePage = () => {
     navigate("/search-results", {
       state: {
         specialty: formData.speciality || "",
-        locationQuery: isOnlineSearch ? "" : formData.city || "",
+        locationQuery: formData.city || "",
         results: doctors,
         message: doctors.length > 0 ? "" : "No doctors found for the selected criteria.",
-        isOnlineSearch: true,
+        isOnlineSearch: false,
         timestamp: Date.now(),
       },
     });
@@ -105,10 +106,10 @@ const  HomePage = () => {
     navigate("/search-results", {
       state: {
         specialty: formData.speciality || "",
-        locationQuery: "",
+        locationQuery: formData.city || "",
         results: [],
         message: error.response?.data?.message || "No online doctors found.",
-        isOnlineSearch: true,
+        isOnlineSearch: onlineConsultation || false,
         timestamp: Date.now(),
       },
     });
@@ -176,7 +177,7 @@ const  HomePage = () => {
         <section  
           className='pb-14 pt-12 px-2  bg-[#00b39be6] sm:bg-[#00c3a5] sm:py-32 '
           style={{
-            backgroundImage: `url(${onlineConsultation ? onlineImage :officeImage })`, //`url(${backgroundImage})`,
+            backgroundImage: `url(${onlineConsultation ? onlinebackground :backgroundImage })`, //`url(${backgroundImage})`,
             backgroundPosition: isLargeScreen
             ? 'center top'
             : isMediumScreen
@@ -191,7 +192,7 @@ const  HomePage = () => {
           <div className=''>
             <div className=' 2xl:w-[85%] md:ml-5  xl:ml-auto'>
               <div className='text-center  sm:text-start b-2 py-3'>
-                <h1 className='text-2xl 2xl:text-4xl  sm:max-w-1/2 text-white tracking-wide font-semibold align-baseline py-2'>Find a doctor & make an appointment</h1>
+                <h1 className='text-4xl  sm:max-w-1/2 text-white tracking-wide font-semibold align-baseline py-2'>Find a doctor & make an appointment</h1>
               </div>
 
               {/* Filter search doctor form */}
