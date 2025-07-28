@@ -98,7 +98,7 @@ const  Header = ({ handleLogout }) => {
                                     <Navbar.Link className='text-white' active={path === '/data-privacy'} as='div'>
                                         <Link to="/data-privacy">Data Privacy</Link>
                                     </Navbar.Link>
-                                    <Navbar.Link className='text-white' active={path === '/questions'} as='div'>
+                                    <Navbar.Link className='text-white mr-2' active={path === '/questions'} as='div'>
                                         <Link to="ask-doctor">Ask a doctor</Link>
                                     </Navbar.Link>
                                 </div>
@@ -119,14 +119,6 @@ const  Header = ({ handleLogout }) => {
                             </Navbar.Collapse>
                             <div className='flex items-center gap-4'>
                                 <div className='flex items-center gap-4'>
-                                    {/* <Button
-                                        className='w-12 h-10 sm:inline'
-                                        color=''
-                                        pill
-                                        onClick={() => dispatch(toogleTheme())}
-                                    >
-                                        {theme === 'light' ? <RxSun className='text-white cursor-pointer'/> : <FaMoon />}
-                                    </Button> */}
                                     
                                     {currentUser ? (
                                         <div className='relative' ref={dropdownRef}>
@@ -135,7 +127,7 @@ const  Header = ({ handleLogout }) => {
                                                 onClick={toggleDropdown}
                                             >
                                                 {currentUser.email ? truncateEmail(currentUser.email) : 'No email found'}
-                                                <MdKeyboardArrowDown className='ml-1 text-2xl'/>
+                                                <MdKeyboardArrowDown className=' text-2xl'/>
                                             </span>
 
                                             {/* Dropdown Menu */}

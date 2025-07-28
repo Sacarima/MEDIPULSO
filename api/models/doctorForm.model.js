@@ -27,6 +27,10 @@ const doctorFormSchema = new mongoose.Schema({
         type: String,
 
         },
+        photoURLs: {
+            type: [String],
+            default: [],
+        },
     experience: {
         type: String,
         required: false,

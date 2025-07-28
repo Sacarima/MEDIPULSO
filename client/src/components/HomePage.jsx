@@ -190,7 +190,7 @@ const  HomePage = () => {
         >
   
           <div className=''>
-            <div className=' 2xl:w-[85%] md:ml-5  xl:ml-auto'>
+            <div className=' xl:w-[85%] md:ml-5  xl:ml-auto'>
               <div className='text-center  sm:text-start b-2 py-3'>
                 <h1 className='text-4xl  sm:max-w-1/2 text-white tracking-wide font-semibold align-baseline py-2'>Find a doctor & make an appointment</h1>
               </div>
@@ -227,10 +227,10 @@ const  HomePage = () => {
               </div>
               
               {/* ===== Search Form (Shared Specialty) ===== */}
-              <div className="lg:flex w-full">
+              <div className="md:flex w-full">
                 <div
                    className={`mb-4 bg-white ${
-                    onlineConsultation ? 'w-full' : 'lg:w-[40%] w-full sm:mr-2'
+                    onlineConsultation ? 'w-full' : 'md:w-[40%] w-full sm:mr-2'
                 }`}
                 >
                   <MedicalSpecialtyDropdown
@@ -246,7 +246,7 @@ const  HomePage = () => {
 
                 {/* Only show location input for in-person */}
                 {!onlineConsultation && (
-                  <div className="mb-4 lg:w-[40%] grow bg-white">
+                  <div className="mb-4 md:w-[40%] grow bg-white">
                     <LocationSearchFree
                       onSelect={(city) => handleInputChange('city', city)}
                       options={formData.city}
@@ -257,7 +257,7 @@ const  HomePage = () => {
                   </div>
                 )}
 
-                <div className="bg-blue-500  flex lg:w-[20%] h-[52px]">
+                <div className="bg-blue-500  flex md:w-[20%] h-[52px]">
                   <button
                     className="flex w-full text-white justify-center items-center gap-2"
                     onClick={handleSearch}
@@ -343,7 +343,7 @@ const  HomePage = () => {
         </div>
         
         <div className=' pb-6 border-b-[.5px] border-gray-200'>
-          <div className='lg:w-[70%] md:flex md:wrap md:w-[90%] m-auto px-3  mt-8'>
+          <div className='md:w-[90%] xl:w-[70%] md:flex md:wrap  m-auto px-3  mt-8'>
               <div className='p-3'>
                 <div className='flex items-center gap-2 mb-2'>
                   <FaSearch className='text-[#00b39be6]'/>

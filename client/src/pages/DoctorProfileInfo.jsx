@@ -295,14 +295,35 @@ const  DoctorProfileInfo = ()=> {
     }
 
 
-   if (newPhotoURLs.length > 0) {
-    setFormData((prev) => ({
-        ...prev,
-        photo: newPhotoURLs[newPhotoURLs.length - 1], 
-    }));
-}
+//    if (newPhotoURLs.length > 0) {
+//     setFormData((prev) => ({
+//         ...prev,
+//         photo: newPhotoURLs[newPhotoURLs.length - 1], 
+//     }));
+// }
 
     // close the modal after adding the photos
+
+    if (newPhotoURLs.length > 0) {
+  const updatedDoctor = {
+    ...formData,
+    photoURLs: [...(formData.photoURLs || []), ...newPhotoURLs], // <- use array
+  };
+
+  // save to backend
+  try {
+    await fetch(`${API_BASE_URL}/api/doctor-form/update/${currentDoctor._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedDoctor),
+    });
+
+    setFormData(updatedDoctor); // update frontend state
+  } catch (error) {
+    console.error("Failed to update doctor with photo URLs", error);
+  }
+}
+
     setOpenModal(false)
   }
 
@@ -376,72 +397,150 @@ useEffect(() => {
 
 
   // update doctor profile information
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setUpdateDoctorError(null)
-    setUpdateSuccessDoctor(null)
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault()
+  //   setUpdateDoctorError(null)
+  //   setUpdateSuccessDoctor(null)
     
 
-          const updatedFormData = Object.fromEntries(
-            Object.entries(formData).filter(([key, value]) => {
-                if (typeof value === 'string') {
-                    return value.trim() !== "";
-                } else if (Array.isArray(value)) {
-                    return value.length > 0;
-                } else if (typeof value === 'boolean') {
-                    return true; // keep boolean values as they are significant
-                } else {
-                    return value !== undefined && value !== null; // handle other non-empty values
-                }
-            })
-        )
+  //         const updatedFormData = Object.fromEntries(
+  //           Object.entries(formData).filter(([key, value]) => {
+  //               if (typeof value === 'string') {
+  //                   return value.trim() !== "";
+  //               } else if (Array.isArray(value)) {
+  //                   return value.length > 0;
+  //               } else if (typeof value === 'boolean') {
+  //                   return true; // keep boolean values as they are significant
+  //               } else {
+  //                   return value !== undefined && value !== null; // handle other non-empty values
+  //               }
+  //           })
+  //       )
 
-        if (Object.keys(updatedFormData).length === 0) {
-            setUpdateDoctorError('No changes were made');
-            return;
-        }
+  //       if (Object.keys(updatedFormData).length === 0) {
+  //           setUpdateDoctorError('No changes were made');
+  //           return;
+  //       }
 
-    try {
-      dispatch(updateDoctorStart())
-      const token = localStorage.getItem('access_token')
+  //   try {
+  //     dispatch(updateDoctorStart())
+  //     const token = localStorage.getItem('access_token')
 
 
-      const response = await fetch(`${API_BASE_URL}/api/doctor-form/update/${currentDoctor._id}`, {
-        method: 'PUT',
+  //     const response = await fetch(`${API_BASE_URL}/api/doctor-form/update/${currentDoctor._id}`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify(updatedFormData),
+  //       credentials: 'include', 
+  //     })
+
+  //      // upload new phtos in temporary photos to firebase
+  //      const uploadedPhotosURLs = await Promise.all(temporaryPhotos.map(photo => uploadPhotosToFirebase(photo)))
+
+  //      // combine existing firebase photos with newly added photos
+  //      const updatedPhotos = [...firebasePhotoURLs, ...uploadedPhotosURLs]
+
+
+  //     const data = await response.json()
+   
+  //     setFormData((prevData) => ({ 
+  //       ...prevData, 
+  //       photo: updatedPhotos.length > 0 ? updatedPhotos[updatedPhotos.length - 1] : prevData.photo }))
+
+  //     if (!response.ok) {
+  //       dispatch(updateDoctorFailure(data.message))
+  //       setUpdateDoctorError(data.message)
+  //     }else {
+  //       dispatch(updateDoctorSuccess(data))
+  //       setUpdateSuccessDoctor('Your profile information updated successfully')
+  //       setTemporaryPhotos([])
+  //     }
+  //   } catch (error) {
+  //     dispatch(updateDoctorFailure(error.message))
+  //     setUpdateDoctorError(error.message)
+  //   }  
+  // }
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setUpdateDoctorError(null);
+  setUpdateSuccessDoctor(null);
+
+  try {
+    dispatch(updateDoctorStart());
+
+    const token = localStorage.getItem('access_token');
+
+    // 1. Upload new photos to Firebase
+    const uploadedPhotosURLs = await Promise.all(
+      temporaryPhotos.map(photo => uploadPhotosToFirebase(photo))
+    );
+
+    // 2. Combine existing + new Firebase photo URLs
+    const updatedPhotos = [...firebasePhotoURLs, ...uploadedPhotosURLs];
+
+    // 3. Build cleaned updated data
+    const filteredFormData = Object.fromEntries(
+      Object.entries(formData).filter(([key, value]) => {
+        if (typeof value === 'string') return value.trim() !== "";
+        if (Array.isArray(value)) return value.length > 0;
+        if (typeof value === 'boolean') return true;
+        return value !== undefined && value !== null;
+      })
+    );
+
+    // 4. Add `photoURLs` explicitly
+    const updatedFormData = {
+      ...filteredFormData,
+      photo: updatedPhotos.length > 0 ? updatedPhotos[updatedPhotos.length - 1] : formData.photo,
+      photoURLs: updatedPhotos
+    };
+
+    if (Object.keys(updatedFormData).length === 0) {
+      setUpdateDoctorError("No changes were made");
+      return;
+    }
+
+    // 5. Send the request
+    const response = await fetch(
+      `${API_BASE_URL}/api/doctor-form/update/${currentDoctor._id}`,
+      {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updatedFormData),
-        credentials: 'include', 
-      })
-
-       // upload new phtos in temporary photos to firebase
-       const uploadedPhotosURLs = await Promise.all(temporaryPhotos.map(photo => uploadPhotosToFirebase(photo)))
-
-       // combine existing firebase photos with newly added photos
-       const updatedPhotos = [...firebasePhotoURLs, ...uploadedPhotosURLs]
-
-
-      const data = await response.json()
-   
-      setFormData((prevData) => ({ 
-        ...prevData, 
-        photo: updatedPhotos.length > 0 ? updatedPhotos[updatedPhotos.length - 1] : prevData.photo }))
-
-      if (!response.ok) {
-        dispatch(updateDoctorFailure(data.message))
-        setUpdateDoctorError(data.message)
-      }else {
-        dispatch(updateDoctorSuccess(data))
-        setUpdateSuccessDoctor('Your profile information updated successfully')
-        setTemporaryPhotos([])
+        credentials: "include",
       }
-    } catch (error) {
-      dispatch(updateDoctorFailure(error.message))
-      setUpdateDoctorError(error.message)
-    }  
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      dispatch(updateDoctorFailure(data.message));
+      setUpdateDoctorError(data.message);
+    } else {
+      dispatch(updateDoctorSuccess(data));
+      setUpdateSuccessDoctor("Your profile information updated successfully");
+
+      // Update form state
+      setFormData(prev => ({
+        ...prev,
+        photo: updatedPhotos.length > 0 ? updatedPhotos[updatedPhotos.length - 1] : prev.photo,
+        photoURLs: updatedPhotos
+      }));
+
+      setTemporaryPhotos([]);
+    }
+  } catch (error) {
+    dispatch(updateDoctorFailure(error.message));
+    setUpdateDoctorError(error.message);
   }
+};
+
 
   return (
     <div className='sm:flex flex-row min-h-screen'>

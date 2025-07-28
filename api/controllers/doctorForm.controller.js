@@ -57,6 +57,7 @@ export const updateDoctor = async (req, res, next) => {
                     specializations: req.body.specializations,
                     languages: req.body.languages,
                     photo: req.body.photo,
+                    photoURLs: req.body.photoURLs,
                     profileStatistics: req.body.profileStatistics,
                     profilePicture: req.body.profilePicture,
                     certificate: req.body.certificate,

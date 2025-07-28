@@ -27,6 +27,7 @@ import { DoctorProvider } from './context/DoctorContext'
 import Carousel from './Carousel'
 import { ROUTES } from '../config/routes'
 import useMediaQuery from '../hooks/useMediaQuery'
+import DoctorPhotoGallery from './DoctorPhotoGallery'
 import Footer from './Footer'
 
 
@@ -49,6 +50,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
     const navigate = useNavigate()
     const [isFocused, setIsFocused] = useState(false)
     const isMobile = useMediaQuery('(max-width: 768px)')
+    
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
@@ -116,7 +118,6 @@ const DoctorPublicProfile = ({ isLoaded }) => {
             fetchDoctorDetails()
         }
     }, [doctorId])
-
 
         useEffect(() => {
         const handleLoad = () => {
@@ -222,10 +223,6 @@ const DoctorPublicProfile = ({ isLoaded }) => {
     }
 
     // prevent scrolling when modal is opened
-
-
-
-   
 
     if (loading) return <div>Loading...</div>
     if (error) return <div>Error: {error}</div>
@@ -523,11 +520,8 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                             <h2 className='text-2xl font-medium py-2'>My experience</h2>
         
                             <div className='mt-2'>
-                                {doctorData?.photo && (<div className='w-auto mb-6'>
-                                    <img className='h-[300px] w-full object-fill rounded-md' src={doctorData?.photo} alt="" />
-                                </div>)}
-        
-                                <p className=''>{truncatedText}</p>
+                                <DoctorPhotoGallery photoURLs={doctorData?.photoURLs || []} />
+                                <p className='mt-4'>{truncatedText}</p>
                                 {/* Show more text when there's more text than the truncated */}
                                 {fullText.length > maxLength && (
                                     <button
@@ -542,14 +536,14 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                 {/* Modal */}
                                 {showModal && (
                                     <div
-                                        className='fixed top-0 inset-0 left-0 w-full h-full bg-gray-100 bg-opacity-90 z-50'
+                                        className='fixed top-0 inset-0 left-0 w-full h-full bg-gray-100 bg-opacity-90 z-50 overflow-y-auto'
                                         onClick={(e) => {
                                             if (e.target === e.currentTarget) {
                                                 setShowModal(false)
                                             }
                                         }}
                                     >
-                                        <div className='bg-white lg:w-[30%] w-full m-auto mt-20 p-6 rounded-md shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
+                                        <div className='bg-white lg:w-[40%] w-full  m-auto lg:mt-20 p-6 rounded-md shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
                                             <div className='flex justify-between'>
                                                 <h2 className='text-xl font-medium mb-4'>About me</h2>
                                                 <LiaTimesSolid className='text-gray-500 cursor-pointer text-2xl ' onClick={() => setShowModal(false)}/>
