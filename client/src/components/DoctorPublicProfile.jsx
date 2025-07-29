@@ -36,7 +36,7 @@ import Footer from './Footer'
 
 const DoctorPublicProfile = ({ isLoaded }) => {
     const [isFavourite, setIsFavourite] = useState(false)
-    const [activeSection, setActiveSection] = useState('addresses')
+    const [activeSection, setActiveSection] = useState('experience')
     const [showMore, setShowMore] = useState(false)
     const [isSticky, setIsSticky] = useState(false)
     const [doctorData, setDoctorData] = useState(null)
@@ -61,9 +61,9 @@ const DoctorPublicProfile = ({ isLoaded }) => {
 
     
     const navbarRef = useRef(null)
+    const experienceRef = useRef(null)
     const addressRef = useRef(null)
     const priceListRef = useRef(null)
-    const experienceRef = useRef(null)
     const reviewsRef = useRef(null)
 
     const { doctorId } = useParams()
@@ -181,23 +181,23 @@ const DoctorPublicProfile = ({ isLoaded }) => {
         }
     
         const sectionPositions = {
-            addresses: addressRef.current.offsetTop ,
+            experience: experienceRef.current.offsetTop,
+            addresses: addressRef.current.offsetTop - 50,
             priceList: priceListRef.current.offsetTop - 50,
-            experience: experienceRef.current.offsetTop - 50,
             reviews: reviewsRef.current.offsetTop -50,
         }
     
         const newActiveSection = (
+            scrollPosition < sectionPositions.addresses ? 'experience' :
             scrollPosition < sectionPositions.priceList ? 'addresses' :
-            scrollPosition < sectionPositions.experience ? 'priceList' :
-            scrollPosition < sectionPositions.reviews ? 'experience' :
+            scrollPosition < sectionPositions.reviews ? 'priceList' :
             'reviews'
         )
     
         if (newActiveSection !== activeSection) {
             setActiveSection(newActiveSection)
         }else if(atTop) {
-            setActiveSection('addresses')
+            setActiveSection('experience')
         }
     }, 100)
     
@@ -285,10 +285,10 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                 {/* NAVIGATION  */}
                                 <nav ref={navbarRef} className={`w-full border-t bg-white shadow z-10 ${isSticky ? 'sticky top-0 z-10' : 'relative'}`}>
                                     <ul className='flex justify-between text-center px-4 py-1'>
-                                        {['addresses', 'priceList', 'experience', 'reviews'].map((section) => (
+                                        {['experience', 'addresses', 'priceList', 'reviews'].map((section) => (
                                             <li key={section}
                                                 className={`cursor-pointer flex-1 p-2 ${activeSection === section ? 'text-black border-b-2 border-black' : 'text-gray-400'}`}
-                                                onClick={() => scrollToSection({ addresses: addressRef, priceList: priceListRef, experience: experienceRef, reviews: reviewsRef }[section])}
+                                                onClick={() => scrollToSection({ experience: experienceRef, addresses: addressRef, priceList: priceListRef,  reviews: reviewsRef }[section])}
                                             >
                                                 {/* Capitalize firstletter */}
                                                 {section.charAt(0).toUpperCase() + section.slice(1)}
@@ -298,6 +298,47 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                         ))}
                                     </ul>
                                 </nav>
+
+                                   {/* DOCTORS' EXPERIENCE */}
+                            <section ref={experienceRef} className=' mt-4 bg-white w-full  p-4 rounded-t-sm shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px]'>
+                            <h2 className='text-2xl font-medium py-2'>My experience</h2>
+        
+                            <div className='mt-2'>
+                                <DoctorPhotoGallery photoURLs={doctorData?.photoURLs || []} />
+                                <p className='mt-4'>{truncatedText}</p>
+                                {/* Show more text when there's more text than the truncated */}
+                                {fullText.length > maxLength && (
+                                    <button
+                                    onClick={() => setShowModal(true)}
+                                    className=" font-medium underline"
+                                    >
+                                    more
+                                    </button>
+                                )}
+                            </div>
+                                <button className='border w-full py-2 mt-4 rounded-sm cursor-pointer'>Show more</button>
+                                {/* Modal */}
+                                {showModal && (
+                                    <div
+                                        className='fixed top-0 inset-0 left-0 w-full h-full bg-gray-100 bg-opacity-90 z-50 overflow-y-auto'
+                                        onClick={(e) => {
+                                            if (e.target === e.currentTarget) {
+                                                setShowModal(false)
+                                            }
+                                        }}
+                                    >
+                                        <div className='bg-white lg:w-[40%] w-full  m-auto lg:mt-20 p-6 rounded-md shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
+                                            <div className='flex justify-between'>
+                                                <h2 className='text-xl font-medium mb-4'>About me</h2>
+                                                <LiaTimesSolid className='text-gray-500 cursor-pointer text-2xl ' onClick={() => setShowModal(false)}/>
+                                            </div>
+                                            <p style={{ whiteSpace: 'pre-wrap' }}>
+                                                {doctorData?.aboutMe}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </section>
         
                         {/* DOCTORS' ADDRESS */}
         
@@ -310,7 +351,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                         <IoLocationSharp className='text-gray-400'/>
                                     </div>
                                     <div className='w-full   text-silver-500 pb-4'>
-                                            <p className='font-medium'>{doctorData?.location}</p>
+                                            <p className='font-medium'>{doctorData?.officeName}</p>
                                             <div className='flex gap-2'>
                                                 <p className='text-gray-900'>{doctorData?.officeAddress},</p>
                                                 <p className='text-gray-400'>{doctorData?.city}</p>
@@ -333,11 +374,11 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                             </div>
                             <div className='flex items-center gap-4 text-gray-400'>
                                 <GiMoneyStack />
-                                <span className='border-t-[.5px] grow  p-4'>Cash, Card payment</span>
+                                <span className='border-t-[.5px] grow  p-4'>{doctorData?.paymentMethods}</span>
                             </div>
                             <div className='flex items-center gap-4 text-gray-400'>
                                 <BsTelephoneForwardFill />
-                                <span className='border-t-[.5px] grow  p-4'>+48 {doctorData?.phoneNumber}</span>
+                                <span className='border-t-[.5px] grow  p-4'>+48 {doctorData?.officeNumber}</span>
                             </div>
                             <div className='flex items-center gap-4 text-gray-400'>
                                 <LiaGlobeAfricaSolid />
@@ -515,46 +556,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                             </section>
 
 
-                            {/* DOCTORS' EXPERIENCE */}
-                            <section ref={experienceRef} className=' mt-4 bg-white w-full  p-4 rounded-t-sm shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px]'>
-                            <h2 className='text-2xl font-medium py-2'>My experience</h2>
-        
-                            <div className='mt-2'>
-                                <DoctorPhotoGallery photoURLs={doctorData?.photoURLs || []} />
-                                <p className='mt-4'>{truncatedText}</p>
-                                {/* Show more text when there's more text than the truncated */}
-                                {fullText.length > maxLength && (
-                                    <button
-                                    onClick={() => setShowModal(true)}
-                                    className=" font-medium underline"
-                                    >
-                                    more
-                                    </button>
-                                )}
-                            </div>
-                                <button className='border w-full py-2 mt-4 rounded-sm cursor-pointer'>Show more</button>
-                                {/* Modal */}
-                                {showModal && (
-                                    <div
-                                        className='fixed top-0 inset-0 left-0 w-full h-full bg-gray-100 bg-opacity-90 z-50 overflow-y-auto'
-                                        onClick={(e) => {
-                                            if (e.target === e.currentTarget) {
-                                                setShowModal(false)
-                                            }
-                                        }}
-                                    >
-                                        <div className='bg-white lg:w-[40%] w-full  m-auto lg:mt-20 p-6 rounded-md shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
-                                            <div className='flex justify-between'>
-                                                <h2 className='text-xl font-medium mb-4'>About me</h2>
-                                                <LiaTimesSolid className='text-gray-500 cursor-pointer text-2xl ' onClick={() => setShowModal(false)}/>
-                                            </div>
-                                            <p style={{ whiteSpace: 'pre-wrap' }}>
-                                                {doctorData?.aboutMe}
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-                            </section>
+                         
 
 
                             {/* DOCTORS' REVIEWS */}

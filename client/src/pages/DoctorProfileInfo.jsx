@@ -53,6 +53,7 @@ const  DoctorProfileInfo = ()=> {
  const [isUploading, setIsUploading] = useState(false)
  const [isPreviewImageModalOpen, setIsPreviewImageModalOpen] = useState(false)
  const [previewImageModal, setPreviewImageModal] = useState(null)
+ const [addresses, setAddresses] = useState('')
 
  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
@@ -76,7 +77,7 @@ const  DoctorProfileInfo = ()=> {
   const addPublicationRef = useRef(null)
   const professionalExperienceRef = useRef(null)
   const awardsRef = useRef(null)
-
+  const addressRef = useRef(null)
 
   const dispatch = useDispatch()
   const profilePictureSectionRef = useRef(null)
@@ -187,6 +188,23 @@ const  DoctorProfileInfo = ()=> {
     })
   }
 
+  const handleOfficeNameSelect = (e) => {
+  const value = e.target.value
+  setFormData((prev) => ({ ...prev, officeName: value }))
+  setAddresses(value)
+}
+
+const handleofficeNumberSelect = (e) => {
+  const value = e.target.value
+  setFormData((prev) => ({ ...prev, officeNumber: value }))
+  setAddresses(value)
+}
+
+ const handleOfficeAddressSelect = (e) => {
+  const value = e.target.value
+  setFormData((prev) => ({ ...prev, officeAddress: value }))
+}
+
    // function to handle open containers
    const handleOpenContainer= (containerId) => {
     setOpenContainers((prevState) => ({
@@ -294,14 +312,6 @@ const  DoctorProfileInfo = ()=> {
       }
     }
 
-
-//    if (newPhotoURLs.length > 0) {
-//     setFormData((prev) => ({
-//         ...prev,
-//         photo: newPhotoURLs[newPhotoURLs.length - 1], 
-//     }));
-// }
-
     // close the modal after adding the photos
 
     if (newPhotoURLs.length > 0) {
@@ -396,73 +406,7 @@ useEffect(() => {
   }, [currentDoctor._id])
 
 
-  // update doctor profile information
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault()
-  //   setUpdateDoctorError(null)
-  //   setUpdateSuccessDoctor(null)
-    
 
-  //         const updatedFormData = Object.fromEntries(
-  //           Object.entries(formData).filter(([key, value]) => {
-  //               if (typeof value === 'string') {
-  //                   return value.trim() !== "";
-  //               } else if (Array.isArray(value)) {
-  //                   return value.length > 0;
-  //               } else if (typeof value === 'boolean') {
-  //                   return true; // keep boolean values as they are significant
-  //               } else {
-  //                   return value !== undefined && value !== null; // handle other non-empty values
-  //               }
-  //           })
-  //       )
-
-  //       if (Object.keys(updatedFormData).length === 0) {
-  //           setUpdateDoctorError('No changes were made');
-  //           return;
-  //       }
-
-  //   try {
-  //     dispatch(updateDoctorStart())
-  //     const token = localStorage.getItem('access_token')
-
-
-  //     const response = await fetch(`${API_BASE_URL}/api/doctor-form/update/${currentDoctor._id}`, {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(updatedFormData),
-  //       credentials: 'include', 
-  //     })
-
-  //      // upload new phtos in temporary photos to firebase
-  //      const uploadedPhotosURLs = await Promise.all(temporaryPhotos.map(photo => uploadPhotosToFirebase(photo)))
-
-  //      // combine existing firebase photos with newly added photos
-  //      const updatedPhotos = [...firebasePhotoURLs, ...uploadedPhotosURLs]
-
-
-  //     const data = await response.json()
-   
-  //     setFormData((prevData) => ({ 
-  //       ...prevData, 
-  //       photo: updatedPhotos.length > 0 ? updatedPhotos[updatedPhotos.length - 1] : prevData.photo }))
-
-  //     if (!response.ok) {
-  //       dispatch(updateDoctorFailure(data.message))
-  //       setUpdateDoctorError(data.message)
-  //     }else {
-  //       dispatch(updateDoctorSuccess(data))
-  //       setUpdateSuccessDoctor('Your profile information updated successfully')
-  //       setTemporaryPhotos([])
-  //     }
-  //   } catch (error) {
-  //     dispatch(updateDoctorFailure(error.message))
-  //     setUpdateDoctorError(error.message)
-  //   }  
-  // }
   const handleSubmit = async (e) => {
   e.preventDefault();
   setUpdateDoctorError(null);
@@ -543,7 +487,7 @@ useEffect(() => {
 
 
   return (
-    <div className='sm:flex flex-row min-h-screen'>
+    <div className='flex flex-col lg:flex-row min-h-screen'>
         <DoctorProfileHeader />
         {isAboveSmallScreens && 
             <ProfileInfoNavigation />
@@ -551,7 +495,7 @@ useEffect(() => {
         <div className={`bg-[#8080802e] flex-1  p-2`}>
           <div className=''>
               <form className='p-2' onSubmit={handleSubmit}>
-              <div className='sm:w-[70%] m-auto flex rounded-md bg-white p-4'>
+              <div className='lg:w-[70%] w-full m-auto flex rounded-md bg-white p-4'>
                 <div>
                     <CircularProgressbar progress={progress} />
                     {error && <p>{error}</p>}
@@ -852,6 +796,57 @@ useEffect(() => {
                 </div>
               </div>
 
+              {/* Addresses info */}
+              <div ref={addressRef} className='lg:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <span className='p-2 font-bold text-xl my-4' htmlFor='address'>Office Information</span>
+                <div className='mt-4 bg-gray-100 p-2 py-4 rounded-md'>
+                  <span className='font-medium'>Help patients find and contact you with ease</span>
+                  <p className=''>Share your office name, phone number, and address so patients know exactly where to go and how to get in touch.</p>
+                </div>
+                <div className=' py-4'>
+                    <label htmlFor="officeAddress">Office address</label>
+                    <input
+                      type="text"
+                      id='officeAddress'
+                      name='officeAddress'
+                      defaultValue={currentDoctor.officeAddress}
+                      onSelect={handleOfficeAddressSelect}
+                      onChange={handleChange}
+                      className='border-[1px] border-gray-300 p-2 w-full placeholder:text-gray-300 rounded-sm'
+                      placeholder='example: 123 Main St, krakow, Poland'
+                    />
+                  </div>
+                
+                <div className='flex flex-col lg:flex-row gap-4 w-full'>
+                  <div className=' py-4 w-full'>
+                  <label htmlFor="officeName">Office name</label>
+                  <input 
+                    type="text" 
+                    id='officeName'
+                    name='officeName'
+                    onSelect={handleOfficeNameSelect}
+                    onChange={handleChange}
+                    defaultValue={currentDoctor.officeName}
+                    className='border-[1px] border-gray-300 p-2 w-full placeholder:text-gray-300 rounded-sm'
+                    placeholder='Example: Medi clinic'
+                  />
+                </div>
+                  <div className=' py-4 w-full'>
+                    <label htmlFor="officeNumber">Phone number</label>
+                    <input
+                      type="text"
+                      id='officeNumber'
+                      name='officeNumber'
+                      defaultValue={currentDoctor.officeNumber}
+                      onSelect={handleofficeNumberSelect}
+                      onChange={handleChange}
+                      className='border-[1px] border-gray-300 p-2 w-full placeholder:text-gray-300 rounded-sm'
+                      placeholder='example: +48 123 456 789'
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* LINCENSE NUMBER PWZ NO. */}
               <div ref={licenseRef} className='lg:w-[70%] w-full m-auto  rounded-md bg-white p-4 mt-4'>
                 <div className='w- py-4'>
@@ -916,7 +911,7 @@ useEffect(() => {
                           key={`temp-${index}`} 
                           src={URL.createObjectURL(photo)} 
                           alt={`Preview ${index}`} 
-                          className="w-32 h-32 object-cover cursor-pointer " 
+                          className="w-32 h-32 object-fit cursor-pointer " 
                           onClick={() => handlePreviewImageModalOpen(URL.createObjectURL(photo))}
                         />
                       ))}

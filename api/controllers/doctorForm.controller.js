@@ -77,9 +77,11 @@ export const updateDoctor = async (req, res, next) => {
                     license: req.body.license,
                     medicalSpecialtyForAdvice: req.body.medicalSpecialtyForAdvice,
                     heardAboutUs: req.body.heardAboutUs,
+                    officeName: req.body.officeName,
                     officeAddress: req.body.officeAddress,
                     onlineConsultation: req.body.onlineConsultation,
                     acceptChildren: req.body.acceptChildren,
+
                 },
             },
             { new: true }
