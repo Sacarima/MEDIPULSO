@@ -153,7 +153,7 @@ npm run dev
 
 ---
 
-## 🌐 Live Demo
+## 🌐 Live Site
 
 [https://medipulso.com/](https://medipulso.com/)
 
