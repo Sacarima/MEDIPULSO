@@ -353,7 +353,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                     <div className='w-full   text-silver-500 pb-4'>
                                             <p className='font-medium'>{doctorData?.officeName}</p>
                                             <div className='flex gap-2'>
-                                                <p className='text-gray-900'>{doctorData?.officeAddress},</p>
+                                                <p className='text-gray-900'>{doctorData?.officeName},</p>
                                                 <p className='text-gray-400'>{doctorData?.city}</p>
                                             </div>
                                     </div>
@@ -386,7 +386,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                             </div>
                             <div className='flex items-center gap-4 text-gray-400'>
                                 <CiStethoscope className='text-gray-700'/>
-                                <span className='border-y-[.5px] grow  p-4'>Orthodontic consultation from PLN 250</span>
+                                <span className='border-y-[.5px] grow  p-4'>{doctorData?.medicalCategory} consultation from PLN 250</span>
                             </div>
                              {showMore && (
                                     <>

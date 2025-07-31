@@ -205,6 +205,12 @@ const handleofficeNumberSelect = (e) => {
   setFormData((prev) => ({ ...prev, officeAddress: value }))
 }
 
+const handleCitySelect = (e) => {
+  const value = e.target.value
+  setFormData((prev) => ({ ...prev, city: value }))
+  setAddresses(value)
+}
+
    // function to handle open containers
    const handleOpenContainer= (containerId) => {
     setOpenContainers((prevState) => ({
@@ -803,19 +809,35 @@ useEffect(() => {
                   <span className='font-medium'>Help patients find and contact you with ease</span>
                   <p className=''>Share your office name, phone number, and address so patients know exactly where to go and how to get in touch.</p>
                 </div>
-                <div className=' py-4'>
-                    <label htmlFor="officeAddress">Office address</label>
-                    <input
-                      type="text"
-                      id='officeAddress'
-                      name='officeAddress'
-                      defaultValue={currentDoctor.officeAddress}
-                      onSelect={handleOfficeAddressSelect}
-                      onChange={handleChange}
-                      className='border-[1px] border-gray-300 p-2 w-full placeholder:text-gray-300 rounded-sm'
-                      placeholder='example: 123 Main St, krakow, Poland'
-                    />
-                  </div>
+                <div className=' py-4 flex flex-col lg:flex-row gap-4 mt-4'>
+                    <div className='flex-1'>
+                      <label htmlFor="officeAddress">Office address</label>
+                      <input
+                        type="text"
+                        id='officeAddress'
+                        name='officeAddress'
+                        defaultValue={currentDoctor.officeAddress}
+                        onSelect={handleOfficeAddressSelect}
+                        onChange={handleChange}
+                        className='border-[1px] border-gray-300 p-2 w-full placeholder:text-gray-300 rounded-sm'
+                        placeholder='example: 123 Main St, krakow, Poland'
+                      />
+                    </div>
+
+                    <div className=''>
+                      <label htmlFor="city">City</label>
+                      <input
+                        type="text"
+                        id='city'
+                        name='city'
+                        defaultValue={currentDoctor.city}
+                        onSelect={handleCitySelect}
+                        onChange={handleChange}
+                        className='border-[1px] border-gray-300 p-2 w-full placeholder:text-gray-300 rounded-sm'
+                        placeholder='example: Krakow'
+                      />
+                    </div>
+                </div>
                 
                 <div className='flex flex-col lg:flex-row gap-4 w-full'>
                   <div className=' py-4 w-full'>
