@@ -2,6 +2,7 @@ import DoctorForm from '../models/doctorForm.model.js'
 import DoctorAvailability from '../models/doctorAvailability.model.js'
 import { errorHandler } from '../utils/error.js'
 import bcryptjs from 'bcryptjs'
+import admin from 'firebase-admin'
 
 
 export const test = (req, res) => {
@@ -81,6 +82,9 @@ export const updateDoctor = async (req, res, next) => {
                     officeAddress: req.body.officeAddress,
                     onlineConsultation: req.body.onlineConsultation,
                     acceptChildren: req.body.acceptChildren,
+                    publication: req.body.publication,
+                    awards: req.body.awards,
+                    customTreatments: req.body.customTreatments,
 
                 },
             },
@@ -434,5 +438,18 @@ export const getRandomDoctors = async (req, res, next) => {
       console.error("Error fetching random doctors:", err);
       next(errorHandler(500, 'Failed to fetch random doctors.'));
     }
-  };
+  }
+
+  export async function deleteDoctorPhoto(req, res, next) {
+      try {
+    const filePath = decodeURIComponent(req.params.filePath);
+    const bucket = admin.storage().bucket();
+    await bucket.file(filePath).delete();
+    res.json({ message: 'Photo deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Could not delete photo' });
+    next(errorHandler(500, 'Failed to delete photo'));
+  }
+ }
   

@@ -8,7 +8,8 @@ import {
     getDoctorPublicProfileInfo,
     updateDoctorProfileCompletion,
     searchDoctors, 
-    getRandomDoctors
+    getRandomDoctors,
+    deleteDoctorPhoto
 } from '../controllers/doctorForm.controller.js'
 import { logout } from '../controllers/auth.controller.js'
 import { verifyToken } from '../utils/verifyDoctor.js'
@@ -29,9 +30,11 @@ router.put('/:doctorId/treatments', verifyUserOrDoctor, updateDoctorTreatments)
 router.post('/logout', logout)
 
 
+
 router.get('/:doctorId', verifyToken, getDoctor)
 router.put('/update/:doctorId', verifyToken, updateDoctor)
 router.put("/profile-completion/:doctorId", verifyUserOrDoctor, updateDoctorProfileCompletion)
+router.delete('/photo/:filePath(*)', verifyUserOrDoctor, deleteDoctorPhoto)
 
 
 
