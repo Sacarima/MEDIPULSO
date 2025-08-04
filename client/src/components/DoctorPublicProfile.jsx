@@ -28,6 +28,7 @@ import Carousel from './Carousel'
 import { ROUTES } from '../config/routes'
 import useMediaQuery from '../hooks/useMediaQuery'
 import DoctorPhotoGallery from './DoctorPhotoGallery'
+import DoctorPublicProfileModal from './DoctorPublicProfileModal'
 import Footer from './Footer'
 
 
@@ -45,6 +46,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
     const [showMoreContentDetails, setShowMoreContentDetails] = useState({})
     const [open, setOpen] = useState({})
     const [showModal, setShowModal] = useState(false)
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
     const [faqFirst, setFaqFirst] = useState(true)
     const [reviews, setReviews] = useState([])
     const navigate = useNavigate()
@@ -222,6 +224,10 @@ const DoctorPublicProfile = ({ isLoaded }) => {
         }
     }
 
+    // modal to show more about the doctor
+    const handleAboutMeModal = () => setIsProfileModalOpen(true)
+
+
     // prevent scrolling when modal is opened
 
     if (loading) return <div>Loading...</div>
@@ -299,7 +305,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                     </ul>
                                 </nav>
 
-                                   {/* DOCTORS' EXPERIENCE */}
+                            {/* DOCTORS' EXPERIENCE */}
                             <section ref={experienceRef} className=' mt-4 bg-white w-full  p-4 rounded-t-sm shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px]'>
                             <h2 className='text-2xl font-medium py-2'>My experience</h2>
         
@@ -316,7 +322,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                     </button>
                                 )}
                             </div>
-                                <button className='border w-full py-2 mt-4 rounded-sm cursor-pointer'>Show more</button>
+                                <button className='border w-full py-2 mt-4 rounded-sm cursor-pointer' onClick={handleAboutMeModal}>Show more</button>
                                 {/* Modal */}
                                 {showModal && (
                                     <div
@@ -338,7 +344,14 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                         </div>
                                     </div>
                                 )}
-                            </section>
+
+                                <DoctorPublicProfileModal
+                                    isOpen={isProfileModalOpen}
+                                    onClose={() => setIsProfileModalOpen(false)}
+                                    doctorData={doctorData}
+                                    reviews={reviews}
+                                />
+                                </section>
         
                         {/* DOCTORS' ADDRESS */}
         
@@ -353,13 +366,13 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                     <div className='w-full   text-silver-500 pb-4'>
                                             <p className='font-medium'>{doctorData?.officeName}</p>
                                             <div className='flex gap-2'>
-                                                <p className='text-gray-900'>{doctorData?.officeName},</p>
+                                                <p className='text-gray-900'>{doctorData?.officeAddress},</p>
                                                 <p className='text-gray-400'>{doctorData?.city}</p>
                                             </div>
                                     </div>
                                 </div>
                                 <div className=' flex-2'>
-                                    <DoctorLocation address={doctorData?.address} isLoaded={isLoaded}/>
+                                    <DoctorLocation address={doctorData?.officeAddress} isLoaded={isLoaded}/>
                                 </div>
                             </div>
                             <div className='flex items-center gap-4 text-gray-400 '>
@@ -403,7 +416,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                             </div>
                                             <div className='border-y-[.5px] grow  p-4 mb-2'>
                                                 <span className='text-gray-700'>Company Address</span>
-                                                <p className='text-sm'>123 Main Street, Michasl kliedon </p>
+                                                <p className='text-sm'>{doctorData?.officeAddress} </p>
                                             </div>
                                         </div>
                                     </>
@@ -515,10 +528,10 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                     {showMoreContentDetails['fifth'] && (
                                     <div className='border-b-[.5px] ml-7 border-gray-200 pb-5'>
                                         <div className='flex justify-between'>
-                                            <span className='text-gray-700 font-medium'>Bishop 6b, Wroclaw</span>
+                                            <span className='text-gray-700 font-medium'>{doctorData?.officeAddress} Wroclaw</span>
                                             <span className='text-gray-700 font-medium'>200 PLN</span>
                                         </div>
-                                        <span className='text-gray-400'>CLINICA DOCE LAR</span>
+                                        <span className='text-gray-400'>{doctorData?.officeName}</span>
                                         <p className='text-sm text-gray-500 mt-4'>The visit must be paid for within an hour of the booking time,
                                         a payment link will be sent to the email provided when booking.
                                         If payment is not made in time, the visit will be automatically deleted
@@ -563,7 +576,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                            <section ref={reviewsRef} className='mt-4 bg-white w-full p-4 rounded-t-sm shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px]'>
                             {reviews.length > 0 ? (
                                 <DoctorProvider doctorData={doctorData}>
-                                    <ReviewsSection reviews={reviews} doctorAddress={doctorData?.address} />
+                                    <ReviewsSection reviews={reviews} doctorAddress={doctorData?.officeAddress} />
                                 </DoctorProvider>
                             ) : (
                                 <div>
@@ -606,7 +619,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
                                     {/* Doctor's address */}
                                     <div className='text-start py-1'>
                                         <span className=''>Address</span>
-                                        <p>{doctorData?.address}</p>
+                                        <p>{doctorData?.offceAddress}</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-2 ">

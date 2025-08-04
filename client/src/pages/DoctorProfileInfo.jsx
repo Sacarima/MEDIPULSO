@@ -65,6 +65,8 @@ const  DoctorProfileInfo = ()=> {
 
 
 
+
+
   // Reference for containers
   const licenseRef = useRef(null)
   const photoRef = useRef(null)
@@ -86,7 +88,7 @@ const  DoctorProfileInfo = ()=> {
  // Use useMemo to optimize performance when rending dropdown options
  const memoizedDegrees = useMemo(() => degrees, [])
  const memoizedMedicalCategories = useMemo(() => medicalCategories, [])
- const memoizedDiseases = useMemo(() => diseases, [])
+ const memoizedDiseases = useMemo(() => currentDoctor?.custumTreatments, [])
  const memoizedGenders = useMemo(() => genders, [])
  const memoizedDoctorSpecializations = useMemo(() => doctorSpecializations, [])
  const memoizedMedicalSpecialtiesForAdvice = useMemo(() => medicalSpecialtiesForAdvice, [])
@@ -128,22 +130,15 @@ const  DoctorProfileInfo = ()=> {
       const { name, value } = e.target;
 
       setFormData((prevFormData) => {
-        if (name === "languages") {
-          const languagesArray = value
-            .split(",")
-            .map((lang) => lang.trim())
-            .filter((lang) => lang !== "");
-
-          return {
-            ...prevFormData,
-            [name]: languagesArray,
-          };
-        }
-
-        return {
-          ...prevFormData,
-          [name]: value,
-        };
+        if (["languages", "publication", "customTreatments"].includes(name)) {
+          const arr = value
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s !== "");
+        return { ...prevFormData, [name]: arr };
+         }
+        return { ...prevFormData, [name]: value };
+        
       });
     };
 
@@ -270,6 +265,77 @@ const handleCitySelect = (e) => {
       }  
     }
 
+   
+    const handleDeleteSavedPhoto = async (indexToRemove) => {
+    const urlToDelete = firebasePhotoURLs[indexToRemove];
+
+    // 1) extract the path from the URL
+    let storagePath;
+    try {
+      // split out the "/o/…?…" part, then decode
+      const parts = urlToDelete.split("/o/")[1].split("?");
+      storagePath = decodeURIComponent(parts[0]); // e.g. "userId/photos/filename.jpg"
+    } catch (e) {
+      console.error("Failed to parse storage path from URL", e);
+      return;
+    }
+
+    // 2) call your backend DELETE endpoint
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(
+        `${API_BASE_URL}/api/doctor-form/photo/${encodeURIComponent(storagePath)}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        const errData = await res.json();
+        console.error("Server failed to delete file:", errData.message);
+        return;
+      }
+    } catch (err) {
+      console.error("Network error deleting file on server:", err);
+      return;
+    }
+
+    // 3) update UI state
+    const newPhotoURLs = firebasePhotoURLs.filter((_, i) => i !== indexToRemove);
+    setFirebasePhotoURLs(newPhotoURLs);
+
+    // 4) persist the updated list of URLs to your doctor record
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(
+        `${API_BASE_URL}/api/doctor-form/update/${currentDoctor._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({ photoURLs: newPhotoURLs }),
+        }
+      );
+      if (!res.ok) {
+        const errData = await res.json();
+        console.error("Failed to update DB:", errData.message);
+      }
+    } catch (err) {
+      console.error("Network error updating DB:", err);
+    }
+  };
+
+    const handleDeleteTemporaryPhoto = (indexToRemove) => {
+      setTemporaryPhotos(prev => prev.filter((_, i) => i !== indexToRemove));
+    };
+
+
   useEffect(() => {
     if (imageFile && !isUploading) {
         setIsUploading(true) // sets flag to prevent multiple uploads
@@ -380,6 +446,22 @@ const handleCitySelect = (e) => {
     setOpenModal(false)
   }
 
+  const handleSaveTreatments = (selectedTreatments) => {
+  // 1) Update the form payload
+  setFormData((prev) => ({
+    ...prev,
+    customTreatments: selectedTreatments,
+  }));
+  // 2) Update the UI-rendered slice
+  setDoctorInfo((prev) => ({
+    ...prev,
+    customTreatments: selectedTreatments,
+  }));
+  // 3) Close the modal
+  setOpenModal(false);
+};
+
+
 
 useEffect(() => {
   if (currentDoctor) {
@@ -392,6 +474,26 @@ useEffect(() => {
     setDoctorInfo(currentDoctor);
   }
 }, [currentDoctor])
+
+useEffect(() => {
+  if (!currentDoctor) return;
+
+  // 1) seed *every* field you care about, including publication
+  setFormData({
+    ...initializedDoctorFormData(currentDoctor), // your existing helper
+    publication: Array.isArray(currentDoctor.publication)
+      ? currentDoctor.publication
+      : [],
+    languages: Array.isArray(currentDoctor.languages)
+      ? currentDoctor.languages
+      : [],
+    customTreatments: Array.isArray(currentDoctor.customTreatments)
+      ? currentDoctor.customTreatments
+      : [],
+  });
+  setDoctorInfo(currentDoctor);
+}, [currentDoctor]);
+
  
  useEffect(() => {
   const loadPhotosFromFirebase = async () => {
@@ -410,6 +512,8 @@ useEffect(() => {
     }
     loadPhotosFromFirebase()
   }, [currentDoctor._id])
+
+  
 
 
 
@@ -884,7 +988,6 @@ useEffect(() => {
                       id='license'
                       name='license'
                       defaultValue={currentDoctor.license}
-                      //value={formData?.license?.value || ''} 
                       onChange={handleChange}
                     />
                     <LiaTimesSolid
@@ -920,23 +1023,56 @@ useEffect(() => {
                 {/* Display doctors photos from the database and temporary photo storage */}
                 <div className="flex flex-wrap justify-between gap-4 mt-5 cursor-pointer">
                       {firebasePhotoURLs.map((url, index) => (
-                        <img 
-                          key={`saved-${index}`} 
-                          src={url} 
-                          alt={`Photo ${index}`} 
-                          className="w-36 h-36 object-cover cursor-pointer" 
-                          onClick={() => handlePreviewImageModalOpen(url)}
-                        />
+                        // <img 
+                        //   key={`saved-${index}`} 
+                        //   src={url} 
+                        //   alt={`Photo ${index}`} 
+                        //   className="w-36 h-36 object-cover cursor-pointer" 
+                        //   onClick={() => handlePreviewImageModalOpen(url)}
+                        // />
+                        <div key={`saved-${index}`} className="relative w-36 h-36">
+                          <img
+                            src={url}
+                            alt={`Photo ${index}`}
+                            className="w-full h-full object-cover rounded"
+                            onClick={() => handlePreviewImageModalOpen(url)}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSavedPhoto(index)}
+                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                          >
+                            &times;
+                          </button>
+                        </div>
                       ))}
-                      {temporaryPhotos.map((photo, index) => (
-                        <img 
-                          key={`temp-${index}`} 
-                          src={URL.createObjectURL(photo)} 
-                          alt={`Preview ${index}`} 
-                          className="w-32 h-32 object-fit cursor-pointer " 
-                          onClick={() => handlePreviewImageModalOpen(URL.createObjectURL(photo))}
-                        />
-                      ))}
+                      {temporaryPhotos.map((photo, index) => {
+                        // <img 
+                        //   key={`temp-${index}`} 
+                        //   src={URL.createObjectURL(photo)} 
+                        //   alt={`Preview ${index}`} 
+                        //   className="w-32 h-32 object-fit cursor-pointer " 
+                        //   onClick={() => handlePreviewImageModalOpen(URL.createObjectURL(photo))}
+                        // />
+                          const objectUrl = URL.createObjectURL(photo);
+                              return (
+                                <div key={`temp-${index}`} className="relative w-32 h-32">
+                                  <img
+                                    src={objectUrl}
+                                    alt={`Preview ${index}`}
+                                    className="w-full h-full object-cover rounded"
+                                    onClick={() => handlePreviewImageModalOpen(objectUrl)}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteTemporaryPhoto(index)}
+                                    className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                  >
+                                    &times;
+                                  </button>
+                                </div>
+                              );
+                          })}
 
                       {/* Image preview modal */}
                       <ImageModal 
@@ -1112,9 +1248,9 @@ useEffect(() => {
                 </p>
                 <span className="font-bold p-2">Treated diseases</span>
                 <div className="mt-1 ml-2">
-                  {doctorInfo.diseases && doctorInfo.diseases.length > 0 ? (
+                  {doctorInfo.customTreatments && doctorInfo.customTreatments.length > 0 ? (
                     <ul>
-                      {doctorInfo.diseases.map((disease, index) => (
+                      {doctorInfo.customTreatments.map((disease, index) => (
                         <li key={index}>{disease}</li>
                       ))}
                     </ul>
@@ -1140,8 +1276,8 @@ useEffect(() => {
                 <ModalForDiseases
                   openModal={openModal}
                   onCloseModal={handleModalClose}
-                  defaultValue={currentDoctor.diseases}
-                  onSaveDiseases={handleSaveDiseases}
+                  defaultValue={currentDoctor.customTreatments}
+                  onSaveDiseases={handleSaveTreatments}
                   options={memoizedDiseases}
                 />
               </div>
@@ -1229,16 +1365,17 @@ useEffect(() => {
                       <div className='flex items-center  gap-3 w-[95%]'>
                         <LuSlidersHorizontal className='text-2xl '/>
                         <div className='flex-1 grow '>
+                          
                           <input
                             className='w-[100%] border-gray-200'
                             type="text"
-                            placeholder='e.g Early diagnosis of breast cancer (Medical Journal 2019)'
+                            placeholder='e.g. Early diagnosis of breast cancer (Medical Journal 2019), Another Paper (2021)'
                             id='publication'
                             name='publication'
-                            defaultValue={currentDoctor.publication}
-                            //value={formData.publication}
+                            value={(formData.publication || []).join(", ")}
                             onChange={handleChange}
                           />
+
                         </div>
                       </div>
               
@@ -1295,6 +1432,7 @@ useEffect(() => {
                   </div>
                 </div>
               </div>
+
               {/*  PROFESSIONAL EXPERIENCE */}
               <div ref={professionalExperienceRef} className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
                 <div className='w- py-4'>
@@ -1311,9 +1449,9 @@ useEffect(() => {
                             className='w-[100%] border-gray-200'
                             type="text"
                             placeholder='e.g. MSMA Hospital, surgery department in Warsaw, 2010-2015'
-                            name='professionalExperience'
-                            defaultValue={currentDoctor.professionalExperience}
-                            id='professionalExperience'
+                            name='experience'
+                            defaultValue={currentDoctor.experience}
+                            id='experience'
                             //value={formData.professionalExperience}
                             onChange={handleChange}
                           />
