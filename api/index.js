@@ -28,7 +28,7 @@ import admin from 'firebase-admin'
 // Ensure that the file path is correct and the file is included in your project
 // The file should not be committed to version control for security reasons
 // The service account is used for operations like uploading files to Firebase Storage, sending notifications, etc
-import serviceAccount from './secrets/firebaseServicesAccountKey.json' assert { type: 'json' }
+const serviceAccount = await import('./secrets/firebaseServicesAccountKey.json').then(mod => mod.default)
 
 //Initialize Firebase Admin SDK
 // This allows the server to interact with Firebase services like Firestore, Storage, etc.
