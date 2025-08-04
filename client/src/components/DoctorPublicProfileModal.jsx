@@ -34,7 +34,7 @@ const DoctorPublicProfileModal = ({ isOpen, onClose, doctorData, reviews }) => {
 
   console.log("Doctor Data:", doctorData.publication);
 
-  // round to nearest whole star; change to Math.floor if you prefer
+  // round to nearest whole star
   const fullStars = Math.round(averageRating)
   const emptyStars = Math.max(0, 5 - fullStars)
 
