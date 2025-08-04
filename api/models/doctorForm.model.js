@@ -189,8 +189,8 @@ const doctorFormSchema = new mongoose.Schema({
         required: false,
     },
     publication: {
-        type: String,
-        required: false,
+         type: [String],
+         default: [],
     },
     role: {
         type: String,
