@@ -20,7 +20,22 @@ import connectDB from './config/db.js'
 import StatsRoutes from './routes/stats.route.js'
 import locationRoutes from './routes/location.route.js'
 import path from 'path'
+import admin from 'firebase-admin'
 
+//Load Firebase service account credentials
+// This is necessary to initialize Firebase Admin SDK for server-side operations
+// The service account JSON file contains the credentials needed to authenticate with Firebase services
+// Ensure that the file path is correct and the file is included in your project
+// The file should not be committed to version control for security reasons
+// The service account is used for operations like uploading files to Firebase Storage, sending notifications, etc
+import serviceAccount from './secrets/firebaseServicesAccountKey.json' assert { type: 'json' }
+
+//Initialize Firebase Admin SDK
+// This allows the server to interact with Firebase services like Firestore, Storage, etc.
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+})
 
 // Load environment variables
 dotenv.config()
@@ -80,6 +95,7 @@ app.use("/api/treatments", treatmentRoutes)
 app.use("/api/questions", questionRoutes)
 app.use("/api", StatsRoutes)
 app.use('/api/location', locationRoutes)
+
 
 // Serve static files from the React app
 // This is necessary to serve the React app in production
