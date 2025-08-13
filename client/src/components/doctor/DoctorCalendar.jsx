@@ -5,8 +5,60 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import Modal from "react-modal"
+import { io } from "socket.io-client";
+import toast from "react-hot-toast";
 
-Modal.setAppElement("#root");
+
+
+// Build calendar events from a DoctorAvailability doc
+function buildAvailabilityEventsFromDoc(doc) {
+  if (!doc?.monthlyAvailability) return [];
+  return doc.monthlyAvailability.flatMap((m) =>
+    m.dates.flatMap((d) =>
+      (d.times || []).map((time) => ({
+        id: `available-${new Date(d.date).toISOString()}-${time}`,
+        title: `Available at ${time}`,
+        start: moment(`${moment(d.date).format("YYYY-MM-DD")} ${time}`, "YYYY-MM-DD HH:mm").toDate(),
+        end: moment(`${moment(d.date).format("YYYY-MM-DD")} ${time}`, "YYYY-MM-DD HH:mm").add(30, "minutes").toDate(),
+        allDay: false,
+        type: "availability",
+      }))
+    )
+  );
+}
+
+function makeAppointmentEvent(appt) {
+  const dateStr = appt?.date ? moment(appt.date).format("YYYY-MM-DD") : "";
+  const start = moment(`${dateStr} ${appt.time}`, "YYYY-MM-DD HH:mm");
+  return {
+    id: appt._id,
+    title: `Appointment with ${appt?.patient?.firstName || "Patient"}`,
+    start: start.toDate(),
+    end: start.clone().add(30, "minutes").toDate(),
+    allDay: false,
+    type: "appointment",
+    status: appt.status || "pending",
+    reason: appt.reason,
+    specialNotes: appt.specialNotes,
+  };
+}
+
+function recomputeCountsFromEvents(allEvents) {
+  const appts = allEvents.filter((e) => e.type === "appointment");
+  const by = (s) => appts.filter((a) => a.status === s).length;
+  return {
+    pending: by("pending"),
+    confirmed: by("confirmed"),
+    canceled: by("canceled"),
+    completed: by("completed"),
+  };
+}
+
+
+
+  Modal.setAppElement("#root"); 
+
+
 
 const localizer = momentLocalizer(moment);
 
@@ -34,11 +86,17 @@ const DoctorCalendar = () => {
   const [selectedAvailability, setSelectedAvailability] = useState(null)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
 
+  
+
   //appointment status
   const [pendingCount, setPendingCount] = useState(0);
   const [confirmedCount, setConfirmedCount] = useState(0);
   const [canceledCount, setCanceledCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
+  // cancel flow
+const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+const [cancelReason, setCancelReason] = useState("");
+
 
 
   // create availability
@@ -55,80 +113,182 @@ const DoctorCalendar = () => {
 
   
 
+// const fetchCalendarData = useCallback(async () => {
+//   if (!doctorId) return;
+
+//   setLoading(true);
+//   setError(null);
+
+  
+
+//   try {
+//     const timestamp = new Date().getTime()
+    
+//     const [availabilityRes, appointmentsRes] = await Promise.all([
+//       axios.get(`${API_BASE_URL}/doctor-availability/${doctorId}?t=${timestamp}`, { withCredentials: true })
+//         .catch(error => {
+//           if (error.response?.status === 404) {
+//             console.warn("No availability found for this doctor.");
+//             return { data: { availability: { monthlyAvailability: [] } } }; // Return empty data instead of throwing an error
+//           }
+//           throw error;
+//         }),
+//       axios.get(`${API_BASE_URL}/api/appointments/doctor/${doctorId}`, { withCredentials: true })
+//         .catch(error => {
+//           if (error.response?.status === 500) {
+//             console.warn("No appointments found or server error.");
+//             return { data: { appointments: [] } }; // Return empty array instead of throwing an error
+//           }
+//           throw error;
+//         }),
+//     ]);
+
+//     //Convert availability into events (Handles empty availability case)
+//     const availabilityEvents = availabilityRes.data.availability?.monthlyAvailability.flatMap((month) =>
+//       month.dates.flatMap((day) =>
+//         day.times.map((time) => ({
+//           id: `available-${day.date}-${time}`,
+//           title: `Available at ${time}`,
+//           start: moment(`${day.date} ${time}`, "YYYY-MM-DD HH:mm").toDate(),
+//           end: moment(`${day.date} ${time}`, "YYYY-MM-DD HH:mm").add(30, "minutes").toDate(),
+//           allDay: false,
+//           type: "availability",
+//         }))
+//       )
+//     ) || [];
+
+
+
+//     // Convert appointments into events (Handles empty appointment case)
+//     const appointments = appointmentsRes.data.appointments || [];
+
+//     // Count different appointment statuses
+//     setPendingCount(appointments.filter(appt => appt.status === "pending").length);
+//     setConfirmedCount(appointments.filter(appt => appt.status === "confirmed").length);
+//     setCanceledCount(appointments.filter(appt => appt.status === "canceled").length);
+//     setCompletedCount(appointments.filter(appt => appt.status === "completed").length);
+
+//     const appointmentEvents = appointments.map((appt) => ({
+//       id: appt._id,
+//       title: `Appointment with ${appt?.patient?.firstName || "Patient"}`,
+//       start: moment(`${appt.date.split("T")[0]} ${appt.time}`, "YYYY-MM-DD HH:mm").toDate(),
+//       end: moment(`${appt.date.split("T")[0]} ${appt.time}`, "YYYY-MM-DD HH:mm").add(30, "minutes").toDate(),
+//       allDay: false,
+//       type: "appointment",
+//       status: appt.status || "pending",
+//     }));
+
+  
+
+//     setEvents([...availabilityEvents, ...appointmentEvents]); // Ensure canceled appointments are included
+//   } catch (error) {
+//     toast.error("Error fetching calendar data:", error);
+//     setError("Error fetching calendar data. Please try again.");
+//   }
+//   setLoading(false);
+// }, [doctorId]);
+
 const fetchCalendarData = useCallback(async () => {
   if (!doctorId) return;
 
   setLoading(true);
   setError(null);
 
-  
-
   try {
-    const timestamp = new Date().getTime()
-    
+    const timestamp = Date.now();
+
     const [availabilityRes, appointmentsRes] = await Promise.all([
-      axios.get(`${API_BASE_URL}/doctor-availability/${doctorId}?t=${timestamp}`, { withCredentials: true })
-        .catch(error => {
+      axios
+        .get(`${API_BASE_URL}/api/doctor-availability/${doctorId}?t=${timestamp}`, { withCredentials: true })
+        .catch((error) => {
           if (error.response?.status === 404) {
             console.warn("No availability found for this doctor.");
-            return { data: { availability: { monthlyAvailability: [] } } }; // Return empty data instead of throwing an error
+            return { data: { availability: { monthlyAvailability: [] } } };
           }
           throw error;
         }),
-      axios.get(`${API_BASE_URL}/api/appointments/doctor/${doctorId}`, { withCredentials: true })
-        .catch(error => {
+      axios
+        .get(`${API_BASE_URL}/api/appointments/doctor/${doctorId}`, { withCredentials: true })
+        .catch((error) => {
           if (error.response?.status === 500) {
             console.warn("No appointments found or server error.");
-            return { data: { appointments: [] } }; // Return empty array instead of throwing an error
+            return { data: { appointments: [] } };
           }
           throw error;
         }),
     ]);
 
-    //Convert availability into events (Handles empty availability case)
-    const availabilityEvents = availabilityRes.data.availability?.monthlyAvailability.flatMap((month) =>
-      month.dates.flatMap((day) =>
-        day.times.map((time) => ({
-          id: `available-${day.date}-${time}`,
-          title: `Available at ${time}`,
-          start: moment(`${day.date} ${time}`, "YYYY-MM-DD HH:mm").toDate(),
-          end: moment(`${day.date} ${time}`, "YYYY-MM-DD HH:mm").add(30, "minutes").toDate(),
-          allDay: false,
-          type: "availability",
-        }))
-      )
-    ) || [];
+    //Availability → events
+    const availabilityEvents =
+      availabilityRes.data.availability?.monthlyAvailability.flatMap((month) =>
+        month.dates.flatMap((day) =>
+          (day.times || []).map((time) => {
+            const dayStr = moment(day.date).format("YYYY-MM-DD"); // robust
+            const start = moment(`${dayStr} ${time}`, "YYYY-MM-DD HH:mm");
+            return {
+              id: `available-${dayStr}-${time}`,
+              title: `Available at ${time}`,
+              start: start.toDate(),
+              end: start.clone().add(30, "minutes").toDate(),
+              allDay: false,
+              type: "availability",
+            };
+          })
+        )
+      ) || [];
+
+      // const availabilityEvents =
+      //   availabilityRes.data.availability?.monthlyAvailability.flatMap((month) =>
+      //     (month.dates || []).flatMap((day) =>
+      //       (day.times || []).map((time) => ({
+      //         id: `available-${new Date(day.date).toISOString()}-${time}`,
+      //         title: `Available at ${time}`,
+      //         start: moment(`${new Date(day.date).toISOString().split("T")[0]} ${time}`, "YYYY-MM-DD HH:mm").toDate(),
+      //         end: moment(`${new Date(day.date).toISOString().split("T")[0]} ${time}`, "YYYY-MM-DD HH:mm")
+      //           .add(30, "minutes")
+      //           .toDate(),
+      //         allDay: false,
+      //         type: "availability", 
+      //       }))
+      //     )
+      //   ) || [];
 
 
-
-    // Convert appointments into events (Handles empty appointment case)
+    // Appointments → events
     const appointments = appointmentsRes.data.appointments || [];
 
-    // Count different appointment statuses
-    setPendingCount(appointments.filter(appt => appt.status === "pending").length);
-    setConfirmedCount(appointments.filter(appt => appt.status === "confirmed").length);
-    setCanceledCount(appointments.filter(appt => appt.status === "canceled").length);
-    setCompletedCount(appointments.filter(appt => appt.status === "completed").length);
+    setPendingCount(appointments.filter((a) => a.status === "pending").length);
+    setConfirmedCount(appointments.filter((a) => a.status === "confirmed").length);
+    setCanceledCount(appointments.filter((a) => a.status === "canceled").length);
+    setCompletedCount(appointments.filter((a) => a.status === "completed").length);
 
-    const appointmentEvents = appointments.map((appt) => ({
-      id: appt._id,
-      title: `Appointment with ${appt?.patient?.firstName || "Patient"}`,
-      start: moment(`${appt.date.split("T")[0]} ${appt.time}`, "YYYY-MM-DD HH:mm").toDate(),
-      end: moment(`${appt.date.split("T")[0]} ${appt.time}`, "YYYY-MM-DD HH:mm").add(30, "minutes").toDate(),
-      allDay: false,
-      type: "appointment",
-      status: appt.status || "pending",
-    }));
+    const appointmentEvents = appointments.map((appt) => {
+      const dateStr = moment(appt.date).format("YYYY-MM-DD"); // handles ISO/Date
+      const start = moment(`${dateStr} ${appt.time}`, "YYYY-MM-DD HH:mm");
+      return {
+        id: appt._id,
+        title: `Appointment with ${appt?.patient?.firstName || "Patient"}`,
+        start: start.toDate(),
+        end: start.clone().add(30, "minutes").toDate(),
+        allDay: false,
+        type: "appointment",
+        status: appt.status || "pending",
+        reason: appt.reason,
+        specialNotes: appt.specialNotes,
+      };
+    });
 
-  
-
-    setEvents([...availabilityEvents, ...appointmentEvents]); // Ensure canceled appointments are included
+    setEvents([...availabilityEvents, ...appointmentEvents]);
   } catch (error) {
-    console.error("Error fetching calendar data:", error);
+    console.error(error);
+    toast.error("Error fetching calendar data. Please try again.");
     setError("Error fetching calendar data. Please try again.");
+  } finally {
+    setLoading(false);
   }
-  setLoading(false);
-}, [doctorId]);
+}, [doctorId, API_BASE_URL]);
+
+
 
 
 useEffect(() => {
@@ -152,78 +312,90 @@ useEffect(() => {
 
   // Handle deleting availability
   const handleDeleteAvailability = (event) => {
+    console.log('handleDeleteAvailability called with:', event);
     if (event.type !== "availability") return;
   
     setSelectedAvailability(event); // Store the selected availability
     setIsDeleteModalOpen(true); // Open the delete confirmation modal
   }
 
+
+
   
   
 
   // Handle rescheduling an appointment
-  const confirmDeleteAvailability = async () => {
-    if (!selectedAvailability) return;
-  
-    try {
-      const formattedDate = moment(selectedAvailability.start).format("YYYY-MM-DD");
-      const timeSlot = moment(selectedAvailability.start).format("HH:mm");
-  
-      await axios.put(
-        `${API_BASE_URL}/api/doctor-availability/update/${doctorId}`,
-        {
-          month: moment(selectedAvailability.start).month() + 1,
-          year: moment(selectedAvailability.start).year(),
-          removeDate: formattedDate,
-          removeTime: timeSlot, //  Send the specific time to delete
-        },
-        { withCredentials: true }
-      );
-  
-      setIsDeleteModalOpen(false);
-      setSuccessMessage(`Availability on ${formattedDate} at ${timeSlot} removed successfully!`)
-      setTimeout(() => setSuccessMessage(null), 3000);
-  
-      // Remove only the selected availability event
-      setEvents((prevEvents) =>
-        prevEvents.filter(
-          (event) => !(event.type === "availability" && event.start.getTime() === selectedAvailability.start.getTime())
-        )
-      );
-  
-      fetchCalendarData(); // Refresh calendar after deletion
-    } catch (error) {
-      console.error("Error deleting availability:", error);
-      setError("Error deleting availability. Please try again.");
-    }
-  };
-  
-  
-  const handleSelectEvent = (event) => {
-    if (event.type === "appointment") {
-      // Handle rescheduling for appointments
-      setSelectedAppointment(event);
-      setNewDate(moment(event.start).format("YYYY-MM-DD")); // Pre-fill current date
-      setNewTime(moment(event.start).format("HH:mm")); // Pre-fill current time
-      setIsModalOpen(true); // Open the reschedule modal
-    } 
-    else if (event.type === "availability") {
-      // Handle availability deletion
-      setSelectedAvailability(event);
-      setIsDeleteModalOpen(true);
-    }
+ const confirmDeleteAvailability = async () => {
+  if (!selectedAvailability) return;
 
-    if ( event.type !== "appointment") return
-    setSelectedAppointment(event)
-    setIsDetailsModalOpen(true)
-  };
+  try {
+    const dayISO = moment(selectedAvailability.start).format("YYYY-MM-DD");
+    const timeHHMM = moment(selectedAvailability.start).format("HH:mm");
+
+    await axios.put(
+      `${API_BASE_URL}/api/doctor-availability/update/${doctorId}`,
+      {
+        month: moment(selectedAvailability.start).month() + 1,
+        year: moment(selectedAvailability.start).year(),
+        removeDate: dayISO,
+        removeTime: timeHHMM,
+      },
+      { withCredentials: true }
+    );
+
+    setIsDeleteModalOpen(false);
+    toast.success(`Removed ${dayISO} at ${timeHHMM}`);
+
+    // Optimistically remove from UI
+    setEvents((prev) =>
+      prev.filter(
+        (evt) =>
+          !(
+            evt.type === "availability" &&
+            evt.start.getTime() === selectedAvailability.start.getTime()
+          )
+      )
+    );
+
+    // Optional: refresh to stay in sync with server
+    fetchCalendarData();
+  } catch (err) {
+    console.error("delete availability error:", err);
+    toast.error(
+      err?.response?.data?.message || "Error deleting availability. Please try again."
+    );
+  }
+};
+
+  
+
+
+  const handleSelectEvent = (event) => {
+  if (!event) return;
+
+  if (event.type === "availability") {
+    setSelectedAvailability(event);
+    setIsDeleteModalOpen(true);
+    return;
+  }
+
+  if (event.type === "appointment") {
+    setSelectedAppointment(event);
+  
+    setNewDate(moment(event.start).format("YYYY-MM-DD"));
+    setNewTime(moment(event.start).format("HH:mm"));
+    setIsDetailsModalOpen(true);  
+    return;
+  }
+};
+
   
   
 
   const handleReschedule = async () => {
     if (!newDate || !newTime || !selectedAppointment) {
-      setError("Please select a valid date and time.");
-      setTimeout(() => setError(null), 3000);
+      toast.error("Please select a valid date and time.");
+      setTimeout(() => toast.error(null), 3000);
       return;
     }
   
@@ -232,8 +404,8 @@ useEffect(() => {
   
     // Check if the selected time is in the past
     if (selectedDateTime.isBefore(moment())) {
-      setError("Appointments can only be scheduled for future dates and times.");
-      setTimeout(() => setError(null), 4000);
+      toast.error("Appointments can only be scheduled for future dates and times.");
+      setTimeout(() => toast.error(null), 4000);
       return;
     }
   
@@ -245,28 +417,28 @@ useEffect(() => {
       );
   
       setIsModalOpen(false); // Close modal after update
-      setSuccessMessage("Appointment rescheduled successfully!");
+      toast.success("Appointment rescheduled successfully!");
       fetchCalendarData(); // Refresh the calendar
   
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setTimeout(() => toast.success(null), 3000);
     } catch (error) {
-      console.error("Error rescheduling appointment:", error);
+      toast.error("Error rescheduling appointment:", error);
   
       if (error.response) {
         console.log("Error Response:", error.response.data);
   
         if (error.response.status === 400) {
-          setError("Invalid date or time. Please select a valid slot.");
+          toast.error("Invalid date or time. Please select a valid slot.");
         } else if (error.response.status === 409) {
-          setError("This time slot is already booked. Choose another time.");
+          toast.error("This time slot is already booked. Choose another time.");
         } else {
-          setError("Error rescheduling appointment. Please try again.");
+          toast.error("Error rescheduling appointment. Please try again.");
         }
       } else {
-        setError("Network error. Please check your connection.");
+        toast.error("Network error. Please check your connection.");
       }
   
-      setTimeout(() => setError(null), 3000);
+      setTimeout(() => toast.error(null), 3000);
     }
   }
 
@@ -283,8 +455,8 @@ useEffect(() => {
       setIsDetailsModalOpen(false); // Close modal after confirmation
       fetchCalendarData(); // Refresh the calendar
     } catch (error) {
-      console.error("Error confirming appointment:", error);
-      setError("Error confirming appointment. Please try again.");
+      toast.error("Error confirming appointment:", error);
+      toast.error("Error confirming appointment. Please try again.");
     }
   };
   
@@ -293,7 +465,7 @@ useEffect(() => {
 
   const createAvailability = async () => {
     if (!doctorId || !selectedAvailabilityDate || availableTimes.length === 0) {
-      console.error("Missing required fields:", { doctorId, selectedAvailabilityDate, availableTimes });
+      toast.error("Missing required fields:", { doctorId, selectedAvailabilityDate, availableTimes });
       return;
     }
   
@@ -312,22 +484,22 @@ useEffect(() => {
 
   
       if (response.data.success) {
-        setSuccessMessage("Availability saved successfully!");
-        setTimeout(() => setSuccessMessage(null), 3000);
+        toast.success("Availability saved successfully!");
+        setTimeout(() => toast.success(null), 3000);
         setIsAvailabilityModalOpen(false);
         fetchCalendarData(); //  Refresh calendar
       } else {
-        console.error("Error: API did not return success.");
+        toast.error("Error: API did not return success.");
       }
     } catch (error) {
-      console.error("Error creating availability:", error.response?.data || error);
+      toast.error("Error creating availability:", error.response?.data || error);
   
       //  Handle case where availability does not exist (404)
       if (error.response?.status === 404) {
         console.warn("No availability found. Creating new entry...");
         await createNewAvailability(); // If no availability, create a new one
       } else {
-        alert("Error saving availability. Please try again.");
+        toast.error("Error saving availability. Please try again.");
       }
     }
   };
@@ -350,18 +522,168 @@ useEffect(() => {
   
   
       if (response.data.success) {
-        setSuccessMessage("Availability created successfully!");
-        setTimeout(() => setSuccessMessage(null), 3000);
+        toast.success("Availability created successfully!");
+        setTimeout(() => toast.success(null), 3000);
         setIsAvailabilityModalOpen(false);
         fetchCalendarData(); // Refresh calendar
       } else {
-        console.error("Error: API did not return success.");
+        toast.error("Error: API did not return success.");
       }
     } catch (error) {
-      console.error("Error creating new availability:", error.response?.data || error);
+      toast.error("Error creating new availability:", error.response?.data || error);
       alert("Error creating availability. Please try again.");
     }
   };
+
+  useEffect(() => {
+  if (!doctorId) return;
+
+  const SOCKET_URL = `${API_BASE_URL}`.trim().replace(/\/$/, "");
+  const socket = io(SOCKET_URL, {
+    withCredentials: true,
+    transports: ["websocket", "polling"],
+  });
+
+  socket.on("connect", () => {
+    // console.log("[socket] connected", socket.id);
+    socket.emit("joinDoctor", doctorId);
+  });
+
+  // Availability changes: created | updated | removed | deleted
+  socket.on("availability:changed", (payload) => {
+    const { doctorId: dId, action, availability, removeDate, removeTime } = payload || {};
+    if (!dId || dId !== doctorId) return;
+
+    setEvents((prev) => {
+      const appointmentEvents = prev.filter((e) => e.type === "appointment");
+
+      // If we got a full availability doc (created/updated), rebuild availability events from it
+      if ((action === "created" || action === "updated") && availability) {
+        const availEvents = buildAvailabilityEventsFromDoc(availability);
+        const merged = [...availEvents, ...appointmentEvents];
+        const counts = recomputeCountsFromEvents(merged);
+        setPendingCount(counts.pending);
+        setConfirmedCount(counts.confirmed);
+        setCanceledCount(counts.canceled);
+        setCompletedCount(counts.completed);
+        return merged;
+      }
+
+      // If removed (single time or whole day)
+      if (action === "removed" && removeDate) {
+        const targetDay = moment(removeDate).format("YYYY-MM-DD");
+        const next = prev.filter((e) => {
+          if (e.type !== "availability") return true;
+          const day = moment(e.start).format("YYYY-MM-DD");
+          if (day !== targetDay) return true;
+          if (removeTime) {
+            // remove just the matching time
+            return moment(e.start).format("HH:mm") !== removeTime;
+          }
+          // remove all times on that day
+          return false;
+        });
+        const counts = recomputeCountsFromEvents(next);
+        setPendingCount(counts.pending);
+        setConfirmedCount(counts.confirmed);
+        setCanceledCount(counts.canceled);
+        setCompletedCount(counts.completed);
+        return next;
+      }
+
+      // If deleted (remove all availability for this doctor)
+      if (action === "deleted") {
+        const next = prev.filter((e) => e.type !== "availability");
+        const counts = recomputeCountsFromEvents(next);
+        setPendingCount(counts.pending);
+        setConfirmedCount(counts.confirmed);
+        setCanceledCount(counts.canceled);
+        setCompletedCount(counts.completed);
+        return next;
+      }
+
+      return prev;
+    });
+  });
+
+  // Appointment changes: created | statusUpdated | canceled | rescheduled
+  socket.on("appointment:changed", (payload) => {
+    const { doctorId: dId, action, appointment } = payload || {};
+    if (!dId || dId !== doctorId || !appointment) return;
+
+    setEvents((prev) => {
+      let next = [...prev];
+      const idx = next.findIndex((e) => e.type === "appointment" && e.id === appointment._id);
+
+      if (action === "created") {
+        const ev = makeAppointmentEvent(appointment);
+        if (idx >= 0) next[idx] = ev;
+        else next.push(ev);
+      }
+
+      if (action === "statusUpdated" || action === "canceled") {
+        if (idx >= 0) {
+          next[idx] = { ...next[idx], status: appointment.status || (action === "canceled" ? "canceled" : next[idx].status) };
+        } else {
+          next.push(makeAppointmentEvent(appointment));
+        }
+      }
+
+      if (action === "rescheduled") {
+        const ev = makeAppointmentEvent(appointment);
+        if (idx >= 0) next[idx] = { ...next[idx], start: ev.start, end: ev.end };
+        else next.push(ev);
+      }
+
+      const counts = recomputeCountsFromEvents(next);
+      setPendingCount(counts.pending);
+      setConfirmedCount(counts.confirmed);
+      setCanceledCount(counts.canceled);
+      setCompletedCount(counts.completed);
+
+      return next;
+    });
+  });
+
+  return () => {
+    socket.emit("leaveDoctor", doctorId);
+    socket.disconnect();
+  };
+}, [doctorId, API_BASE_URL]);
+
+// Handle canceling an appointment
+const handleCancelAppointment = async () => {
+  if (!selectedAppointment) return;
+
+  try {
+    const token = localStorage.getItem('access_token'); // adjust if you store differently
+
+    // Prefer PATCH cancel endpoint that accepts JSON body
+    const resp = await axios.patch(
+      `${API_BASE_URL}/api/appointments/cancel/${selectedAppointment.id}`,
+      { reason: cancelReason },
+      {
+        withCredentials: true,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
+
+    if (resp.status >= 200 && resp.status < 300) {
+      setIsCancelModalOpen(false);
+      setSuccessMessage("Appointment canceled successfully");
+      setTimeout(() => setSuccessMessage(null), 3000);
+      fetchCalendarData(); // refresh calendar view
+    } else {
+      throw new Error("Failed to cancel appointment");
+    }
+  } catch (error) {
+    console.error("Error canceling appointment:", error);
+    setError(error?.response?.data?.message || "Error canceling appointment");
+    setTimeout(() => setError(null), 3000);
+  }
+};
+
+
   
 
   
@@ -444,7 +766,7 @@ useEffect(() => {
         endAccessor="end"
         selectable
         onSelectSlot={handleSelectSlot}
-        onSelectEvent={handleSelectEvent}
+        onSelectEvent={handleSelectEvent} 
         style={{ height: 600 }}
 
         eventPropGetter={(event) => {
@@ -476,98 +798,6 @@ useEffect(() => {
         
       />
 
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        contentLabel="Reschedule Appointment"
-        className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto mt-20"
-        overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center"
-      >
-        <h2 className="text-lg font-semibold mb-4">Reschedule Appointment</h2>
-
-        <label className="block mb-2">New Date:</label>
-        <input
-          type="date"
-          value={newDate}
-          onChange={(e) => setNewDate(e.target.value)}
-          className="w-full p-2 border rounded mb-4"
-        />
-
-        <label className="block mb-2">New Time:</label>
-        <input
-          type="time"
-          value={newTime}
-          onChange={(e) => setNewTime(e.target.value)}
-          className="w-full p-2 border rounded mb-4"
-        />
-
-        <div className="flex justify-end gap-2">
-          <button
-            className="px-4 py-2 bg-gray-300 rounded"
-            onClick={() => setIsModalOpen(false)}
-          >
-            Cancel
-          </button>
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-            onClick={handleReschedule}
-          >
-            Confirm
-          </button>
-        </div>
-      </Modal>            
-
-      {isDeleteModalOpen && selectedAvailability && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-lg font-bold">Confirm Deletion</h2>
-            <p>Are you sure you want to remove availability on <strong>{moment(selectedAvailability?.start).format("YYYY-MM-DD")}</strong>?</p>
-            <div className="flex justify-end mt-4">
-              <button onClick={() => setIsDeleteModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded mr-2">Cancel</button>
-              <button onClick={confirmDeleteAvailability} className="px-4 py-2 bg-red-500 text-white rounded">Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      <Modal
-        isOpen={isDetailsModalOpen}
-        onRequestClose={() => setIsDetailsModalOpen(false)}
-        contentLabel="Appointment Details"
-        className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto mt-20"
-        overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center"
-      >
-        <h2 className="text-lg font-semibold mb-4">Appointment Details</h2>
-
-        {selectedAppointment && (
-          <div>
-            <p><strong>Patient:</strong> {selectedAppointment?.title.replace("Appointment with ", "")}</p>
-            <p><strong>Date:</strong> {moment(selectedAppointment.start).format("YYYY-MM-DD")}</p>
-            <p><strong>Time:</strong> {moment(selectedAppointment.start).format("HH:mm")}</p>
-            <p><strong>Status:</strong> {selectedAppointment.status}</p>
-            <p><strong>Reason:</strong> {selectedAppointment.reason}</p>
-            <p><strong>Notes:</strong> {selectedAppointment.specialNotes || "No notes provided"}</p>
-
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                className="px-4 py-2 bg-gray-300 rounded"
-                onClick={() => setIsDetailsModalOpen(false)}
-              >
-                Close
-              </button>
-              <button
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-                onClick={() => {
-                  setIsDetailsModalOpen(false);
-                  setIsModalOpen(true); // Open Reschedule Modal
-                }}
-              >
-                Reschedule
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
 
       <Modal
         isOpen={isDetailsModalOpen}
@@ -584,8 +814,8 @@ useEffect(() => {
             <p><strong>Date:</strong> {moment(selectedAppointment.start).format("YYYY-MM-DD")}</p>
             <p><strong>Time:</strong> {moment(selectedAppointment.start).format("HH:mm")}</p>
             <p><strong>Status:</strong> {selectedAppointment.status}</p>
-            <p><strong>Reason:</strong> {selectedAppointment.reason}</p>
-            <p><strong>Notes:</strong> {selectedAppointment.specialNotes || "No notes provided"}</p>
+            <p><strong>Reason:</strong> {selectedAppointment.reason || "—"}</p>
+            <p><strong>Notes:</strong> {selectedAppointment.specialNotes || "—"}</p>
 
             <div className="flex justify-end gap-2 mt-4">
               <button
@@ -604,11 +834,26 @@ useEffect(() => {
                 </button>
               )}
 
+              {(selectedAppointment.status === "pending" ||
+                selectedAppointment.status === "confirmed") && (
+                <button
+                  className="px-4 py-2 bg-red-500 text-white rounded"
+                  onClick={() => {
+                    setIsDetailsModalOpen(false);
+                    setCancelReason("");
+                    setIsCancelModalOpen(true);
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
+
               <button
                 className="px-4 py-2 bg-blue-500 text-white rounded"
                 onClick={() => {
+                  // fields already prefilled in handler
                   setIsDetailsModalOpen(false);
-                  setIsModalOpen(true); // Open Reschedule Modal
+                  setIsModalOpen(true); // open reschedule modal
                 }}
               >
                 Reschedule
@@ -618,39 +863,87 @@ useEffect(() => {
         )}
       </Modal>
 
-
-      {isAvailabilityModalOpen && (
+       {/* Delete Availability Modal */}
         <Modal
-            isOpen={isAvailabilityModalOpen}
-            onRequestClose={() => setIsAvailabilityModalOpen(false)}
-            contentLabel="Add Availability"
-            className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto mt-20"
-            overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center"
-          >
-            <h2 className="text-lg font-semibold mb-4">Add Availability</h2>
-
-            <p>Selected Date: {selectedAvailabilityDate}</p>
-
-            <label className="block mb-2">Available Times:</label>
-            <input
-              type="text"
-              placeholder="E.g. 09:00, 10:00, 14:00"
-              value={availableTimes.join(", ")}
-              onChange={(e) => setAvailableTimes(e.target.value.split(","))}
-              className="w-full p-2 border rounded mb-4"
-            />
-
+        isOpen={isDeleteModalOpen}
+        onRequestClose={() => setIsDeleteModalOpen(false)}
+        contentLabel="Delete Availability"
+        className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto mt-20"
+        overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-[10000]"
+      >
+        {selectedAvailability && (
+          <>
+            <h2 className="text-lg font-bold mb-4">Confirm Deletion</h2>
+            <p className="mb-6">
+              Remove availability on{" "}
+              <strong>
+                {moment(selectedAvailability.start).format("YYYY-MM-DD")} at{" "}
+                {moment(selectedAvailability.start).format("HH:mm")}
+              </strong>
+              ?
+            </p>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setIsAvailabilityModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
                 Cancel
               </button>
-              <button onClick={createAvailability} className="px-4 py-2 bg-blue-500 text-white rounded">
-                Save
+              <button
+                onClick={confirmDeleteAvailability}
+                className="px-4 py-2 bg-red-500 text-white rounded"
+              >
+                Delete
               </button>
             </div>
-        </Modal>
-      )}
+          </>
+        )}
+      </Modal>
 
+          {isAvailabilityModalOpen && (
+              <Modal
+                isOpen={isAvailabilityModalOpen}
+                onRequestClose={() => setIsAvailabilityModalOpen(false)}
+                contentLabel="Add Availability"
+                className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto mt-20"
+                overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center"
+              >
+                <h2 className="text-lg font-semibold mb-4">Add Availability</h2>
+
+                <p className="mb-3">Selected Date: <strong>{selectedAvailabilityDate}</strong></p>
+
+                <label className="block mb-2">Available Times (comma-separated)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 09:00, 10:00, 14:30"
+                  value={availableTimes.join(", ")}
+                  onChange={(e) =>
+                    setAvailableTimes(
+                      e.target.value
+                        .split(",")
+                        .map(s => s.trim())
+                        .filter(Boolean)
+                    )
+                  }
+                  className="w-full p-2 border rounded mb-4"
+                />
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setIsAvailabilityModalOpen(false)}
+                    className="px-4 py-2 bg-gray-300 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={createAvailability}
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                  >
+                    Save
+                  </button>
+                </div>
+              </Modal>
+            )}
 
 
       
