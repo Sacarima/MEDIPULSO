@@ -24,7 +24,7 @@ import { toggleShowMore, toggleShowMoreService, setShowMore, setShowMoreService 
 import LatestQuestionsFeed from './questions/LatestQuestionsFeed.jsx'
 import { ROUTES } from '../config/routes.js'
 import DoctorLatestReview from './review/DoctorLatestReview.jsx'
-import { times } from 'lodash'
+
 
 
 
@@ -43,6 +43,8 @@ const  HomePage = () => {
     const [displayedSpecialties, setDisplayedSpecialties] = useState(10); // Number of specialties shown initially
     const [displayedTreatments, setDisplayedTreatments] = useState(10); 
     const [treatments , setTreatments] = useState([])
+    const [loadingSpecialty, setLoadingSpecialty] = useState(false)
+
 
 
     const [searchResults, setSearchResults] = useState([]);
@@ -118,6 +120,48 @@ const  HomePage = () => {
   }
 }
 
+  const handleSpecialtyClick = async (specialtyName) => {
+  setLoadingSpecialty(true);
+
+  try {
+    const queryParams = new URLSearchParams();
+    queryParams.append("specialty", specialtyName);
+
+    const requestUrl = `${API_BASE_URL}/api/doctor-form/search?${queryParams.toString()}`;
+    const response = await axios.get(requestUrl);
+    const doctors = response.data.doctors || [];
+
+    navigate("/search-results", {
+      state: {
+        specialty: specialtyName,
+        locationQuery: "",
+        results: doctors,
+        message: doctors.length > 0
+          ? ""
+          : `No doctors for ${specialtyName} yet.`,
+        isSpecialtySearch: true,
+        timestamp: Date.now(),
+      },
+    });
+  } catch (error) {
+    console.error("Specialty Search Error:", error.response?.data || error.message);
+
+    navigate("/search-results", {
+      state: {
+        specialty: specialtyName,
+        locationQuery: "",
+        results: [],
+        message: `No doctors for ${specialtyName} yet.`,
+        isSpecialtySearch: true,
+        timestamp: Date.now(),
+      },
+    });
+  } finally {
+    setLoadingSpecialty(false);
+  }
+};
+
+
     
     useEffect(() => {
       const fetchSpecialties = async () => {
@@ -132,15 +176,16 @@ const  HomePage = () => {
       fetchSpecialties();
     }, []);
 
-    // Fetch Treatments
+
+    // Fetch light treatments for homepage
     useEffect(() => {
       const fetchTreatments = async () => {
-          try {
-              const response = await axios.get(`${API_BASE_URL}/api/treatments`);
-              setTreatments(response.data.treatments || []);
-          } catch (error) {
-              console.error(" Failed to fetch treatments:", error.response?.data || error.message);
-          }
+        try {
+          const response = await axios.get(`${API_BASE_URL}/api/treatments/list`);
+          setTreatments(response.data.treatments || []);
+        } catch (error) {
+          console.error("Failed to fetch treatments:", error.response?.data || error.message);
+        }
       };
       fetchTreatments();
     }, []);
@@ -173,7 +218,7 @@ const  HomePage = () => {
   
   
     return (
-      <div className=' '>
+      <div className=' bg-white'>
         <section  
           className='pb-14 pt-12 px-2  bg-[#00b39be6] sm:bg-[#00c3a5] sm:py-32 '
           style={{
@@ -287,28 +332,31 @@ const  HomePage = () => {
 
 
           <div>
-            {/* Show Loading if Data is Empty */}
-            {specialties.length === 0 ? (
-                <p className="text-center text-gray-500">Loading specialties...</p>
-            ) : (
-            showMoree && (
-                <div className="container-visible 2xl:w-[70%] md:w-[90%] m-auto p-6 mt-10 rounded-md bg-[#f7f9fa]">
-                    <h2 className="text-lg font-semibold mb-4">Medical Specialties</h2>
-                    <ul className="flex flex-wrap">
-                        {specialties.slice(0, displayedSpecialties).map((specialty, index) => (
-                            <li key={specialty._id || index} className="mr-4 hover:underline cursor-pointer">
-                                {specialty.name || "Unknown"}
-                            </li>
-                        ))}
-                        {specialties.length > displayedSpecialties && (
-                            <li className="mr-4 underline cursor-pointer" onClick={() => setDisplayedSpecialties(specialties.length)}>
-                                More
-                            </li>
-                        )}
-                    </ul>
-                </div>
-            )
+ 
+        <ul className="flex flex-wrap container-visible 2xl:w-[70%] md:w-[90%] m-auto p-6 mt-10 rounded-md bg-[#f7f9fa]">
+        {specialties.slice(0, displayedSpecialties).map((specialty, index) => (
+          <li
+            key={specialty._id || index}
+            className="mr-4 hover:underline cursor-pointer"
+            onClick={() => handleSpecialtyClick(specialty.name)}
+          >
+            {specialty.name || "Unknown"}
+          </li>
+        ))}
+        {specialties.length > displayedSpecialties && (
+          <li
+            className="mr-4 underline cursor-pointer text-blue-500 font-medium"
+            onClick={() => setDisplayedSpecialties(specialties.length)}
+          >
+            More
+          </li>
         )}
+      </ul>
+          {loadingSpecialty && (
+            <p className="text-center text-sm text-gray-500 mt-2">
+              Searching doctors...
+            </p>
+          )}
 
  
 
@@ -317,7 +365,7 @@ const  HomePage = () => {
                     <h2 className="text-lg font-semibold mb-4">Medical Treatments</h2>
 
                 {/* Show treatments if data is available */}
-                {treatments.length > 0 ? (
+                {/* {treatments.length > 0 ? (
                     <ul className="flex flex-wrap">
                         {treatments.slice(0, displayedTreatments).map((treatment, index) => (
                             <li key={index} className="mr-4 hover:underline cursor-pointer">
@@ -325,7 +373,7 @@ const  HomePage = () => {
                             </li>
                         ))}
                         
-                        {/* Show "More" Button Only If There Are More Treatments */}
+                        
                         {showMoreServices && treatments.length > displayedTreatments && (
                             <li 
                                 className="mr-4 underline cursor-pointer text-blue-600 font-medium"
@@ -337,7 +385,36 @@ const  HomePage = () => {
                     </ul>
                 ) : (
                     <p className="text-center text-gray-500">Loading treatments...</p>
-                )}
+                )} */}
+
+                
+               {treatments.length > 0 ? (
+                    <div className="flex flex-wrap">
+                      {treatments.slice(0, displayedTreatments).map((treatment) => (
+                        <ul className="mr-4" key={treatment._id}>
+                          <li
+                            className="hover:underline cursor-pointer"
+                            onClick={() => navigate(`/treatments/${treatment.slug}`)}
+                          >
+                            {treatment.name || "Unknown Treatment"}
+                          </li>
+                        </ul>
+                      ))}
+
+                      {showMoreServices && treatments.length > displayedTreatments && (
+                        <ul className="mr-4">
+                          <li
+                            className="underline cursor-pointer text-blue-600 font-medium"
+                            onClick={handleShowMore}
+                          >
+                            More
+                          </li>
+                        </ul>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-center text-gray-500">Loading treatments...</p>
+                  )}
             </div>
 
         </div>
