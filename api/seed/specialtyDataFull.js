@@ -1,5 +1,5 @@
 export const specialtyData = [
-    {
+     {
         name: "Cardiology",
         treatments: [
             "Electrocardiogram (ECG)",
@@ -368,8 +368,4 @@ export const specialtyData = [
             "Confidianlity and Data Protection",
         ],
     },
-]; 
-
-
-
-
+]

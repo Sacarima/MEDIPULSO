@@ -3,6 +3,17 @@ import { errorHandler } from "../utils/error.js"
 import mongoose from "mongoose"
 
 
+function emitAvailability(io, doctorId, availability, action = 'updated', meta = {}) {
+  if (!io || !doctorId) return;
+  io.to(`doctor:${doctorId}`).emit('availability:changed', {
+    doctorId,
+    action,           // 'created' | 'updated' | 'removed' | 'deleted'
+    availability,     // full doc or null (if deleted)
+    ...meta,          // e.g., { month, year, date, time }
+  });
+}
+
+
 export const test = (req, res) => {
     res.json({message: 'API is working'})
 
@@ -25,6 +36,10 @@ export const addDoctorAvailability = async (req, res, next) => {
         })
 
         const savedAvailability = await newDoctorAvailability.save()
+        // realtime
+        const io = req.app.get('io');
+        emitAvailability(io, doctor, savedAvailability, 'created');
+
         res.status(201).json({
             success: true,
             message: "Doctor availability added successfully",
@@ -104,10 +119,10 @@ export const updateDoctorAvailability = async (req, res, next) => {
       return next(errorHandler(400, "Invalid doctor ID format"));
     }
 
-    // ✅ Try to find doctor's availability
+    // Try to find doctor's availability
     let doctorAvailability = await DoctorAvailability.findOne({ doctor: doctorId });
 
-    // ✅ If no availability document exists, create one
+    // If no availability document exists, create one
     if (!doctorAvailability) {
       console.warn("No availability document found. Creating a new one...");
       doctorAvailability = new DoctorAvailability({
@@ -116,7 +131,7 @@ export const updateDoctorAvailability = async (req, res, next) => {
       });
     }
 
-    // ✅ Handle removal of specific date or time
+    // Handle removal of specific date or time
     if (removeDate) {
       doctorAvailability.monthlyAvailability.forEach((entry) => {
         if (entry.month === month && entry.year === year) {
@@ -134,6 +149,9 @@ export const updateDoctorAvailability = async (req, res, next) => {
       });
 
       await doctorAvailability.save();
+
+      const io = req.app.get('io');
+      emitAvailability(io, doctorId, doctorAvailability, 'removed', { month, year, removeDate, removeTime }); 
       return res.status(200).json({ success: true, message: "Availability removed successfully." });
     }
 
@@ -165,6 +183,10 @@ export const updateDoctorAvailability = async (req, res, next) => {
 
     const updatedAvailability = await doctorAvailability.save();
 
+    // Emit the updated availability to the socket
+    const io = req.app.get('io');
+    emitAvailability(io, doctorId, updatedAvailability, 'updated', { month, year, dates: monthlyDates });
+
     res.status(200).json({
       success: true,
       message: "Doctor availability updated successfully.",
@@ -187,6 +209,10 @@ export const deleteDoctorAvailability = async (req, res, next) => {
     try {
 
         const deletedAvailability = await DoctorAvailability.findOneAndDelete({ doctor: doctorId })
+
+        // realtime
+        const io = req.app.get('io');
+        emitAvailability(io, doctorId, null, 'deleted');
 
         if (!deletedAvailability) {
             return next(errorHandler(404, `No availability found for doctor ID ${doctorId}.`))
@@ -263,6 +289,9 @@ export const createMonthlyAvailability = async (req, res, next) => {
       });
   
       const updatedAvailability = await doctorAvailability.save()
+
+      const io = req.app.get('io');
+      emitAvailability(io, doctorId, updatedAvailability, 'updated', { month, year });
   
       const addedEntry = updatedAvailability.monthlyAvailability.find(
         (entry) => entry.month === month && entry.year === year

@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import Appointment from "../models/appointment.model.js"
 import { errorHandler } from "../utils/error.js"
-
+import Treatment from "../models/treatment.model.js"
 
 // Admin login
 // This function handles the login of an admin user
@@ -228,6 +228,267 @@ export const getAdminDashboardOverview = async (req, res, next) => {
 };
 
 
+
+// Admin: Update price by city for a treatment
+// This function allows an admin to update the price by city for a specific treatment.
+// It expects the treatment ID in the request parameters and the price details in the request body.
+// The price details should include an array of objects with city, clinicsCount, doctorsCount,
+// and minPrice.
+// If the treatment is found and updated successfully, it returns the updated treatment details.
+// If the treatment is not found, it returns a 404 error.
+export const updateTreatmentCityPricing = async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+    const { priceByCity } = req.body; // Expect array of { city, clinicsCount, doctorsCount, minPrice }
+
+    if (!priceByCity || !Array.isArray(priceByCity)) {
+      return next(errorHandler(400, "Invalid priceByCity data"));
+    }
+
+    const treatment = await Treatment.findOne({ slug });
+    if (!treatment) {
+      return next(errorHandler(404, "Treatment not found"));
+    }
+
+    treatment.priceByCity = priceByCity;
+    await treatment.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Treatment city pricing updated successfully",
+      treatment
+    });
+  } catch (error) {
+    console.error("Error updating treatment city pricing:", error);
+    next(errorHandler(500, "Failed to update treatment city pricing"));
+  }
+};
+
+
+
+// Update Treatment Sections
+export const updateTreatmentSections = async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+    const { sections } = req.body;
+
+    if (!Array.isArray(sections) || sections.length === 0) {
+      return next(errorHandler(400, "Sections must be a non-empty array."));
+    }
+
+    const treatment = await Treatment.findOne({ slug });
+    if (!treatment) {
+      return next(errorHandler(404, "Treatment not found."));
+    }
+
+    treatment.sections = sections;
+    await treatment.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Treatment sections updated successfully",
+      treatment,
+    });
+  } catch (error) {
+    console.error("Error updating treatment sections:", error);
+    next(errorHandler(500, "Failed to update treatment sections"));
+  }
+};
+
+
+// --- Update Treatment IMAGES (Admin) ---
+export const updateTreatmentImages = async (req, res, next) => {
+  try {
+    const { treatmentId } = req.params;
+    const { images } = req.body; // array of Firebase URLs
+
+    if (!Array.isArray(images)) {
+      return next(errorHandler(400, "images must be an array of URLs"));
+    }
+
+    const treatment = await Treatment.findById(treatmentId);
+    if (!treatment) return next(errorHandler(404, "Treatment not found"));
+
+    // REAPLCE EXISTING IMAGES WITH NEW ONES
+    treatment.images = images;
+    await treatment.save();
+
+    //Realtime update 
+    // IO was attached to index.js via app.set('io', io);
+    const io = req.app.get('io');
+    if (io && treatment.slug) {
+      const room = `treatment:${treatment.slug}`;
+      console.log('emit ->', room);
+      io.to(room).emit('treatment:imagesUpdated', {
+        slug: treatment.slug,
+        images: treatment.images,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Treatment images updated successfully",
+      treatment,
+    });
+  } catch (error) {
+    console.error("Error updating images:", error);
+    next(errorHandler(500, "Failed to update treatment images"));
+  }
+};
+
+// --- Update Treatment BASICS (description, priceRange) ---
+export const updateTreatmentBasics = async (req, res, next) => {
+  try {
+    const { treatmentId } = req.params;
+    const { description, priceRange } = req.body;
+
+    const treatment = await Treatment.findById(treatmentId);
+    if (!treatment) return next(errorHandler(404, "Treatment not found"));
+
+    if (typeof description === "string") treatment.description = description;
+    if (typeof priceRange === "string") treatment.priceRange = priceRange;
+
+    await treatment.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Treatment basics updated successfully",
+      treatment,
+    });
+  } catch (error) {
+    console.error("Error updating basics:", error);
+    next(errorHandler(500, "Failed to update treatment basics"));
+  }
+};
+
+// Helper: convert Firebase DOWNLOAD URL -> storage path like "treatments/slug/file.jpg"
+function urlToStoragePath(downloadUrl) {
+  try {
+    // expects: https://firebasestorage.googleapis.com/v0/b/<bucket>/o/<ENCODED_PATH>?alt=media&token=...
+    const match = downloadUrl.match(/\/o\/(.+?)\?/);
+    if (!match || !match[1]) return null;
+    return decodeURIComponent(match[1]); // decode "treatments%2Fslug%2Ffilename.jpg"
+  } catch {
+    return null;
+  }
+}
+
+// --- Delete specific Treatment IMAGES (Admin) ---
+// DELETE one or more images from a treatment
+export const deleteTreatmentImages = async (req, res, next) => {
+  try {
+    const { treatmentId } = req.params;
+    const { images } = req.body; // array of URLs to remove
+
+    if (!Array.isArray(images)) {
+      return next(errorHandler(400, "images must be an array of URLs"));
+    }
+
+    const treatment = await Treatment.findById(treatmentId);
+    if (!treatment) return next(errorHandler(404, "Treatment not found"));
+
+    // Remove matching URLs
+    treatment.images = treatment.images.filter((img) => !images.includes(img));
+    await treatment.save();
+
+    // Realtime update
+    const io = req.app.get("io");
+    if (io && treatment.slug) {
+      io.to(`treatment-${treatment.slug}`).emit("treatment:imagesUpdated", {
+        slug: treatment.slug,
+        images: treatment.images,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Image(s) deleted successfully",
+      images: treatment.images,
+    });
+  } catch (err) {
+    console.error("Error deleting treatment images:", err);
+    next(errorHandler(500, "Failed to delete treatment images"));
+  }
+};
+
+export const deleteAllTreatmentImages = async (req, res, next) => {
+  try {
+    const { treatmentId } = req.params;
+
+    const treatment = await Treatment.findById(treatmentId);
+    if (!treatment) return next(errorHandler(404, "Treatment not found"));
+
+    treatment.images = [];
+    await treatment.save();
+
+    const io = req.app.get("io");
+    if (io && treatment.slug) {
+      io.to(`treatment-${treatment.slug}`).emit("treatment:imagesUpdated", {
+        slug: treatment.slug,
+        images: [],
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "All images deleted successfully",
+      images: [],
+    });
+  } catch (err) {
+    console.error("Error deleting all treatment images:", err);
+    next(errorHandler(500, "Failed to delete all treatment images"));
+  }
+};
+
+
+
+// Delete ALL Treatment IMAGES (Admin) ---
+export const clearTreatmentImages = async (req, res, next) => {
+  try {
+    const { treatmentId } = req.params;
+
+    const treatment = await Treatment.findById(treatmentId);
+    if (!treatment) return next(errorHandler(404, "Treatment not found"));
+
+    const bucket = admin.storage().bucket();
+    const urls = treatment.images || [];
+
+    // try deleting all files
+    await Promise.all(
+      urls.map(async (url) => {
+        const filePath = urlToStoragePath(url);
+        if (!filePath) return;
+        try {
+          await bucket.file(filePath).delete({ ignoreNotFound: true });
+        } catch (err) {
+          console.warn("Storage delete warn:", filePath, err?.message);
+        }
+      })
+    );
+
+    // clear DB
+    treatment.images = [];
+    await treatment.save();
+
+    const io = req.app.get("io");
+    if (io && treatment.slug) {
+      const room = `treatment:${treatment.slug}`;
+      io.to(room).emit("treatment:imagesUpdated", {
+        slug: treatment.slug,
+        images: treatment.images,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "All images cleared successfully",
+      images: [],
+    });
+  } catch (error) {
+    console.error("Error clearing treatment images:", error);
+    next(errorHandler(500, "Failed to clear treatment images"));
+  }
+};
   
 
 

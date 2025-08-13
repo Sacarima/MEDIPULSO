@@ -416,7 +416,7 @@ export const login = async (req, res, next) => {
         let redirectTo = '';
         switch (userRole) {
         case 'doctor':
-            redirectTo = '/doctor-profile';
+            redirectTo = '/doctor-profile-info';
             break;
         case 'user':
             redirectTo = '/';
@@ -425,7 +425,7 @@ export const login = async (req, res, next) => {
             redirectTo = '/clinic-profile';
             break;
         case 'admin':
-            redirectTo = '/dashboard'; // Admin specific redirect
+            redirectTo = '/admin'; // Admin specific redirect
             break;
         }
 

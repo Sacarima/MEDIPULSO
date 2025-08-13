@@ -3,9 +3,18 @@ import Appointment from "../models/appointment.model.js"
 import DoctorAvailability from "../models/doctorAvailability.model.js"
 import { errorHandler } from "../utils/error.js"
 import DoctorForm from "../models/doctorForm.model.js"
+import { normalizeTime } from "../utils/time.js" 
 
 
 
+function emitAppointment(io, doctorId, payload, action) {
+  if (!io || !doctorId) return;
+  io.to(`doctor:${doctorId}`).emit('appointment:changed', {
+    doctorId,
+    action,   // 'created' | 'statusUpdated' | 'canceled' | 'rescheduled'
+    ...payload,
+  });
+}
 
 
 // Create a new appointment
@@ -21,7 +30,6 @@ import DoctorForm from "../models/doctorForm.model.js"
 // It uses the DoctorAvailability model to check the doctor's availability and the Appointment model to check for overlapping appointments.
 // If the doctor is not available on the selected day or time, it returns an error
 export const createAppointment = async (req, res, next) => {
-    console.log("Create Appointment Request Body:", req.body)
     const { 
         patient, 
         doctor, 
@@ -109,6 +117,10 @@ export const createAppointment = async (req, res, next) => {
 
         const savedAppointment = await newAppointment.save()
 
+        // Emit the appointment creation event
+        const io = req.app.get('io');
+        emitAppointment(io, doctor, { appointment: savedAppointment }, 'created');
+
         // Respond with the created appointment
         res.status(201).json({
             success: true,
@@ -193,32 +205,65 @@ export const getAppointmentsByUser = async (req, res) => {
 
 //Update appointment status
 export const updateAppointmentStatus = async (req, res, next) => {
-    const { appointmentId } = req.params
-    const { status } = req.body
+  const { appointmentId } = req.params;
+  const { status } = req.body;
 
-    try {
-        if (!appointmentId || !status) {
-            return next(errorHandler(400, "Appointment ID and status are required"))
-        }
-        const updatedAppointment = await Appointment.findByIdAndUpdate(
-            appointmentId,
-            { status },
-            { new: true }
-        )
-
-        if (!updatedAppointment) {
-            return next(errorHandler(404, "Appointment not found"))
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Appointment status updated successfully",
-            appointment: updatedAppointment,
-        })
-    } catch (error) {
-        return next(errorHandler(500, error.message))
+  try {
+    if (!appointmentId || !status) {
+      return next(errorHandler(400, "Appointment ID and status are required"));
     }
-}
+
+    // Validate status against your schema enum
+    const allowed = new Set(["pending", "confirmed", "canceled", "completed"]);
+    if (!allowed.has(status)) {
+      return next(errorHandler(400, `Invalid status "${status}". Allowed: pending, confirmed, canceled, completed`));
+    }
+
+    const appt = await Appointment.findById(appointmentId);
+    if (!appt) return next(errorHandler(404, "Appointment not found"));
+
+    // Ensure only the owning doctor can change status
+    if (String(appt.doctor) !== String(req.user?.id)) {
+      return next(errorHandler(403, "Not allowed to update this appointment"));
+    }
+
+    const previousStatus = appt.status;
+
+    // No-op if unchanged
+    if (previousStatus === status) {
+      return res.status(200).json({
+        success: true,
+        message: "Status unchanged",
+        appointment: appt,
+      });
+    }
+
+    // Update & save
+    appt.status = status;
+    await appt.save();
+
+    // Realtime emit
+    const io = req.app.get("io");
+    if (io) {
+      const action = status === "canceled" ? "canceled" : "statusUpdated";
+      io.to(`doctor:${String(appt.doctor)}`).emit("appointment:changed", {
+        doctorId: String(appt.doctor),
+        action,
+        appointment: appt,
+        previousStatus,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment status updated successfully",
+      appointment: appt,
+    });
+  } catch (error) {
+    return next(errorHandler(500, error.message));
+  }
+};
+
 
 // Reschedule appointment
 // This function allows a user to reschedule an existing appointment.
@@ -230,71 +275,167 @@ export const updateAppointmentStatus = async (req, res, next) => {
 // It also checks if the new date and time are in the future, and if the doctor is available on the new date and time.
 // If the appointment is successfully rescheduled,
 // it returns a success message and the updated appointment details.
+
+// export const rescheduleAppointment = async (req, res, next) => {
+//     const { appointmentId } = req.params;
+//     const { newDate, newTime } = req.body;
+
+//     try {
+//         // Validate input
+//         if (!appointmentId || !newDate || !newTime) {
+//             return next(errorHandler(400, "Appointment ID, new date, and new time are required"));
+//         }
+
+//         // Find the appointment
+//         const appointment = await Appointment.findById(appointmentId);
+//         if (!appointment) {
+//             return next(errorHandler(404, "Appointment not found"));
+//         }
+
+//         // Check if new date/time is in the future
+//         const newDateTime = new Date(`${newDate}T${newTime}:00`);
+//         if (newDateTime <= new Date()) {
+//             return next(errorHandler(400, "New appointment time must be in the future"));
+//         }
+
+//         // Check if doctor is available at the new date/time
+//         const doctorAvailability = await DoctorAvailability.findOne({ doctor: appointment.doctor });
+//         if (!doctorAvailability) {
+//             return next(errorHandler(400, "Doctor has no availability configured"));
+//         }
+
+//         const selectedDay = newDateTime.toLocaleString("en-us", { weekday: "long" });
+
+//         if (!doctorAvailability.availableDays.includes(selectedDay)) {
+//             return next(errorHandler(400, `Doctor is not available on ${selectedDay}`));
+//         }
+
+//         if (!doctorAvailability.availableTimes.includes(newTime)) {
+//             return next(errorHandler(400, `Doctor is not available at ${newTime}`));
+//         }
+
+//         // Check for overlapping appointments
+//         const overlappingAppointment = await Appointment.findOne({
+//             doctor: appointment.doctor,
+//             date: newDate,
+//             time: newTime,
+//         });
+
+//         if (overlappingAppointment) {
+//             return next(errorHandler(400, "This time slot is already booked"));
+//         }
+
+//         // Update the appointment
+//         appointment.date = newDate;
+//         appointment.time = newTime;
+//         await appointment.save();
+
+//         // Emit the appointment rescheduling event
+//         const io = req.app.get('io');
+//         emitAppointment(io, appointment.doctor, {
+//         appointment,
+//         newDate,
+//         newTime,
+//         }, 'rescheduled');
+
+
+//         res.status(200).json({
+//             success: true,
+//             message: "Appointment rescheduled successfully",
+//             appointment,
+//         });
+
+//     } catch (error) {
+//         console.error("Error in rescheduling appointment:", error);
+//         return next(errorHandler(500, error.message));
+//     }
+// };
+
 export const rescheduleAppointment = async (req, res, next) => {
-    const { appointmentId } = req.params;
-    const { newDate, newTime } = req.body;
+  const { appointmentId } = req.params;
+  const { newDate, newTime } = req.body;
 
-    try {
-        // Validate input
-        if (!appointmentId || !newDate || !newTime) {
-            return next(errorHandler(400, "Appointment ID, new date, and new time are required"));
-        }
-
-        // Find the appointment
-        const appointment = await Appointment.findById(appointmentId);
-        if (!appointment) {
-            return next(errorHandler(404, "Appointment not found"));
-        }
-
-        // Check if new date/time is in the future
-        const newDateTime = new Date(`${newDate}T${newTime}:00`);
-        if (newDateTime <= new Date()) {
-            return next(errorHandler(400, "New appointment time must be in the future"));
-        }
-
-        // Check if doctor is available at the new date/time
-        const doctorAvailability = await DoctorAvailability.findOne({ doctor: appointment.doctor });
-        if (!doctorAvailability) {
-            return next(errorHandler(400, "Doctor has no availability configured"));
-        }
-
-        const selectedDay = newDateTime.toLocaleString("en-us", { weekday: "long" });
-
-        if (!doctorAvailability.availableDays.includes(selectedDay)) {
-            return next(errorHandler(400, `Doctor is not available on ${selectedDay}`));
-        }
-
-        if (!doctorAvailability.availableTimes.includes(newTime)) {
-            return next(errorHandler(400, `Doctor is not available at ${newTime}`));
-        }
-
-        // Check for overlapping appointments
-        const overlappingAppointment = await Appointment.findOne({
-            doctor: appointment.doctor,
-            date: newDate,
-            time: newTime,
-        });
-
-        if (overlappingAppointment) {
-            return next(errorHandler(400, "This time slot is already booked"));
-        }
-
-        // Update the appointment
-        appointment.date = newDate;
-        appointment.time = newTime;
-        await appointment.save();
-
-        res.status(200).json({
-            success: true,
-            message: "Appointment rescheduled successfully",
-            appointment,
-        });
-
-    } catch (error) {
-        console.error("Error in rescheduling appointment:", error);
-        return next(errorHandler(500, error.message));
+  try {
+    // Validate input
+    if (!appointmentId || !newDate || !newTime) {
+      return next(errorHandler(400, "Appointment ID, new date, and new time are required"));
     }
+
+    // Find the appointment
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return next(errorHandler(404, "Appointment not found"));
+    }
+
+    // Save previous slot BEFORE changing
+    const prevDate = appointment.date;
+    const prevTime = appointment.time;
+
+    // Check if new date/time is in the future
+    const newDateTime = new Date(`${newDate}T${newTime}:00`);
+    if (newDateTime <= new Date()) {
+      return next(errorHandler(400, "New appointment time must be in the future"));
+    }
+
+    // Check if doctor is available at the new date/time
+    const doctorAvailability = await DoctorAvailability.findOne({ doctor: appointment.doctor });
+    if (!doctorAvailability) {
+      return next(errorHandler(400, "Doctor has no availability configured"));
+    }
+
+    const selectedDay = newDateTime.toLocaleString("en-us", { weekday: "long" });
+
+    if (!doctorAvailability.availableDays.includes(selectedDay)) {
+      return next(errorHandler(400, `Doctor is not available on ${selectedDay}`));
+    }
+
+    if (!doctorAvailability.availableTimes.includes(newTime)) {
+      return next(errorHandler(400, `Doctor is not available at ${newTime}`));
+    }
+
+    // Check for overlapping appointments
+    const overlappingAppointment = await Appointment.findOne({
+      doctor: appointment.doctor,
+      date: new Date(newDate), // ensure Date type
+      time: newTime,
+      _id: { $ne: appointment._id }, // exclude current one
+    });
+
+    if (overlappingAppointment) {
+      return next(errorHandler(400, "This time slot is already booked"));
+    }
+
+    // Update the appointment
+    appointment.date = newDate;
+    appointment.time = newTime;
+    await appointment.save();
+
+    // Emit the appointment rescheduling event (include previous slot)
+    const io = req.app.get('io');
+    emitAppointment(
+      io,
+      appointment.doctor,
+      {
+        appointment,
+        newDate,
+        newTime,
+        previousDate: prevDate,
+        previousTime: prevTime,
+      },
+      'rescheduled'
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment rescheduled successfully",
+      appointment,
+    });
+  } catch (error) {
+    console.error("Error in rescheduling appointment:", error);
+    return next(errorHandler(500, error.message));
+  }
 };
+
 
 // Cancel appointment
 // This function allows a user to cancel an existing appointment.
@@ -305,32 +446,61 @@ export const rescheduleAppointment = async (req, res, next) => {
 // If the appointment is successfully canceled, it returns a success message and the updated appointment details.
 // If an error occurs during the process, it calls the next middleware with an error handler.
 export const cancelAppointment = async (req, res, next) => {
-    const { appointmentId } = req.params;
+  const { appointmentId } = req.params;
+  const { reason } = req.body;
 
-    try {
-        if (!appointmentId) {
-            return next(errorHandler(400, "Appointment ID is required"));
-        }
-
-        const updatedAppointment = await Appointment.findByIdAndUpdate(
-            appointmentId,
-            { status: "canceled" }, // ✅ Mark as canceled instead of deleting
-            { new: true }
-        );
-
-        if (!updatedAppointment) {
-            return next(errorHandler(404, "Appointment not found"));
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Appointment canceled successfully",
-            appointment: updatedAppointment,
-        });
-    } catch (error) {
-        return next(errorHandler(500, error.message));
+  try {
+    if (!appointmentId) {
+      return next(errorHandler(400, "Appointment ID is required"));
     }
+
+    const appt = await Appointment.findById(appointmentId);
+    if (!appt) return next(errorHandler(404, "Appointment not found"));
+
+    // Ensure user is allowed (doctor or patient linked to appt)
+    if (
+      String(appt.doctor) !== String(req.user.id) &&
+      String(appt.user) !== String(req.user.id)
+    ) {
+      return next(errorHandler(403, "Not allowed to cancel this appointment"));
+    }
+
+    // Only cancel if not already completed/canceled
+    if (appt.status === "completed") {
+      return next(errorHandler(400, "Completed appointments cannot be canceled"));
+    }
+    if (appt.status === "canceled") {
+      return next(errorHandler(400, "This appointment is already canceled"));
+    }
+
+    // Soft cancel
+    appt.status = "canceled";
+    appt.canceledAt = new Date();
+    appt.canceledBy = req.user.role || "unknown"; // e.g., 'doctor' or 'patient'
+    if (reason) appt.cancelReason = reason;
+
+    await appt.save();
+
+    // Emit socket event to free slot in real time
+    const io = req.app.get("io");
+    const apptDateStr = new Date(appt.date).toISOString().split("T")[0];
+    emitAppointment(io, appt.doctor, {
+      appointment: appt,
+      date: apptDateStr,
+      time: appt.time,
+    }, "canceled");
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment canceled successfully",
+      appointment: appt,
+    });
+  } catch (error) {
+    console.error("Error in cancelAppointment:", error);
+    return next(errorHandler(500, error.message));
+  }
 };
+
 
 
 // Get appointment by date
@@ -575,6 +745,89 @@ export const getUpcomingAppointment = async (req, res, next) => {
         }
     }
 
+
+
+// Public: return booked slots (pending/confirmed) by doctor from today forward
+export const getBookedSlotsPublic = async (req, res, next) => {
+  try {
+    const { doctorId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(doctorId)) {
+      return next(errorHandler(400, "Invalid doctor ID format"));
+    }
+
+    // start of today (local server time)
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // fetch only what's needed
+    const appts = await Appointment.find({
+      doctor: doctorId,
+      date: { $gte: startOfToday },
+      status: { $in: ["pending", "confirmed"] },
+    }).select("date time -_id");
+
+    // build { 'YYYY-MM-DD': ['HH:mm', ...] }
+    const booked = {};
+    for (const a of appts) {
+      const day = new Date(a.date).toISOString().split("T")[0];
+      const t = normalizeTime(a.time);
+      if (!booked[day]) booked[day] = [];
+      booked[day].push(t);
+    }
+    // dedupe + sort
+    Object.keys(booked).forEach((day) => {
+      booked[day] = [...new Set(booked[day])].sort((a, b) => a.localeCompare(b));
+    });
+
+    res.json({ success: true, booked });
+  } catch (err) {
+    console.error("getBookedSlotsPublic error:", err);
+    next(errorHandler(500, "Failed to fetch booked slots"));
+  }
+};
+
+
+// ADMIN: hard delete an appointment
+export const adminHardDeleteAppointment = async (req, res, next) => {
+  const { appointmentId } = req.params;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(appointmentId)) {
+      return next(errorHandler(400, 'Invalid appointment ID format'));
+    }
+
+    const appt = await Appointment.findById(appointmentId);
+    if (!appt) return next(errorHandler(404, 'Appointment not found'));
+
+    const doctorId = String(appt.doctor);
+    const date = appt.date;
+    const time = appt.time;
+
+    await Appointment.findByIdAndDelete(appointmentId);
+
+    // notify doctor dashboards if you want (re-use your existing emitter shape)
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`doctor:${doctorId}`).emit('appointment:changed', {
+        doctorId,
+        action: 'canceled',      // you don't have a 'deleted' action; reuse 'canceled'
+        appointmentId,
+        date,
+        time,
+        deletedBy: 'admin',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment deleted',
+      appointmentId,
+    });
+  } catch (err) {
+    console.error('adminHardDeleteAppointment error:', err);
+    next(errorHandler(500, 'Failed to delete appointment'));
+  }
+};
 
 
 

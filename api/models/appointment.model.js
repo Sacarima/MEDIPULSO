@@ -58,6 +58,13 @@ const appointmentSchema = new mongoose.Schema({
         required: false,
         default: "",
     }, 
+    canceledAt: Date,
+    canceledBy: { type: String, enum: ["doctor","patient","admin","system"], default: undefined },
+    cancelReason: String,
+
+    //audit/context
+    rescheduledFrom: { date: Date, time: String },
+    rescheduledTo:   { date: Date, time: String },
 },{timestamp: true})
 
 const Appointment = mongoose.model("Appointment", appointmentSchema)

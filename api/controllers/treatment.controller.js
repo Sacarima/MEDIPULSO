@@ -1,4 +1,5 @@
 import Treatment from "../models/treatment.model.js";
+import slugify from "slugify";
 import { errorHandler } from "../utils/error.js";
 
 // Get All Treatments
@@ -75,7 +76,9 @@ export const addTreatment = async (req, res, next) => {
 
         if (!name) return next(errorHandler(400, "Treatment name is required."));
 
-        const treatment = new Treatment({ name, description, specialties });
+        const slug = slugify(name, { lower: true });
+
+        const treatment = new Treatment({ name, slug, description, specialties });
         await treatment.save();
 
         res.status(201).json({ success: true, message: "Treatment added successfully.", treatment });
@@ -106,3 +109,158 @@ export const updateTreatment = async (req, res, next) => {
         next(errorHandler(500, "Failed to update treatment."));
     }
 };
+
+// Get Treatment by Slug
+// This function retrieves a treatment by its slug.
+// It expects the slug to be provided in the request parameters.
+// It populates the specialties field in the Treatment model and returns the treatment details.
+// If the treatment is not found, it returns a 404 error.
+// If there is an error during the process, it returns a 500 error.
+// It also collects doctor IDs from all specialties and fetches their details.
+// This is useful for displaying related doctors for the treatment.
+
+export const getTreatmentBySlug = async (req, res, next) => {
+    try {
+        const { slug } = req.params;
+
+        // Find treatment and populate specialties + doctors
+        const treatment = await Treatment.findOne({ slug })
+            .populate({
+            path: "specialties",
+            select: "name doctors",
+            populate: {
+                path: "doctors",
+                select: "firstName lastName profilePicture specialty ratings city"
+            }
+            })
+            .lean();
+
+        if (!treatment) {
+            return next(errorHandler(404, "Treatment not found."));
+        }
+
+        // Collect all doctors from all specialties
+        const allDoctors = treatment.specialties.flatMap(spec => spec.doctors || []);
+
+        // Remove duplicates by ID
+        const uniqueDoctors = [];
+        const seen = new Set();
+        for (const doc of allDoctors) {
+            const idStr = doc._id.toString();
+            if (!seen.has(idStr)) {
+            seen.add(idStr);
+            uniqueDoctors.push(doc);
+            }
+        }
+
+        res.status(200).json({
+            success: true,
+            treatment,
+            doctors: uniqueDoctors // flat array of doctors
+        });
+        } catch (error) {
+        next(errorHandler(500, "Failed to fetch treatment and related doctors."));
+        }
+};
+
+
+// Get Treatments List for Homepage
+export const getTreatmentsList = async (req, res, next) => {
+  try {
+    const treatments = await Treatment.find()
+      .select("name slug") // only send what's needed for homepage links
+      .lean();
+
+    if (!treatments || treatments.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No treatments found." });
+    }
+
+    res.status(200).json({ success: true, treatments });
+  } catch (error) {
+    next(errorHandler(500, "Failed to fetch treatments list."));
+  }
+};
+
+
+// controllers/treatment.controller.js
+
+// export const updateTreatmentImages = async (req, res) => {
+//   try {
+//     const { treatmentId } = req.params;
+//     const { images = [], mode = 'append' } = req.body;
+
+//     if (!Array.isArray(images) || images.length === 0) {
+//       return res.status(400).json({ message: 'Body must include a non-empty array "images".' });
+//     }
+
+//     const treatment = await Treatment.findById(treatmentId);
+//     if (!treatment) return res.status(404).json({ message: 'Treatment not found' });
+
+//     if (!Array.isArray(treatment.images)) treatment.images = [];
+
+//     if (mode === 'replace') {
+//       treatment.images = images;
+//     } else if (mode === 'remove') {
+//       const toRemove = new Set(images);
+//       treatment.images = treatment.images.filter(u => !toRemove.has(u));
+//     } else { // append (default)
+//       const merged = [...treatment.images, ...images];
+//       // de-dup while preserving order
+//       const seen = new Set();
+//       treatment.images = merged.filter(u => (seen.has(u) ? false : (seen.add(u), true)));
+//     }
+
+//     await treatment.save();
+//     return res.json({ treatmentId: treatment._id, images: treatment.images });
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({ message: 'Failed to update treatment images' });
+//   }
+// };
+
+export const updateTreatmentImages = async (req, res) => {
+  try {
+    const { treatmentId } = req.params;
+    const { images = [], mode = 'append' } = req.body;
+
+    if (!Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ message: 'Body must include a non-empty array "images".' });
+    }
+
+    const treatment = await Treatment.findById(treatmentId);
+    if (!treatment) return res.status(404).json({ message: 'Treatment not found' });
+
+    if (!Array.isArray(treatment.images)) treatment.images = [];
+
+    if (mode === 'replace') {
+      treatment.images = images;
+    } else if (mode === 'remove') {
+      const toRemove = new Set(images);
+      treatment.images = treatment.images.filter(u => !toRemove.has(u));
+    } else { // append (default)
+      const merged = [...treatment.images, ...images];
+      const seen = new Set();
+      treatment.images = merged.filter(u => (seen.has(u) ? false : (seen.add(u), true)));
+    }
+
+    await treatment.save();
+
+    // Emit live update
+    const io = req.app.get('io');
+    if (io && treatment.slug) {
+      const room = `treatment:${treatment.slug}`;
+      io.to(room).emit('treatment:imagesUpdated', {
+        slug: treatment.slug,
+        images: treatment.images,
+      });
+    }
+
+    return res.json({ treatmentId: treatment._id, images: treatment.images });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to update treatment images' });
+  }
+};
+

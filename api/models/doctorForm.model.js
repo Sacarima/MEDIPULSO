@@ -300,6 +300,37 @@ const doctorFormSchema = new mongoose.Schema({
         default: 0, // Default to 0 if no reviews yet
       },
 
+    stripeCustomerId: { 
+        type: String, 
+        index: true 
+    },
+    stripeSubscriptionId: { 
+        type: String 
+    },
+
+    planId: { 
+        type: String, 
+        enum: ["free", "plus", "pro", null], 
+        default: "free" 
+    },
+
+    planCycle: { 
+        type: String, 
+        enum: ["monthly", "yearly", null], 
+        default: null 
+    },
+
+    planPriceId: { 
+        type: String 
+    },
+
+    planStatus: { 
+        type: String 
+    }, // active/past_due/canceled/…
+    currentPeriodEnd: { 
+        type: Date 
+    },
+
 
 
 }, {timestamps: true}) // this will add createdAt and updatedAt fields))
