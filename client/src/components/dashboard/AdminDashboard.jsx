@@ -6,6 +6,8 @@ const AdminDashboard = () => {
         totalDoctors: 0,
         totalClinics: 0,
         totalAppointments: 0,
+        totalTreatments: 0,
+        totalReviews: 0,
     });
 
     const [loading, setLoading] = useState(true);
