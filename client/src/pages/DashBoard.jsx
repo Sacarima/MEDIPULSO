@@ -12,7 +12,7 @@ export default function DashBoard() {
       </div>
 
       {/* Main content section */}
-      <div className='flex-1 ml-64 p-6 bg-gray-100'>
+      <div className=' mx-auto p-6 bg-gray-100'>
         <AdminDashboard />
         <DoctorTable />
       </div>

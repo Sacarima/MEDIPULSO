@@ -112,7 +112,7 @@ export default function Login() {
 
 
           const fromPath = location.state?.from?.pathname
-          const forbiddenPaths = ['/doctor-profile', '/clinic', '/admin', '/dashboard', '/doctor-calendar']
+          const forbiddenPaths = ['/doctor-profile', '/clinic', '/admin', '/doctor-calendar']
           const isCrossRolePath = forbiddenPaths.some(path => fromPath?.startsWith(path))
 
           navigate(isCrossRolePath ? redirectTo || '/' : fromPath || redirectTo || '/', {

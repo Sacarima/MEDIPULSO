@@ -11,7 +11,6 @@ import ProfileInfoNavigation from '../components/ProfileInfoNavigation'
 import { updateDoctorStart, updateDoctorSuccess,updateDoctorFailure } from '../redux/doctor/doctorSlice'
 import useMediaQuery from '../hooks/useMediaQuery'
 import { degrees } from '../data/degrees'
-import {diseases } from '../data/diseases'
 import { medicalCategories } from '../data/medicalCategories'
 import { doctorSpecializations } from '../data/doctorSpecializations'
 import { medicalSpecialtiesForAdvice } from '../data/medicalSpecialtiesForAdvice'
@@ -29,6 +28,17 @@ import { LiaTimesSolid } from "react-icons/lia"
 import { LuSlidersHorizontal } from "react-icons/lu"
 import { GoPlus } from "react-icons/go"
 import { FaPen } from "react-icons/fa6"
+import HomePage from '../components/HomePage'
+import DoctorNewsPanel from '../components/doctor/DoctorNewsPanel'
+import DoctorAppointmentsPanel from '../components/doctor/DoctorAppointmentsPanel'
+import DoctorPatientsPanel from '../components/doctor/DoctorPatientsPanel'
+import DoctorCalendar from '../components/doctor/DoctorCalendar'
+import DoctorPlans from '../components/doctor/DoctorPlans'
+import useDoctorAppointmentCounts from '../hooks/useDoctorAppointmentCounts'
+import { lazy, Suspense } from 'react'
+const DoctorProfileStats = lazy(() => import('../components/doctor/DoctorProfileStats'))
+import { startCheckout, openBillingPortal } from '../utils/billing'
+import DoctorCampaigns from '../components/doctor/DoctorCampaigns'
 
 
 
@@ -55,15 +65,20 @@ const  DoctorProfileInfo = ()=> {
  const [previewImageModal, setPreviewImageModal] = useState(null)
  const [addresses, setAddresses] = useState('')
 
+
+ const [active, setActive] = useState("home"); // 'profile' | 'appointments' | 'stats' | 'promotions' | 'certificates' ...
+ // helpers
+const isProfileView = active.startsWith("profile/");
+ // here changed
+ const doctorId = currentDoctor?._id;
+//here changed
+ const { counts, loading: countsLoading, refetch } = useDoctorAppointmentCounts(doctorId)
+
  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
  const [languagesText, setLanguagesText] = useState(
   Array.isArray(formData.languages) ? formData.languages.join(", ") : ""
 )
-
-
-
-
 
 
 
@@ -596,13 +611,72 @@ useEffect(() => {
 };
 
 
+ 
+
+
   return (
-    <div className='flex flex-col lg:flex-row min-h-screen'>
-        <DoctorProfileHeader />
-        {isAboveSmallScreens && 
-            <ProfileInfoNavigation />
-        }
-        <div className={`bg-[#8080802e] flex-1  p-2`}>
+    <div className='flex flex-col md:flex-row min-h-screen'>
+        <DoctorProfileHeader 
+          active={active}
+          setActive={setActive}
+          onChange={setActive}
+        />
+        {isAboveSmallScreens && (active || "").startsWith("profile/") && (
+            <ProfileInfoNavigation active={active} onChange={setActive} counts={counts} countsLoading={countsLoading} />
+        )}
+        <div className={`bg-[#8080802e] flex-1 overflow-y-auto`}>
+          {/* Made some changes here in case it breaks the code review this session */}
+          { active=== "home" ? (
+            <HomePage />)
+          : active === "calendar" ? (
+            <div className='p-6 bg-white min-h-screen'>
+              <DoctorCalendar doctorId={currentDoctor?._id} />  
+            </div>
+          ) : active === "stats" ? (
+            <div className='p-6 bg-white/5 min-h-screen'>
+              <Suspense fallback={<div className=''>Loading stats...</div>}  >
+                <DoctorProfileStats doctorId={currentDoctor?._id} />
+              </Suspense>
+            </div>
+          ) : active === "appointments" ? (
+            <div className='p-2'>
+              <DoctorAppointmentsPanel doctorId={currentDoctor?._id} /> 
+            </div>
+          ) : active === "patients" ? (
+            <div className="p-6 bg-white min-h-screen">
+              {/* temporary placeholder */}
+              
+                <DoctorPatientsPanel doctorId={currentDoctor?._id} />
+              
+            </div>
+          ) : active === "news" ? (
+            <div className="p-6 bg-white">
+              <DoctorNewsPanel
+                country="us"
+                pageSize={12}
+              />
+            </div>
+          ) : active === "plans" ? (
+              <div className="p-4 bg-whit min-h-screen">
+                <DoctorPlans
+                  doctorId={currentDoctor?._id}
+                  currentPlan={currentDoctor?.plan?.id ?? currentDoctor?.plan ?? "free"}
+                  onStartCheckout={({ planId, cycle, doctorId }) =>
+                    startCheckout(planId, cycle, doctorId)
+                  }
+                  onManageBilling={() =>
+                    currentDoctor?.stripeCustomerId
+                      ? openBillingPortal(currentDoctor.stripeCustomerId)
+                      : Promise.resolve(alert("No Stripe customer on file yet."))
+                  }
+                />
+              </div>
+            ) : active === "campaigns" ? (
+              <div className="p-4">
+                <DoctorCampaigns doctorId={currentDoctor?._id} />
+              </div>
+            ): active === "profile/edit" ? (
+            <>
           <div className=''>
               <form className='p-2' onSubmit={handleSubmit}>
               <div className='lg:w-[70%] w-full m-auto flex rounded-md bg-white p-4'>
@@ -1520,7 +1594,7 @@ useEffect(() => {
                                 // Remove duplicates (case-insensitive)
                                 const uniqueLanguages = Array.from(
                                   new Set(combinedLanguages.map((lang) => lang.toLowerCase()))
-                                ).map((lang) => lang.charAt(0).toUpperCase() + lang.slice(1)); // Optional: capitalize
+                                ).map((lang) => lang.charAt(0).toUpperCase() + lang.slice(1)); 
                             
                                 return {
                                   ...prev,
@@ -1558,6 +1632,17 @@ useEffect(() => {
               </div>
               </form>
           </div>
+            </>
+          ) : active === "profile/public" ? (
+            <div className="p-4 bg-white border rounded">Public profile preview (WIP)</div>
+          ) : active === "profile/addresses" ? (
+            <div className="p-4 bg-white border rounded">Addresses editor (WIP)</div>
+          ) : (
+            <div className="p-4 text-gray-500">Select a section</div>
+          )}
+
+
+          {/* success and Error message */}
           <div className='flex justify-center  '>
             {updateDoctorSuccess && updateSuccessDoctor && (
               <Alert color='success' className='my-5'>
@@ -1571,8 +1656,11 @@ useEffect(() => {
             )}
       
           </div>
+          
         </div>
+        
     </div>
+    
   )
 }
 

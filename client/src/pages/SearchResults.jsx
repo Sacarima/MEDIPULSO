@@ -24,7 +24,7 @@ const SearchResults = () => {
 
     const [activeTabs, setActiveTabs] = useState({}); // Maintain active tab per doctor
 
-    const { specialty, locationQuery, results , message} = location.state || {}
+    const { specialty, locationQuery, results , message, isSpecialtySearch} = location.state || {}
     const [showSpecialtyFilter, setShowSpecialtyFilter] = useState(true)
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
@@ -44,7 +44,7 @@ const SearchResults = () => {
             setFilteredDoctors([]);
             setErrorMessage(message || "No doctors found for the selected criteria.");
             setIsLoading(false);
-           
+            return; // don't proceed to fetch reviews
         }
 
 
@@ -153,6 +153,12 @@ const SearchResults = () => {
                 <h2 className="text-xl font-bold lg:mt-6">Search results</h2>
                 <p className="text-gray-500 underline cursor-pointer">How Search Result Work</p>
             </div>
+
+            {specialty && (
+                <div className="lg:w-[70%] mx-auto text-lg text-gray-600 mt-4">
+                    Showing results for: <span className="font-semibold">{specialty}</span>
+                </div>
+            )}
             
             {searchResults.length > 0 && showSpecialtyFilter && (
             <SpecialtyFilter
@@ -245,7 +251,15 @@ const SearchResults = () => {
                         })}
                     </ul>
                 ) : (
-                    <p className="text-slate-500 text-xl">No doctors found for your search criteria.</p>
+                    <p className="text-slate-500 text-xl">
+                        {message
+                            ? message
+                            : isSpecialtySearch && specialty
+                            ? `No doctors for ${specialty} yet.`
+                            : "No doctors found for your search criteria."
+                        }
+                        </p>
+
                 )}
             </div>
         </div>
