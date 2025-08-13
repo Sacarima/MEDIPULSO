@@ -36,11 +36,25 @@ import SearchResults from './pages/SearchResults'
 import AskDoctorForm from './components/questions/AskQuestionForm'
 import Settings from './components/dashboard/Settings'
 import LoadingOverlay from './components/LoadingOverlay'
+import MedicalTreatment from './components/MedicalTreatment'
+import { useSelector } from 'react-redux'
+import AdminLayout from './components/dashboard/AdminLayout'
+import AdminDashboard from './components/dashboard/AdminDashboard'
+import AdminAddTreatment from './components/admin/AdminAddTreatment'
+import DoctorTable from './components/dashboard/DoctorTable'
+import AdminAppointmentsTable from './components/dashboard/AdminAppointmentsTable'
+import AppointmentTable from './components/dashboard/AppointmentTable'
+import { Toaster } from 'react-hot-toast'
+
+
 
 const libraries = ['places']
 
 const App = () => {
 const [appLoading, setAppLoading] = useState(true)
+const { currentAdmin } = useSelector((state) => state.admin)
+
+  // Load Google Maps API
  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -66,6 +80,7 @@ const [appLoading, setAppLoading] = useState(true)
   }
 
   return (
+    <>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePageMain />} />
@@ -86,7 +101,6 @@ const [appLoading, setAppLoading] = useState(true)
           <Route path="/patient-profile" element={<PatientAccount />} />
           <Route path="/doctor-profile" element={<DoctorProfile />} />
           <Route path="/doctor-calendar" element={<Calendar />} />
-          <Route path="/dashboard" element={<DashBoard />} />
           <Route path="/settings" element={<Settings />} />
           <Route 
             path="/doctor-review/:doctorId" 
@@ -96,8 +110,12 @@ const [appLoading, setAppLoading] = useState(true)
               </DoctorProvider>
             } 
           />
+
+           
         </Route>
 
+        
+         
         <Route element={<PrivateRoute />}>
           <Route path="/doctor-appointment/:doctorId" element={
             <DoctorProvider>
@@ -108,8 +126,8 @@ const [appLoading, setAppLoading] = useState(true)
         </Route>
         
         <Route path="/doctor-profile-info" element={<DoctorProfileInfo />} />
-        <Route path="/doctor-profile" element={<DoctorProfile />} />
-        <Route path="*" element={<PageNotFound />} />
+        {/* <Route path="/doctor-profile" element={<DoctorProfile />} /> */}
+
         <Route path="/profile-info/:doctorId" element={
           <DoctorPublicProfile isLoaded={isLoaded} />
         
@@ -128,17 +146,40 @@ const [appLoading, setAppLoading] = useState(true)
               </DoctorProvider>
             } 
             />
-          
         </Route>
+
+        {/* Admin-only */}
+        {currentAdmin && (
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="dashboard" element={<DashBoard />} />
+            <Route path="treatments" element={<AdminAddTreatment />} />
+            <Route path="doctor-table" element={<DoctorTable />} />
+            <Route path="appointments" element={<AppointmentTable />} />
+          </Route>
+        )}
+        
         <Route path="/doctor-specialties" element={<DoctorSpecialtiesPage />} />
         <Route path="/doctor-profile-completion" element={<DoctorProfileCompletion />} />
         <Route path="/doctor-signup-confirmation" element={<DoctorSignupConfirmation />} />
         <Route path="/search-results" element={<SearchResults />} />
         <Route path="/ask-doctor" element={<AskDoctorForm />} />
+        <Route path="/treatments/:slug" element={<MedicalTreatment />} />
 
 
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>
+    
+    <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 2500,
+          style: { fontSize: '14px' },
+          success: { iconTheme: { primary: '#00c3a5', secondary: '#fff' } }
+        }}
+      />
+    </>
   )
 }
 
