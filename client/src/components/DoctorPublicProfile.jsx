@@ -717,6 +717,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
 
                 </div>
             </section>
+            
             {/* FREQUENTLY ASKED QUESTION */}
             <section className='lg:w-[70%] m-auto'>
                 <div className='lg:w-[60%]'>
