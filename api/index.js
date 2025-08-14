@@ -1,11 +1,12 @@
-import dotenv from 'dotenv'
+//import dotenv from 'dotenv'
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import path from 'path'
 import http from 'http'
 import { Server as SocketServer } from 'socket.io'
-
+import patientRoutes from './routes/patient.route.js'
 import userRoutes from './routes/user.route.js'
 import doctorRoutes from './routes/doctor.route.js'
 import clinicRoutes from './routes/clinic.route.js'
@@ -40,13 +41,13 @@ import admin from 'firebase-admin'
 
 
 //remove this in production
- const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
 
 //import serviceAccount from './secrets/firebaseServicesAccountKey.json' assert { type: 'json' }
 
 
 // Load environment variables
-dotenv.config()
+//dotenv.config()
 
 // Connect to MongoDB
 connectDB()
@@ -59,6 +60,7 @@ const app = express()
 
 /** Stripe webhook must see the raw body */
 app.post("/webhooks/stripe", express.raw({ type: "application/json" }), stripeWebhookHandler);
+
 
 // Create an Express app
 app.use(express.json())
@@ -108,6 +110,7 @@ app.use("/api", StatsRoutes)
 app.use('/api/location', locationRoutes)
 app.use('/api/news', newsRoutes)
 app.use('/api/billing', billingsRoutes)
+app.use('/api/patients', patientRoutes)
 
 
 //  Socket.IO setup
