@@ -2,6 +2,7 @@
 import express from 'express';
 import 'dotenv/config';                 // ensure env is loaded for this module
 import Stripe from 'stripe';
+import bodyParser from 'body-parser';
 
 const router = express.Router();
 
@@ -79,6 +80,7 @@ router.post('/portal', async (req, res) => {
     }
     const portal = await stripe.billingPortal.sessions.create({
       customer: customerId,
+      // configuration: process.env.STRIPE_PORTAL_CONFIG_ID,
       return_url: `${CLIENT_URL}/doctor-profile-info?billing=portal_return`,
     });
     res.json({ url: portal.url });
@@ -87,5 +89,35 @@ router.post('/portal', async (req, res) => {
     res.status(500).json({ error: 'Unable to open billing portal' });
   }
 });
+
+// POST /api/billing/downgrade
+// Body: { doctorId: string }
+router.post('/downgrade', async (req, res) => {
+  try {
+    const { doctorId } = req.body || {};
+    if (!doctorId) {
+      return res.status(400).json({ error: 'Missing doctorId' });
+    }
+
+    // Clear Stripe subscription info, set to free
+    await DoctorForm.findByIdAndUpdate(doctorId, {
+      $set: {
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        planId: 'free',
+        planCycle: null,
+        planPriceId: null,
+        planStatus: 'active', // free plan still "active"
+        currentPeriodEnd: null
+      }
+    });
+
+    res.json({ success: true, message: 'Downgraded to free plan' });
+  } catch (err) {
+    console.error('[billing] downgrade error:', err);
+    res.status(500).json({ error: 'Unable to downgrade to free plan' });
+  }
+});
+
 
 export default router;

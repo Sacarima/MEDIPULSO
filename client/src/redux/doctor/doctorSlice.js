@@ -15,7 +15,7 @@ const doctorSlice = createSlice({
             state.loading = true
         },
         signInDoctorSuccess: (state, action) => {
-            console.log('Reducer doctor payload:', action.payload)
+            
             state.currentDoctor = action.payload
             state.loading = false
             state.isLoggedIn = true

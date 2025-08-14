@@ -331,6 +331,11 @@ const doctorFormSchema = new mongoose.Schema({
         type: Date 
     },
 
+    stripeCustomerId: { 
+        type: String 
+    }
+
+
 
 
 }, {timestamps: true}) // this will add createdAt and updatedAt fields))
