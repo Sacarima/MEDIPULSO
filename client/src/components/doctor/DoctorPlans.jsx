@@ -96,44 +96,66 @@ export default function DoctorPlans({
     []
   );
 
+  // Find the current plan object
   const handleSelect = async (planId) => {
-    setLoadingPlan(planId);
-    try {
-      if (currentPlan) {
+  setLoadingPlan(planId);
 
-        //  If already on FREE, do nothing (don’t try to open billing portal)
-        if (planId === "free") {
-          return; // nice quiet no-op
-        }
+  try {
+    const isCurrentPaidPlan = currentPlan && currentPlan !== "free";
 
-
-        // If already on plan, route to billing portal if provided
-        if (onManageBilling) return await onManageBilling();
-        console.log("[billing] manage current plan");
+    // If they’re on a paid plan already
+    if (isCurrentPaidPlan) {
+      // Switching to free → handle downgrade here (no Stripe portal)
+      if (planId === "free") {
+        console.log("[billing] switching to free plan");
+        // You might call your backend here to update DB
         return;
       }
-      const payload = { planId, cycle: cycle === "yearly" ? "yearly" : "monthly", doctorId };
+
+      // Switching between paid plans → open Stripe portal
+      if (onManageBilling) {
+        return await onManageBilling();
+      }
+      console.log("[billing] manage current plan");
+      return;
+    }
+
+    // If they’re currently on free and want a paid plan
+    if (planId !== "free") {
+      const payload = {
+        planId,
+        cycle: cycle === "yearly" ? "yearly" : "monthly",
+        doctorId
+      };
       if (onStartCheckout) {
         await onStartCheckout(payload);
       } else {
-        // Stub: integrate with your backend
         console.log("[checkout] start", payload);
-       
-        // const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/billing/checkout`, {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   credentials: 'include',
-        //   body: JSON.stringify(payload),
-        // });
-        // const { url } = await res.json();
-        // window.location.href = url;
       }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingPlan("");
+      return;
     }
-  };
+
+    // If they’re on free and click free → just ignore
+    if (planId === "free") {
+      console.log("[billing] switching to free plan");
+
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/billing/downgrade`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ doctorId })
+      });
+
+      return;
+    }
+
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setLoadingPlan("");
+  }
+};
+
 
   return (
     <div className="max-w-6xl mx-auto bg-white p-6">
