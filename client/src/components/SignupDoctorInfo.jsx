@@ -1,10 +1,13 @@
-import { useState} from 'react'
+import { useState, useEffect} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Label } from 'flowbite-react'
 import MedicalCategoryDropdown from '../components/MedicalCategoryDropdown';
 import { Alert, Spinner } from 'flowbite-react';
-import { medicalCategories } from '../data/medicalCategories'
+//import { medicalCategories } from '../data/medicalCategories'
+import axios from 'axios';
 
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 // UPDATE WITH REDUX FOR STATE MANAGEMENT
 
@@ -13,6 +16,10 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
     const isFieldInvalid = (field) => invalidFields.includes(field)
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
+    const [specLoading, setSpecLoading] = useState(true)
+    const [specError, setSpecError] = useState(null)
+    const [specialtyOptions, setSpecialtyOptions] = useState([])
+
     const navigate = useNavigate()
 
     const handleRadioChange = (e) => {
@@ -56,7 +63,39 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
           [name]: checked,
         })
       }
-    
+
+      useEffect(() => {
+      let cancelled = false;
+      const fetchSpecialties = async () => {
+        try {
+          setSpecLoading(true);
+          setSpecError(null);
+
+          const res = await axios.get(`${API_BASE_URL}/api/specialties`, { withCredentials: true });
+
+          // Expecting: res.data.specialties = array of { _id, name } or strings
+          const raw = res?.data?.specialties ?? [];
+          const normalized = raw
+            .map(s => {
+              if (typeof s === 'string') return s.trim();
+              if (s && typeof s === 'object') return s.name ?? s.title ?? s.label ?? '';
+              return '';
+            })
+            .filter(Boolean);
+
+          if (!cancelled) setSpecialtyOptions(normalized);
+        } catch (err) {
+          if (!cancelled) setSpecError(err?.response?.data?.message || 'Failed to fetch specialties');
+          console.error('Failed to fetch specialties:', err?.response?.data || err?.message);
+        } finally {
+          if (!cancelled) setSpecLoading(false);
+        }
+      };
+      fetchSpecialties();
+      return () => { cancelled = true; };
+    }, []);
+
+        
 
 
   return (
@@ -123,7 +162,7 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                   className='mb-2'
                 />
                 <MedicalCategoryDropdown
-                  options={medicalCategories}
+                  options={specialtyOptions}
                   selected={formData.medicalCategory}
                   onSelect={(selectedCategory) => handleInputChange('medicalCategory', selectedCategory)}
                   isInvalid={isFieldInvalid('medicalCategory')}
@@ -132,6 +171,8 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
                   name='medicalCategory'
                   className={`block w-full mt-1 px-3 py-2 border rounded-md ${isFieldInvalid('medicalCategory') ? 'border-red-500' : 'border-gray-300'}`}
                   onChange={(e) => setFormData({ ...formData, medicalCategory: e.target.value })}
+                  disabled={specLoading || !!specError}
+                  placeholder={specLoading ? 'Loading specialties...' : (specError ? 'Could not load specialties' : 'Select a specialty')}
                 />
               </div>
 
@@ -168,9 +209,9 @@ const SignupDoctorInfo = ({formData, setFormData, invalidFields, isInvalid, setI
 
             </form>
 
-            {errorMessage && (
-              <Alert className='mt-5' color='failure'>
-                {errorMessage}
+            {specError && (
+              <Alert className='mt-3' color='warning'>
+                {String(specError)}
               </Alert>
             )}
     </div>
