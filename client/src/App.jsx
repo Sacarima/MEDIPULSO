@@ -35,7 +35,7 @@ import Calendar from './components/doctor/Calendar'
 import SearchResults from './pages/SearchResults'
 import AskDoctorForm from './components/questions/AskQuestionForm'
 import Settings from './components/dashboard/Settings'
-import LoadingOverlay from './components/LoadingOverlay'
+//import LoadingOverlay from './components/LoadingOverlay'
 import MedicalTreatment from './components/MedicalTreatment'
 import { useSelector } from 'react-redux'
 import AdminLayout from './components/dashboard/AdminLayout'
@@ -44,7 +44,12 @@ import AdminAddTreatment from './components/admin/AdminAddTreatment'
 import DoctorTable from './components/dashboard/DoctorTable'
 import AdminAppointmentsTable from './components/dashboard/AdminAppointmentsTable'
 import AppointmentTable from './components/dashboard/AppointmentTable'
-import { Toaster } from 'react-hot-toast'
+import AccountHeaderPatient from './components/AccountHeaderPatient'
+import HomePage from './components/HomePage'
+import Layout from './components/layout/Layout'
+import toast, { Toaster } from 'react-hot-toast';
+import { EnsureDoctorDashboardProvider } from './components/context/DoctorDashboardContext'
+
 
 
 
@@ -75,111 +80,126 @@ const { currentAdmin } = useSelector((state) => state.admin)
     return <div>Loading...</div>
   }
 
-    if (appLoading || !isLoaded) {
-    return <LoadingOverlay isLoading={true} />
-  }
+  //   if (appLoading || !isLoaded) {
+  //   return <LoadingOverlay isLoading={true} />
+  // }
 
   return (
-    <>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePageMain />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/login-form" element={<LoginForm />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/questions/:questionId" element={<Questions />} />
-        <Route path="/account" element={<Account />} />
-       
-          <Route path="/services" element={ <Services />} /> 
-        
-        <Route path="/data-privacy" element={<DataPrivacy />} />
-        <Route path="/job-offers-for-doctor" element={<JobOffersForDoctors />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route element={<PrivateRoute />}>
-          <Route path="/patient-profile" element={<PatientAccount />} />
-          <Route path="/doctor-profile" element={<DoctorProfile />} />
-          <Route path="/doctor-calendar" element={<Calendar />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route 
-            path="/doctor-review/:doctorId" 
-            element={
+    
+ <EnsureDoctorDashboardProvider>
+  <BrowserRouter>
+    <Routes>
+      {/* PUBLIC (with Layout so headers render) */}
+      <Route path="/" element={<Layout><HomePage /></Layout>} />
+      <Route path="/services" element={<Layout><Services /></Layout>} />
+      <Route path="/data-privacy" element={<Layout><DataPrivacy /></Layout>} />
+      <Route path="/job-offers-for-doctor" element={<JobOffersForDoctors />} />
+      <Route path="/about" element={<Layout><About /></Layout>} />
+      <Route path="/contact" element={<Layout><Contact /></Layout>} />
+      <Route path="/questions/:questionId" element={<Layout><Questions /></Layout>} />
+      <Route path="/treatments/:slug" element={<Layout><MedicalTreatment /></Layout>} />
+      <Route path="/doctor-specialties" element={<Layout><DoctorSpecialtiesPage /></Layout>} />
+      <Route path="/search-results" element={<Layout><SearchResults /></Layout>} />
+      <Route path="/ask-doctor" element={<Layout><AskDoctorForm /></Layout>} />
+
+      {/* PUBLIC (intentionally no Layout / no header) */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/login-form" element={<LoginForm />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/signup/doctor" element={<SignupDoctor />} />
+      <Route path="/signup/doctor-form" element={<DoctorForm />} />
+      <Route path="/signup/clinic-form" element={<ClinicForm />} />
+      <Route path="/terms-and-condition" element={<TermsAndCondition />} />
+      {/* <Route path="/job-offers-for-doctors" element={<JobOffersForDoctors />} /> */}
+
+      {/* PUBLIC doctor profile (will show DoctorProfileHeader if user is a doctor, else public header) */}
+      <Route
+        path="/profile-info/:doctorId"
+        element={<Layout><DoctorPublicProfile isLoaded={isLoaded} /></Layout>}
+      />
+
+      {/* PRIVATE */}
+      <Route element={<PrivateRoute />}>
+        <Route path="/patient-profile" element={<Layout><PatientAccount /></Layout>} />
+        <Route path="/account" element={<Layout><Account /></Layout>} />
+
+        {/* If you want doctor header on these, wrap with Layout */}
+        <Route path="/doctor-profile" element={<Layout><DoctorProfile /></Layout>} />
+        <Route path="/doctor-profile/:doctorId" element={<Layout><DoctorProfile /></Layout>} />
+        <Route path="/doctor-calendar" element={<Layout><Calendar /></Layout>} />
+        <Route path="/settings" element={<Layout><Settings /></Layout>} />
+        <Route path="/doctor-signup-confirmation" element={<Layout><DoctorSignupConfirmation /></Layout>} />
+        <Route path="/doctor-profile-completion" element={<Layout><DoctorProfileCompletion /></Layout>} />
+        <Route
+          path="/doctor-review/:doctorId"
+          element={
+            <Layout>
               <DoctorProvider>
                 <ReviewSteps />
               </DoctorProvider>
-            } 
-          />
-
-           
-        </Route>
-
-        
-         
-        <Route element={<PrivateRoute />}>
-          <Route path="/doctor-appointment/:doctorId" element={
-            <DoctorProvider>
-              <DoctorAppointment />
-            </DoctorProvider>
-          } 
-            />
-        </Route>
-        
-        <Route path="/doctor-profile-info" element={<DoctorProfileInfo />} />
-        {/* <Route path="/doctor-profile" element={<DoctorProfile />} /> */}
-
-        <Route path="/profile-info/:doctorId" element={
-          <DoctorPublicProfile isLoaded={isLoaded} />
-        
-        } 
+            </Layout>
+          }
         />
-        <Route path="/signup/doctor" element={<SignupDoctor />} />
-        <Route path="/signup/doctor-form" element={<DoctorForm />} />
-        <Route path="/signup/clinic-form" element={<ClinicForm />} />
-        <Route path="/terms-and-condition" element={<TermsAndCondition />} />
-        
-
-        <Route element={<PrivateRoute />}>
-          <Route path="/appointment-confirmation" element={
+        <Route
+          path="/doctor-appointment/:doctorId"
+          element={
+            <Layout>
+              <DoctorProvider>
+                <DoctorAppointment />
+              </DoctorProvider>
+            </Layout>
+          }
+        />
+        <Route
+          path="/appointment-confirmation"
+          element={
+            <Layout>
               <DoctorProvider>
                 <ConfirmationPage />
               </DoctorProvider>
-            } 
-            />
-        </Route>
-
-        {/* Admin-only */}
-        {currentAdmin && (
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="dashboard" element={<DashBoard />} />
-            <Route path="treatments" element={<AdminAddTreatment />} />
-            <Route path="doctor-table" element={<DoctorTable />} />
-            <Route path="appointments" element={<AppointmentTable />} />
-          </Route>
-        )}
+            </Layout>
+          }
+        />
         
-        <Route path="/doctor-specialties" element={<DoctorSpecialtiesPage />} />
-        <Route path="/doctor-profile-completion" element={<DoctorProfileCompletion />} />
-        <Route path="/doctor-signup-confirmation" element={<DoctorSignupConfirmation />} />
-        <Route path="/search-results" element={<SearchResults />} />
-        <Route path="/ask-doctor" element={<AskDoctorForm />} />
-        <Route path="/treatments/:slug" element={<MedicalTreatment />} />
+      </Route>
 
-
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-    </BrowserRouter>
-    
-    <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 2500,
-          style: { fontSize: '14px' },
-          success: { iconTheme: { primary: '#00c3a5', secondary: '#fff' } }
-        }}
+      {/* Doctor dashboard main */}
+      <Route
+        path="/doctor-profile-info"
+        element={<Layout><DoctorProfileInfo /></Layout>}
       />
-    </>
+
+      {/* Admin-only */}
+      {currentAdmin && (
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="dashboard" element={<DashBoard />} />
+          <Route path="treatments" element={<AdminAddTreatment />} />
+          <Route path="doctor-table" element={<DoctorTable />} />
+          <Route path="appointments" element={<AppointmentTable />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+      )}
+
+      <Route
+        path="/job-offers-for-doctors"
+        element={<Layout><JobOffersForDoctors /></Layout>}
+      />
+
+      <Route path="*" element={<PageNotFound />} />
+    </Routes>
+  </BrowserRouter>
+
+  <Toaster
+    position="top-right"
+    toastOptions={{
+      duration: 2500,
+      style: { fontSize: '14px' },
+      success: { iconTheme: { primary: '#00c3a5', secondary: '#fff' } }
+    }}
+  />
+</EnsureDoctorDashboardProvider>
   )
 }
 
