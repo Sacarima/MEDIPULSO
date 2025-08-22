@@ -19,7 +19,7 @@ const DoctorProfile = () => {
     <div className="sm:flex flex-row min-h-screen">
     {/* Sticky Navigation */}
     <nav className=" lg:h-screen lg:sticky lg:top-0 bg-gray-100">
-      <DoctorProfileHeader />
+      {/* <DoctorProfileHeader /> */}
     </nav>
 
     {/* Main Scrollable Content */}
