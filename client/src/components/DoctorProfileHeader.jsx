@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import logo from '../assets/fivicon.png';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { RiMessage2Fill } from "react-icons/ri";
 import { HiMiniUsers } from "react-icons/hi2";
@@ -16,9 +17,12 @@ import { LiaTimesSolid } from "react-icons/lia";
 import useMediaQuery from '../hooks/useMediaQuery';
 import logoDarkMode from '../assets/fivicon.png';
 import WithLogout from './WithLogout';
+import { useDoctorDashboard } from './context/DoctorDashboardContext';
 import { ROUTES } from '../config/routes';
 
-const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
+
+// REMOVE THESE PROPS: , active, onChange = () => {}  PUT BACK IF IT BREAKS
+const DoctorProfileHeader = ({ handleLogout}) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDropdownOpen2, setIsDropdownOpen2] = useState(false);
   const [showDoctorProfile, setShowDoctorProfile] = useState(false);
@@ -29,26 +33,61 @@ const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
   const [isProfileActive, setIsProfileActive] = useState(false);
   const [isAccountActive, setIsAccountActive] = useState(false);
   const { currentDoctor } = useSelector((state) => state.doctor);
-  const path = useLocation().pathname;
+
   const accountRef = useRef(null);
   const profileRef = useRef(null);
   const dropdownRef = useRef(null);
+  const accountDropdownRef = useRef(null)
 
-  // ---- SAFE NAV HELPERS (prevents startsWith error) ----//
-  const current = typeof active === 'string' ? active : '';
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams()
+  const path = location.pathname;
+  const navigate = useNavigate();
+  const { active, setActive } = useDoctorDashboard();
+  const PROFILE_INFO_ROUTE = ROUTES?.doctor?.profileInfo ?? '/doctor-profile-info';
+
+
+
+
+
+  const current = typeof active === "string" ? active : "";
   const isKey = (k) => current === k;
-  const go = (key) => {
-    try { onChange(key); } catch {}
-  };
+
+const go = (key) => {
+  setActive(key);
+  const tab = encodeURIComponent(key);
+  if ( path !== PROFILE_INFO_ROUTE ) {
+    navigate(`${PROFILE_INFO_ROUTE}?tab=${tab}`);
+  }else {
+    navigate(`${PROFILE_INFO_ROUTE}?tab=${tab}`, { replace: true });
+  }
+}
+
+const goTo = (path) => {
+  // close all overlays/dropdowns
+  setIsDropdownOpen(false);
+  setIsDropdownOpen2(false);
+  setIsProfileActive(false);
+  setIsAccountActive(false);
+  setIsMenuToggled(false);
+  setIsOpen(false);
+
+  navigate(path);
+};
+
 
   const selectAndClose = (key) => {
-  try { onChange?.(key); } finally {
-    // close the mobile sheet + collapse the profile submenu
-    setIsMenuToggled(false);
-    setIsDropdownOpen2(false);
-    setIsProfileActive(false);
-  }
-};
+    setActive(key);
+    setIsMenuToggled(false)
+    setIsDropdownOpen2(false)
+    setIsProfileActive(false)
+    const tab = encodeURIComponent(key);
+    if (path !== PROFILE_INFO_ROUTE) {
+      navigate(`${PROFILE_INFO_ROUTE}?tab=${tab}`);
+    }else {
+      navigate(`${PROFILE_INFO_ROUTE}?tab=${tab}`, { replace: true });
+    }
+  };
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -105,7 +144,45 @@ const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
     return () => { document.removeEventListener("mousedown", handleClickOutside); };
   }, []);
 
+  //  Sync local active tab when URL's ?tab= changes on /doctor-profile-info
+  useEffect(() => {
+    if (location.pathname !== PROFILE_INFO_ROUTE) return;
+    const tab = searchParams.get('tab');
+    const decoded = tab ? decodeURIComponent(tab) : null;
+    if (decoded && decoded !== current) {
+      setActive(decoded);
+    }
+  }, [location.pathname, location.search]); // listens to ?tab= changes
+
+  // If we land on profile page without ?tab=, push current active into URL
+  useEffect(() => {
+    if (location.pathname !== PROFILE_INFO_ROUTE) return;
+    const tab = searchParams.get('tab');
+    if (!tab && current) {
+      const enc = encodeURIComponent(current);
+      navigate(`${PROFILE_INFO_ROUTE}?tab=${enc}`, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]); // run on entry to profile route
+
+// Close account dropdown when clicking outside
+  useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (
+      accountDropdownRef.current &&
+      !accountDropdownRef.current.contains(e.target)
+    ) {
+      setIsDropdownOpen(false);
+    }
+  };
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
   return (
+
     <div>
       {/* DESKTOP NAVIGATION */}
       {isAboveSmallScreens ? (
@@ -246,7 +323,7 @@ const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
               </div>
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="absolute left-[49px] bottom-0 mt-2 bg-white border rounded z-[2147483647]  shadow-lg w-[20rem] ">
+                <div ref={accountDropdownRef} className="absolute left-[49px] bottom-0 mt-2 bg-white border rounded z-[2147483647]  shadow-lg w-[20rem] ">
                   <ul className="py-1 text-[1rem]">
                     <li className='px-4 bg-[#f7f9fa] flex justify-between gap-4 items-center py-2'>
                       <FaUser className='text-gray-400'/>
@@ -255,10 +332,21 @@ const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
                         <span className='font-medium'>{currentDoctor ? currentDoctor.lastName : "Loading..."}</span>
                       </span>
                     </li>
-                    <li className="px-4 cursor-pointer py-2 hover:bg-gray-100">My account</li>
-                    <li className="px-4 cursor-pointer py-2 hover:bg-gray-100">My visits to doctors</li>
-                    <li className="px-4 cursor-pointer py-2 hover:bg-gray-100">Job offers for doctors</li>
-                    <li onClick={handleLogout} className="px-4 cursor-pointer py-2 hover:bg-gray-100">Log out</li>
+                    <li 
+                      className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${isKey("my-account") ? " border-b-2 border-[#00b39be6] bg-[#00b39be6]/[0.1]" : "text-gray-600"}`}
+                      onClick={() => go("my-account")}>My account</li>
+                    <li 
+                      className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${isKey("my-visits") ? " border-b-2 border-[#00b39be6] bg-[#00b39be6]/[0.1]" : "text-gray-600"}`}
+                      onClick={() => go("my-visits")}>My visits to doctors</li>
+                    <Link to="/job-offers-for-doctor">
+                      <li
+                        className={`px-4 py-2 hover:bg-gray-100 cursor-pointer ${isKey("job-offers") ? " border-b-2 border-[#00b39be6] bg-[#00b39be6]/[0.1]" : "text-gray-600"}`}
+                        onClick={() => go("job-offers")}>Job offers for doctors</li>
+                     </Link>
+                      <li
+                          onClick={handleLogout}
+                          className="px-4 cursor-pointer py-2 hover:bg-gray-100">Log out</li>
+                   
                   </ul>
                 </div>
               )}
@@ -331,8 +419,10 @@ const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
                 </div>
 
   
-              <div className="flex items-center gap-3">
-                <FaGooglePlay className='my-4 cursor-pointer'/>
+              <div className="flex items-center gap-3" onClick={() => { go('campaigns'); handleMenuToggle(); }}>
+                <FaGooglePlay 
+                  className='my-4 cursor-pointer' 
+                />
                 <span className="text-gray-400 text-[1.1rem] cursor-pointer">
                   Campaings
                 </span>
@@ -403,7 +493,7 @@ const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
                           <button
                             type="button"
                             className="w-full text-left"
-                            onClick={(e) => { e.stopPropagation(); selectAndClose('profile/channels'); }}
+                            onClick={(e) => { e.stopPropagation(); selectAndClose('profile/appointments'); }}
                           >
                             Appointment channels
                           </button>
@@ -412,9 +502,9 @@ const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
                           <button
                             type="button"
                             className="w-full text-left"
-                            onClick={(e) => { e.stopPropagation(); selectAndClose('profile/stats'); }}
+                            onClick={(e) => { e.stopPropagation(); selectAndClose('profile/reviews'); }}
                           >
-                            Profile statistics
+                            Profile reviews
                           </button>
                         </li>
                         <li className="px-4 py-2 cursor-pointer hover:bg-gray-100">
@@ -447,12 +537,12 @@ const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
                 </div>
 
   
-              <div className="flex items-center gap-3 text-2xl  px-4 pointer-events-none">
+              <div className="flex items-center gap-3 text-2xl  px-4 cursor-pointer" onClick={() => { go('plans'); handleMenuToggle(); }}> 
                 <RiSecurePaymentLine 
-                    className={`my-4 cursor-pointer ${isKey("plans") ? "text-[#00b39be6]" : "text-gray-400"}`}
-                    onClick={() => go("plans")}
+                    className="my-4 cursor-pointer text-gray-400"
+                    
                   />
-                <span className="text-gray-400 text-[1.1rem] cursor-pointer pointer-events-none">
+                <span className="text-gray-400 text-[1.1rem] cursor-pointer">
                   Chooose your plan
                 </span>
               </div>
@@ -480,10 +570,10 @@ const DoctorProfileHeader = ({ handleLogout, active, onChange = () => {} }) => {
               {isDropdownOpen && (
                 <div className=" ml-6 rounded">
                   <ul className="ml-10 text-[1rem] ">
-                    <li className="px-4 cursor-pointer py-2">My account</li>
+                    <li className="px-4 cursor-pointer py-2" onClick={() => { go('my-account'); handleMenuToggle(); }}>My account</li>
                     <li className="px-4 cursor-pointer py-2">My visits to doctors</li>
-                    <li className="px-4 cursor-pointer py-2 ">Job offers for doctors</li>
-                    <li className="px-4 cursor-pointer py-2 ">Log out</li>
+                    <Link to="/job-offers-for-doctors"><li className="px-4 cursor-pointer py-2 " onClick={handleMenuToggle }>Job offers for doctors</li></Link>
+                    <li className="px-4 cursor-pointer py-2 " onClick={handleLogout}>Log out</li>
                   </ul>
                 </div>
               )}
