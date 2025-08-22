@@ -11,7 +11,7 @@ import DataPrivacyFooter from '../components/DataPrivacyFooter'
 export default function DataPrivacy() {
   return (
     <div className=''>
-        <DataPrivacyHeader />
+        {/* <DataPrivacyHeader /> */}
         <div className='bg-[#f7f9fa]'>
           <section className='lg:w-[70%] w-full m-auto flex flex-col lg:flex-row px-4 pt-14 pb-8'>
 
