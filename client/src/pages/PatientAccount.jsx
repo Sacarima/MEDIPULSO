@@ -168,9 +168,9 @@ function PatientAccount() {
 
   return (
     <div className='bg-gray-200 min-h-dvh'>
-      <AccountHeaderPatient className='sticky top-0'/>
+      {/* <AccountHeaderPatient className='sticky top-0'/> */}
       <div className='bg-gray-200 min-h-dvh'>
-        <main className=' sm:w-[80%]  m-auto  mt-8 bg-gray-200'>
+        <main className=' sm:w-[80%]  m-auto  bg-gray-200'>
           <section className=' sm:flex '>
 
             {/* Sidebar Navigation */}

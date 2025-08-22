@@ -7,7 +7,7 @@ function HomePageMain() {
   return (
     <div>
         <div className='bg-[#00c3a5]'>
-          <div className='2xl:w-[70%] md:w-[100%] m-auto 2xl:bg-[#00c3a5]'>
+          <div className='2xl:w-[70%] md:w-[100%] w-full m-auto 2xl:bg-[#00c3a5]'>
             <Header />
           </div>
         </div>
