@@ -1,7 +1,7 @@
 
 import DoctorCalendar from './DoctorCalendar'
 
-const DoctorAvailability = ({isSubmitting, handleSubmit, errorMessage, successMessage, handleBack, setAvailability})=>  {
+const DoctorAvailability = ({isSubmitting, handleSubmit, errorMessage, successMessage, handleBack, setAvailability, doctorId})=>  {
   return (
     <div>
         <DoctorCalendar />
