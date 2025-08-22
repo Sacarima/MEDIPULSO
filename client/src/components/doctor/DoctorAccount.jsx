@@ -213,50 +213,6 @@ const handleChangePassword = async (e) => {
     }
   };
 
-//   const handleChangePassword = async (e) => {
-//   e.preventDefault();
-//   setPwdError(null);
-//   setPwdSuccess(null);
-
-//   const v = validatePasswords();
-//   if (v) {
-//     setPwdError(v);
-//     return;
-//   }
-//   if (!currentDoctor?._id) {
-//     toast.error("Missing doctor ID.");
-//     return;
-//   }
-
-//   try {
-//     setPwdLoading(true);
-//     const token = localStorage.getItem("access_token");
-//     const res = await fetch(`${API_BASE_URL}/api/doctor-form/${currentDoctor._id}/password`, {
-//       method: "PUT",
-//       headers: {
-//         "Content-Type": "application/json",
-//         ...(token ? { Authorization: `Bearer ${token}` } : {}),
-//       },
-//       credentials: "include",
-//       body: JSON.stringify({
-//         currentPassword: pwd.current,
-//         newPassword: pwd.next,
-//       }),
-//     });
-//     const data = await res.json();
-//     if (!res.ok) {
-//       toast.error(data?.message || "Failed to change password.");
-//     } else {
-//       toast.success("Password updated successfully.");
-//       setPwd({ current: "", next: "", confirm: "" });
-//     }
-//   } catch (err) {
-//     setPwdError(err.message);
-//   } finally {
-//     setPwdLoading(false);
-//   }
-// };
-
 
   if (!currentDoctor) {
     return (
@@ -496,14 +452,6 @@ const handleChangePassword = async (e) => {
         </div>
         </div>
 
-        {/* Feedback
-        {(pwdError || pwdSuccess) && (
-        <div>
-            {pwdError && <Alert color="failure">{pwdError}</Alert>}
-            {pwdSuccess && <Alert color="success">{pwdSuccess}</Alert>}
-        </div>
-        )} */}
-
         {/* Actions */}
         <div className="flex items-center gap-3">
         <Button type="submit" disabled={pwdLoading} className="!rounded-xl !bg-[#00c3a5] hover:!bg-[#00b39b]">
@@ -578,20 +526,6 @@ const handleChangePassword = async (e) => {
             />
             </div>
 
-            {/* Feedback */}
-            {/* {(successMsg || localError || error) && (
-              <div className="pt-2">
-                {successMsg && (
-                  <Alert color="success">{successMsg}</Alert>
-                )}
-                {localError && (
-                  <Alert color="failure">{localError}</Alert>
-                )}
-                {error && (
-                  <Alert color="failure">{error}</Alert>
-                )}
-              </div>
-            )} */}
           </form>
         </div>
 
