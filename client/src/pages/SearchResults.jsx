@@ -105,7 +105,7 @@ const SearchResults = () => {
 
     return (
         <div className="bg-gray-100 min-h-screen">
-            <DoctorPublicProfileHeader setShowSpecialtyFilter={setShowSpecialtyFilter} />
+            {/* <DoctorPublicProfileHeader setShowSpecialtyFilter={setShowSpecialtyFilter} /> */}
 
             {/* Filter Navigation */}
             <div className="bg-white sticky top-0 z-40">
