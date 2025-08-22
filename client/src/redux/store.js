@@ -4,7 +4,11 @@ import doctorReducer from './doctor/doctorSlice'
 import clinicReducer from './clinic/clinicSlice'
 import adminReducer from './admin/adminSlice' 
 import loginReducer from './shared/loginSlice'
-import { persistStore, persistReducer } from 'redux-persist'
+import { 
+  persistStore, 
+  persistReducer,
+  FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER,
+ } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import themeReducer from './theme/themeSlice'
 import { visibilitySlice } from './shared/visibilitySlice'
@@ -37,7 +41,10 @@ const persistedReducer = persistReducer(persistConfig, rootReducer)
 export const store = configureStore({
     reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({ serializableCheck: false })
+      getDefaultMiddleware({ serializableCheck: {
+        // Ignore redux-persist action types
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      }})
 })
 
 
