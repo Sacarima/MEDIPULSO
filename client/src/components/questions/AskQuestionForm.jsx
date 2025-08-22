@@ -156,7 +156,7 @@ const AskDoctorForm = () => {
   return (
     <div className="bg-gray-100 min-h-screen">
         
-        <DoctorPublicProfileHeader />
+        {/* <DoctorPublicProfileHeader /> */}
         {loading && <LoadingOverlay isLoading={loading} delay={4000} />}
         <nav className="lg:w-[70%] w-full mx-auto">
             <ul className="flex ml-2 items-center space-x-2 text-gray-500 text-sm mt-4  ">

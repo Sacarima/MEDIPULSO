@@ -213,7 +213,7 @@ export default function DoctorPatientsPanel({ doctorId }) {
           <button onClick={exportCsv} className="inline-flex items-center gap-2 px-3 py-2 border rounded hover:bg-gray-50">
             <FiDownload /> <span className="text-sm">Export CSV</span>
           </button>
-          <button onClick={fetchPatients} className="px-3 py-2 border-[1px] border-[#00b39be6] rounded hover:bg-gray-50 text-sm">
+          <button onClick={fetchPatients} className="px-3 py-2 border-[1px] border-[#00b39be6] bg-white rounded hover:bg-gray-50 text-sm">
             Refresh
           </button>
         </div>

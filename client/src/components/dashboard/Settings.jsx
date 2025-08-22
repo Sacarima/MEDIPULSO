@@ -31,7 +31,7 @@ const Settings = () => {
 
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <div className="p-6 bg-gray- rounded-lg shadow-md lg:w-[70%] mx-auto flex flex-col h-screen justify-center items-center">
         <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">Account Settings</h2>
       

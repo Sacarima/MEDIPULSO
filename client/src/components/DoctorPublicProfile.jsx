@@ -243,11 +243,11 @@ const DoctorPublicProfile = ({ isLoaded }) => {
             />
         )}
         <div className='bg-[#eef4fd] min-h-screen'>
-            <DoctorPublicProfileHeader />
+            {/* <DoctorPublicProfileHeader /> */}
             <section className='lg:w-[70%] m-auto'>
                 <div  className='flex gap-6'>
                     <div className='lg:w-[55%]'>
-                                <section className=' flex flex-col lg:flex-row mt-6 bg-white w-full p-4 rounded-t-sm shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px]'>
+                                <section className=' flex flex-col lg:flex-row lg:mt-6 bg-white w-full p-4 rounded-t-sm shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px]'>
                                     <div className='pr-2 mr-3 relative'>
                                         <img className='w-[100px] h-[120px] ' src={doctorData?.profilePicture} alt="" />
                                     </div>

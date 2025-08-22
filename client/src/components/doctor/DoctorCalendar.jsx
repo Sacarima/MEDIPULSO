@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 
 
 
+
 // Build calendar events from a DoctorAvailability doc
 function buildAvailabilityEventsFromDoc(doc) {
   if (!doc?.monthlyAvailability) return [];
@@ -62,9 +63,10 @@ function recomputeCountsFromEvents(allEvents) {
 
 const localizer = momentLocalizer(moment);
 
-const DoctorCalendar = () => {
+
+const DoctorCalendar = ({doctorIdProp}) => {
   const { currentDoctor } = useSelector((state) => state.doctor);
-  const doctorId = currentDoctor?._id
+  const doctorId = doctorIdProp ??  currentDoctor?._id
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
   
@@ -109,84 +111,6 @@ const [cancelReason, setCancelReason] = useState("");
     (event.title.toLowerCase().includes(searchQuery.toLowerCase()) || // Keep the search filter
       moment(event.start).format("YYYY-MM-DD").includes(searchQuery))
   )
-
-
-  
-
-// const fetchCalendarData = useCallback(async () => {
-//   if (!doctorId) return;
-
-//   setLoading(true);
-//   setError(null);
-
-  
-
-//   try {
-//     const timestamp = new Date().getTime()
-    
-//     const [availabilityRes, appointmentsRes] = await Promise.all([
-//       axios.get(`${API_BASE_URL}/doctor-availability/${doctorId}?t=${timestamp}`, { withCredentials: true })
-//         .catch(error => {
-//           if (error.response?.status === 404) {
-//             console.warn("No availability found for this doctor.");
-//             return { data: { availability: { monthlyAvailability: [] } } }; // Return empty data instead of throwing an error
-//           }
-//           throw error;
-//         }),
-//       axios.get(`${API_BASE_URL}/api/appointments/doctor/${doctorId}`, { withCredentials: true })
-//         .catch(error => {
-//           if (error.response?.status === 500) {
-//             console.warn("No appointments found or server error.");
-//             return { data: { appointments: [] } }; // Return empty array instead of throwing an error
-//           }
-//           throw error;
-//         }),
-//     ]);
-
-//     //Convert availability into events (Handles empty availability case)
-//     const availabilityEvents = availabilityRes.data.availability?.monthlyAvailability.flatMap((month) =>
-//       month.dates.flatMap((day) =>
-//         day.times.map((time) => ({
-//           id: `available-${day.date}-${time}`,
-//           title: `Available at ${time}`,
-//           start: moment(`${day.date} ${time}`, "YYYY-MM-DD HH:mm").toDate(),
-//           end: moment(`${day.date} ${time}`, "YYYY-MM-DD HH:mm").add(30, "minutes").toDate(),
-//           allDay: false,
-//           type: "availability",
-//         }))
-//       )
-//     ) || [];
-
-
-
-//     // Convert appointments into events (Handles empty appointment case)
-//     const appointments = appointmentsRes.data.appointments || [];
-
-//     // Count different appointment statuses
-//     setPendingCount(appointments.filter(appt => appt.status === "pending").length);
-//     setConfirmedCount(appointments.filter(appt => appt.status === "confirmed").length);
-//     setCanceledCount(appointments.filter(appt => appt.status === "canceled").length);
-//     setCompletedCount(appointments.filter(appt => appt.status === "completed").length);
-
-//     const appointmentEvents = appointments.map((appt) => ({
-//       id: appt._id,
-//       title: `Appointment with ${appt?.patient?.firstName || "Patient"}`,
-//       start: moment(`${appt.date.split("T")[0]} ${appt.time}`, "YYYY-MM-DD HH:mm").toDate(),
-//       end: moment(`${appt.date.split("T")[0]} ${appt.time}`, "YYYY-MM-DD HH:mm").add(30, "minutes").toDate(),
-//       allDay: false,
-//       type: "appointment",
-//       status: appt.status || "pending",
-//     }));
-
-  
-
-//     setEvents([...availabilityEvents, ...appointmentEvents]); // Ensure canceled appointments are included
-//   } catch (error) {
-//     toast.error("Error fetching calendar data:", error);
-//     setError("Error fetching calendar data. Please try again.");
-//   }
-//   setLoading(false);
-// }, [doctorId]);
 
 const fetchCalendarData = useCallback(async () => {
   if (!doctorId) return;
@@ -237,21 +161,7 @@ const fetchCalendarData = useCallback(async () => {
         )
       ) || [];
 
-      // const availabilityEvents =
-      //   availabilityRes.data.availability?.monthlyAvailability.flatMap((month) =>
-      //     (month.dates || []).flatMap((day) =>
-      //       (day.times || []).map((time) => ({
-      //         id: `available-${new Date(day.date).toISOString()}-${time}`,
-      //         title: `Available at ${time}`,
-      //         start: moment(`${new Date(day.date).toISOString().split("T")[0]} ${time}`, "YYYY-MM-DD HH:mm").toDate(),
-      //         end: moment(`${new Date(day.date).toISOString().split("T")[0]} ${time}`, "YYYY-MM-DD HH:mm")
-      //           .add(30, "minutes")
-      //           .toDate(),
-      //         allDay: false,
-      //         type: "availability", 
-      //       }))
-      //     )
-      //   ) || [];
+    
 
 
     // Appointments → events

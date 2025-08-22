@@ -49,13 +49,15 @@ export default function Footer() {
           </ul>
         </aside>
 
-        <aside className='sm:w-[25%] mt-4 '>
-          <img 
-            className='w-24 mx-auto  mb-4'
-            src={logo} 
-            alt="logo" 
-          />
-          <p className='text-center sm:text-start'>MediPulso is a platf.</p>
+        <aside className='sm:w-[25%] mt-4 flex flex-col justify-start items-start sm:items-start px-2'>
+          <div>
+            <img
+              className='w-24 mx-auto  mb-4 m-auto'
+              src={logo}
+              alt="logo"
+            />
+          </div>
+          <p className='t sm:text-start'>Medipulso connects patients with trusted doctors and clinics, making it easy to find specialists, book appointments, and access healthcare services online or in person..</p>
         </aside>
       </div>
 

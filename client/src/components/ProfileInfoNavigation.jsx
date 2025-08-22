@@ -1,5 +1,10 @@
-import React from "react";
 import useMediaQuery from "../hooks/useMediaQuery";
+import { useDoctorDashboard } from "./context/DoctorDashboardContext";
+import { useEffect } from "react";
+import { useLocation, useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import {ROUTES } from "../config/routes";
+
 
 const item = (isActive) =>
   `px-4 py-2 w-full text-left cursor-pointer hover:bg-gray-100 ${
@@ -16,14 +21,23 @@ const Badge = ({ children, title }) => (
   </span>
 );
 
+// removed these props  active, if it breaaks this is the starting point
+//  onChange = () => {},
+
 export default function ProfileInfoNavigation({
-  active,
-  onChange = () => {},
   counts = {},
   countsLoading = false,
 }) {
+  const { active, setActive } = useDoctorDashboard();
   const isAboveSmallScreens = useMediaQuery("(min-width: 640px)");
   const pending = counts?.pending ?? 0;
+  const { currentDoctor } = useSelector((state) => state.doctor);
+
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const PROFILE_INFO_ROUTE = ROUTES?.doctor?.profileInfo ?? "/doctor-profile-info";
 
   // Auto-detect key scheme
   const namespaced = !!active?.startsWith?.("profile/");
@@ -37,31 +51,87 @@ export default function ProfileInfoNavigation({
     stats: namespaced ? "profile/stats" : "stats",
     promotions: namespaced ? "profile/promotions" : "promotions",
     certificates: namespaced ? "profile/certificates" : "certificates",
-    appointments: "appointments", // stays top-level in both
+    appointments: namespaced ? "profile/appointments" : "appointments", // stays top-level in both
+    profileReviews: namespaced ? "profile/reviews" : "profile-reviews",
+    plans: namespaced ? "profile/plans" : "plans",
+    appointmentChannel: namespaced ? "profile/channel" : "profile-channel"
+    // appointmentPanel: 
   };
 
-  const isActive = (key) => active === key;
+   const isActive = (key) => active === key;
+
+
+  // --- helpers: push tab to URL & sync from URL ---
+  const toProfileWithTab = (tabKey) => {
+    const enc = encodeURIComponent(tabKey);
+    if (location.pathname !== PROFILE_INFO_ROUTE) {
+      navigate(`${PROFILE_INFO_ROUTE}?tab=${enc}`);
+    } else {
+      // replace to avoid history spam when already on the page
+      navigate(`${PROFILE_INFO_ROUTE}?tab=${enc}`, { replace: true });
+    }
+  };
+
+  const go = (tabKey) => {
+    if (!tabKey) return;
+    if (active !== tabKey) setActive(tabKey);
+    toProfileWithTab(tabKey);
+  };
+
+  // When URL’s ?tab changes on /doctor-profile-info, sync it into local state
+  useEffect(() => {
+    if (location.pathname !== PROFILE_INFO_ROUTE) return;
+    const raw = searchParams.get("tab");
+    if (!raw) return;
+    const decoded = decodeURIComponent(raw);
+    if (decoded && decoded !== active) {
+      setActive(decoded);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, location.search]);
+
+  // If we land on profile page without ?tab, write current active into URL
+  useEffect(() => {
+    if (location.pathname !== PROFILE_INFO_ROUTE) return;
+    const hasTab = searchParams.get("tab");
+    if (!hasTab && active) {
+      const enc = encodeURIComponent(active);
+      navigate(`${PROFILE_INFO_ROUTE}?tab=${enc}`, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
 
   return (
     <aside className="hidden md:block">
-      <div className="sm:sticky sm:top-0 flex flex-col h-screen bg-white text-[1rem] w-1/4 min-w-[10rem] max-w-[16rem]">
+      <div className="sm:sticky sm:top-0 flex flex-col h-screen bg-white text-[1rem] p-2">
         <ul className="py-4 space-y-1">
           {/* Profile group */}
           <li className="px-4 py-2">
             <div className="text-gray-800 mb-1">Profile</div>
             <ul className={`ml-2 ${!isAboveSmallScreens && "hidden"}`}>
               <li>
-                <button type="button" className={item(isActive(k.edit))} onClick={() => onChange(k.edit)}>
+                <button 
+                  type="button" 
+                  className={item(isActive(k.edit))} 
+                  onClick={() => go(k.edit)}
+                >
                   Edit Profile
                 </button>
               </li>
               <li>
-                <button type="button" className={item(isActive(k.public))} onClick={() => onChange(k.public)}>
-                  Public profile
-                </button>
+                <Link to={`/profile-info/${currentDoctor._id}`}>
+                  <button
+                    type="button"
+                    className={item(isActive(k.public))}
+                    onClick={() => go(k.public)}
+                  >
+                    Public profile
+                  </button>
+                </Link>
               </li>
               <li>
-                <button type="button" className={item(isActive(k.addresses))} onClick={() => onChange(k.addresses)}>
+                <button type="button" className={item(isActive(k.addresses))} onClick={() => go(k.addresses)}>
                   Addresses
                 </button>
               </li>
@@ -73,7 +143,7 @@ export default function ProfileInfoNavigation({
             <button
               type="button"
               className={`${item(isActive(k.appointments))} flex items-center justify-between`}
-              onClick={() => onChange(k.appointments)}
+              onClick={() => go(k.appointments)}
             >
               <span>Appointments</span>
               {counts
@@ -85,22 +155,22 @@ export default function ProfileInfoNavigation({
           </li>
 
           <li>
-            <button type="button" className={item(isActive(k.channels))} onClick={() => onChange(k.channels)}>
+            <button type="button" className={item(isActive(k.appointmentChannel))} onClick={() => go(k.appointmentChannel)}>
               Appointment channels
             </button>
           </li>
           <li>
-            <button type="button" className={item(isActive(k.stats))} onClick={() => onChange(k.stats)}>
-              Profile statistics
+            <button type="button" className={item(isActive(k.profileReviews))} onClick={() => go(k.profileReviews)}>
+              Profile reviews
             </button>
           </li>
           <li>
-            <button type="button" className={item(isActive(k.promotions))} onClick={() => onChange(k.promotions)}>
+            <button type="button" className={item(isActive(k.promotions))} onClick={() => go(k.promotions)}>
               Promotions
             </button>
           </li>
           <li>
-            <button type="button" className={item(isActive(k.certificates))} onClick={() => onChange(k.certificates)}>
+            <button type="button" className={item(isActive(k.certificates))} onClick={() => go(k.certificates)}>
               Certificates
             </button>
           </li>
@@ -110,6 +180,7 @@ export default function ProfileInfoNavigation({
           <button
             type="button"
             className="w-full cursor-pointer bg-white text-[#00b39be6] py-2 rounded text-sm font-medium"
+            onClick={() => setActive(k.plans)}
           >
             Discover Medi Pulso Pro
           </button>

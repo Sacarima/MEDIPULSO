@@ -24,6 +24,7 @@ import { toggleShowMore, toggleShowMoreService, setShowMore, setShowMoreService 
 import LatestQuestionsFeed from './questions/LatestQuestionsFeed.jsx'
 import { ROUTES } from '../config/routes.js'
 import DoctorLatestReview from './review/DoctorLatestReview.jsx'
+import Footer from './Footer.jsx'
 
 
 
@@ -222,7 +223,7 @@ const  HomePage = () => {
         <section  
           className='pb-14 pt-12 px-2  bg-[#00b39be6] sm:bg-[#00c3a5] sm:py-32 '
           style={{
-            backgroundImage: `url(${onlineConsultation ? onlinebackground :backgroundImage })`, //`url(${backgroundImage})`,
+            backgroundImage: `url(${onlineConsultation ? onlinebackground :backgroundImage })`,
             backgroundPosition: isLargeScreen
             ? 'center top'
             : isMediumScreen
@@ -496,6 +497,7 @@ const  HomePage = () => {
   
         </section>
         <hr className='mt-20'/>
+        {/* <Footer /> */}
       </div>
     )
   }

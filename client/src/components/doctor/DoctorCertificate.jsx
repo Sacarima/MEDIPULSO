@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {toast } from 'react-hot-toast'
 import { app } from "/firebase";
 
 const storage = getStorage(app);
@@ -23,17 +24,17 @@ const DoctorCertificate = ({ handleNext, handleBack, setCertificateUpload }) => 
   //Handle file upload
   const uploadCertificate = () => {
     if (!file) {
-      setError("Please select a file before uploading.");
+      toast.error("Please select a file before uploading.");
       return;
     }
 
     if (file.size > 15 * 1024 * 1024) { // 15MB Limit
-      setError("File size must be less than 15MB.");
+      toast.error("File size must be less than 15MB.");
       return;
     }
 
     if (!file.type.includes("pdf") && !file.type.includes("image")) {
-      setError("Only PDF and image files are allowed.");
+      toast.error("Only PDF and image files are allowed.");
       return;
     }
 
@@ -47,7 +48,7 @@ const DoctorCertificate = ({ handleNext, handleBack, setCertificateUpload }) => 
         setUploadProgress(progress);
       },
       (error) => {
-        setError("Upload failed. Please try again.");
+        toast.error("Upload failed. Please try again.");
       },
       async () => {
         const url = await getDownloadURL(uploadTask.snapshot.ref);
@@ -60,11 +61,11 @@ const DoctorCertificate = ({ handleNext, handleBack, setCertificateUpload }) => 
   // Handle Next Step
   const handleNextStep = () => {
     if (!licenseNumber.trim()) {
-      setError("Please enter your license number.");
+      toast.error("Please enter your license number.");
       return;
     }
     if (!fileUrl) {
-      setError("Please upload your certificate before proceeding.");
+      toast.error("Please upload your certificate before proceeding.");
       return;
     }
 

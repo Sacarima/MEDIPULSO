@@ -271,6 +271,7 @@ const DoctorProfileCompletion = () => {
               <div className='w-[70%] mx-auto'> 
                 <DoctorAvailability 
                   setAvailability={setAvailability}
+                  doctorId={currentDoctor?._id}
                   handleNext={handleNext} 
                   handleBack={handleBack}
                   handleSubmit={handleSubmit}

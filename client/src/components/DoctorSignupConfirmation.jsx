@@ -11,6 +11,7 @@ import { ROUTES } from '../config/routes'
 import { useSelector, useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { toast } from 'react-hot-toast';
 
 const DoctorSignupConfirmation = () => {
   const { currentDoctor } = useSelector(state => state.doctor)
@@ -18,6 +19,7 @@ const DoctorSignupConfirmation = () => {
   const [successMessage, setSuccessMessage] = useState('')
   const [heardAboutUs, setHeardAboutUs] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
@@ -26,22 +28,12 @@ const DoctorSignupConfirmation = () => {
   const data = {
     heardAboutUs
   }
-
-  useEffect(() => {
-    axios.get(`${API_BASE_URL}/api/auth/me`, { withCredentials: true })
-      .then(response => {
-        dispatch(signInDoctorSuccess(response.data));
-      })
-      .catch(error => {
-        console.error("Failed to fetch logged-in doctor:", error);
-      });
-  }, [dispatch]);
   
 
   
 const handleSubmit = async () => {
   if (!heardAboutUs) {
-      setErrorMessage('Please select an option');
+      toast.error('Please select an option');
       return;
   }
 
@@ -50,7 +42,7 @@ const handleSubmit = async () => {
       setErrorMessage('');
 
       const response = await axios.put(
-          `${API_BASE_URL}/api/doctor-form/update/${currentDoctor?._id}`,
+          `${API_BASE_URL}/api/doctor-form/profile-completion/${currentDoctor?._id}`,
           { heardAboutUs },
           {
               withCredentials: true, // Ensure cookies are sent with the request
@@ -58,12 +50,13 @@ const handleSubmit = async () => {
       );
 
       if (response.status === 200) {
-          setSuccessMessage('Your response has been saved successfully!');
+          toast.success('Your response has been saved successfully!');
+          setIsSubmitted(true)
           //setTimeout(() => navigate(ROUTES.DOCTOR_PROFILE_COMPLETION), 2000);
       }
   } catch (error) {
       console.error("Error in API request:", error.response); // Log full error response
-      setErrorMessage(error.response?.data?.message || 'Failed to save your response. Please try again.')
+      toast.error(error.response?.data?.message || 'Failed to save your response. Please try again.')
   } finally {
       setIsSubmitting(false);
   }
@@ -73,7 +66,7 @@ const handleSubmit = async () => {
 
   return (
     <div className='bg-gray-100 min-h-screen'>
-      <DoctorSignupConfirmationHeader />
+      {/* <DoctorSignupConfirmationHeader /> */}
       <div className='flex flex-col-reverse lg:flex-row lg:w-[70%] mx-auto justify-between mt-10'>
         <section className='lg:w-[90%] grow p-4 '>
           <div className='bg-blue-100 w-16 p-1'>
@@ -102,15 +95,14 @@ const handleSubmit = async () => {
             </select>
           </div>
 
-          {errorMessage && <p className='text-red-500 mt-2'>{errorMessage}</p>}
-          {successMessage && <p className='text-green-500 mt-2'>{successMessage}</p>}
+        
 
           {/* Submit Button with disabled/loading states */}
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isSubmitted}
             className={`mb-5 mt-8 px-3 py-2 rounded text-white
-              ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}
+              ${(isSubmitting || isSubmitted) ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}
             `}
           >
             {isSubmitting ? 'Submitting...' : 'Submit'}

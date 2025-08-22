@@ -27,6 +27,7 @@ export const ROUTES = {
   DATA_PRIVACY: "/data-privacy",
   JOB_OFFERS_FOR_DOCTOR: "/job-offers-for-doctor",
   ABOUT: "/about",
+  CONTACT: "/contact",
   LOGIN: "/login",
   SIGNUP: "/signup",
   CLINIC_PROFILE: "/clinic-profile",
@@ -35,4 +36,15 @@ export const ROUTES = {
   DOCTOR_CALENDAR: "/doctor-calendar",
   DOCTOR_REVIEWS: "/doctor-reviews",
   ASK_QUESTION: "/ask-doctor",
+  DOCTOR_QUESTIONS: "/doctor-questions",
+  DOCTOR_PROFILE: "/doctor-profile/:doctorId",
+  // treatment slug
+  TREATMENT:"/treatment",
+  TREATMENT_DETAILS:  "/treatment/:slug",
+  QUESTIONS: "/questions",
+  QUESTION_RETRIEVE: "/questions/:questionId",
+  AAPOINTMENTS: "/appointments",
+  DOCTOR_TABLE: "doctor-table",
+  TREATMENTS: "/treatments",
+
 };
