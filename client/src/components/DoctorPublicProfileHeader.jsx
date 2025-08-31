@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { Navbar, Button, Dropdown } from 'flowbite-react'
 import { Link, useLocation } from 'react-router-dom'
-import { FaMoon} from 'react-icons/fa'
-import { RxSun } from "react-icons/rx"
+import { IoSearchOutline } from "react-icons/io5"
 import { CiSearch } from "react-icons/ci";
 import { MdKeyboardArrowDown } from "react-icons/md"
 import logo from '../assets/lggo.png'
@@ -21,6 +20,7 @@ import LocationDropdownForHeader from './LocationDropdownForHeader'
 import LocationSearchFree from './LocationSearchFree'
 import mobileLogo from '../assets/fivicon.png'
 import WithLogout from './WithLogout'
+import { ROUTES } from '../config/routes'
 
 const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => {
     const path = useLocation().pathname
@@ -34,6 +34,7 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
     const isAboveSmallScreens = useMediaQuery('(min-width: 768px)')
     const { theme } = useSelector(state => state.theme)
     const navigate = useNavigate()
+    const [searchFormOpen, setSearchFormOpen] = useState(false)
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
@@ -68,11 +69,7 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
         }))
     }
 
-   useEffect(() => {
-    if (currentUser) {
-        console.log('Currnet user after login: ', currentUser)
-    }
-   }, [currentUser])
+
     // Close menu handler
     const closeMenu = () => {
         setIsMenuToggled(false)
@@ -166,23 +163,320 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
               },
             });
           }
+           setSearchFormOpen(false)
         } catch (error) {
           console.error("Search failed:", error.message);
         }
       };
+
+      const handleSearchFormToggle = () => {
+        setSearchFormOpen(!searchFormOpen);
+      };
+
+
+      return (
+        <div className="bg-[#00c3a5]">
+          <nav className="lg:w-[70%] w-full px-2 m-auto lg:py-3 py-2 bg-[#00c3a5]">
+    
+    {/* ======= HEADER ROW (logo + desktop nav OR hamburger) ======= */}
+    <div className="flex items-center justify-between">
       
- // bg-[#00c3a5]   bg-[#00c3a5]
-  return (
-        <div className='border-b-[1px dark:bg-gray-800 bg-[#00c3a5]'>
-            <Navbar className=' sm:px-0 lg:w-[70%] w-full m-auto lg:py-3 bg-[#00c3a5]'>
-                <div className='flex gap-4 grow items-center  justify-between'>
-                    <div className=''>
-                        <Link to="/">
-                            <img src={theme === 'dark' ? logoDarkMode : logo} alt="logo" className='w-[12.2rem]' />
-                          
+      {/* Logo */}
+        <Link to={ROUTES.HOME} className=''>                  
+            <img
+                src={isAboveSmallScreens ? logo : mobileLogo}
+                alt="logo"
+                className={`${
+                isAboveSmallScreens
+                    ? "w-[12.2rem] brightness-110"  
+                    : "w-[2.2rem] opacity-80"         
+            }`}
+            />                  
+        </Link>
+
+      {isAboveSmallScreens ? (
+        // ================= DESKTOP VIEW =================
+        <>
+          {/* Desktop Search Form */}
+          <div className=''>
+            <form className="w-full ">
+              <div className="flex  justify-center items-center bg-[#158a783] gap-[1.5px]">
+                <div className="bg-[#158a7838] text-white">
+                  <MedicalSpecialtyDropdownForHeader
+                    options={memoizedMedicalSpecialtyCategory}
+                    selected={formData.medicalSpecialtyCategory}
+                    onSelect={handleMedicalSpecialtyCategorySelect}
+                    isInvalid={false}
+                    handleChange={handleChange}
+                  />
+                </div>
+                <div className="bg-[#158a7838] ">
+                  <LocationDropdownForHeader
+                    options={memoizedLocation}
+                    selected={formData.location}
+                    onSelect={handleLocationSelect}
+                    isInvalid={false}
+                    handleChange={handleChange}
+                  />
+                </div>
+                <div className="bg-[#158a7838] py-[10px] px-4">
+                  <button onClick={handleSearch} type="button">
+                    <CiSearch className="text-white font-bold" />
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          {/* Desktop Auth Section */}
+          <div className="flex items-center gap-4">
+            {currentUser ? (
+              <div className="relative" ref={dropdownRef}>
+                <span
+                  className="text-white cursor-pointer flex items-center"
+                  onClick={toggleDropdown}
+                >
+                  {currentUser.email
+                    ? truncateEmail(currentUser.email)
+                    : "No email found"}
+                  <MdKeyboardArrowDown className="text-2xl" />
+                </span>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-5 w-48 bg-white border rounded-md shadow-lg z-50">
+                    <ul className="py-1">
+                      <li>
+                        <Link
+                          to="/patient-profile"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          My Account
                         </Link>
-                    </div>
-                    <form className='hidden lg:block w-full justify-between sm:flex-row items-center lg:flex-row '>
+                      </li>
+                      <li>
+                        <Link
+                          to="/patient-profile"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Settings
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/notifications"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Notifications
+                        </Link>
+                      </li>
+                      <li>
+                        <button
+                          onClick={handleLogout}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link to="/login">
+                <Button outline gradientDuoTone="greenToBlue" size="sm">
+                  Login
+                </Button>
+              </Link>
+            )}
+          </div>
+        </>
+      ) : (
+
+        // ================= MOBILE VIEW =================
+        <div className="flex grow">
+          <div className='flex w-full  items-center justify-between'>
+            <div className=' bg-[#00b39b] grow flex items-center mx-4 cursor-pointer' onClick={handleSearchFormToggle}>
+                <input type="text" placeholder='What are you looking for?' className='border-none bg-transparent placeholder:text-slate-200 placeholder:text-sm grow w-full' />
+                <CiSearch className='text-white mr-1' />
+            </div>     
+          </div>
+
+          <button
+            className="p-2 rounded-md text-white cursor-pointer"
+            onClick={handleMenuToggle}
+            id="hamburger-button"
+          >
+            {isOpen ? (
+              <FaTimes className="text-2xl animate-menuClose text-white" />
+            ) : (
+              <FaAlignRight className="text-2xl animate-menuOpen text-white" />
+            )}
+          </button>
+        </div>
+      )}
+    </div>
+    
+   {/* ======= FULLSCREEN MOBILE MENU ======= */}
+  {!isAboveSmallScreens && isMenuToggled && (
+    <div className="fixed inset-0 z-50 text-gray-800 h-screen w-screen overflow-y-auto bg-[#00b39b]">
+      {/* Header (logo + close button) */}
+      <div className="flex justify-between items-center px-4 py-3 ">
+        <Link to={ROUTES.HOME}>
+          <img src={mobileLogo} alt="logo" className="w-8 opacity-80" />
+        </Link>
+        <button onClick={handleMenuToggle}>
+          <FaTimes className="text-2xl text-white" />
+        </button>
+      </div>
+
+      <Link to={ROUTES.LOGIN}>
+        <span 
+          className="block w-full text-left px-4 py-4 text-sm text-white hover:bg-white/10 border-b-[.5px] border-white/30"
+        >
+          Login
+        </span>
+      </Link>
+
+         {/* Menu content */}
+        {currentUser && (
+
+        <ul className="mt-6 text-white">
+          <li className='border-b-[.5px] border-white/30'>
+            <Link
+              to="/patient-profile"
+              className="block px-6 py-3 text-lg hover:bg-[rgba(255,255,255,0.1)]"
+            >
+              My Account
+            </Link>
+          </li>
+          <li className='border-b-[.5px] border-white/30'>
+            <Link
+              to="/settings"
+              className="block px-6 py-3 text-lg hover:bg-[rgba(255,255,255,0.1)]"
+            >
+              Settings
+            </Link>
+          </li>
+          <li className='border-b-[.5px] border-white/30'>
+            <Link
+              to="/notifications"
+              className="block px-6 py-3 text-lg hover:bg-[rgba(255,255,255,0.1)]"
+            >
+              Notifications
+            </Link>
+          </li>
+
+          
+            <li className='border-b-[.5px] border-white/30'>
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-6 py-3 text-lg hover:bg-[rgba(255,255,255,0.1)]"
+              >
+              Logout
+            </button>
+          </li>
+       
+      </ul>
+       )}
+    </div>
+  )}
+
+
+
+
+{/* Search Form */}
+{!isAboveSmallScreens && searchFormOpen && (
+    <div className="fixed inset-0 z-50 text-gray-800 h-screen w-screen overflow-y-auto bg-[#00b39b]">
+      <div className="p-4 space-y-4">
+        <button onClick={handleSearchFormToggle} >
+          <FaTimes className="text-2xl text-white mr-auto" />
+        </button>
+        <div className='bg-white rounded text-black '>
+            <MedicalSpecialtyDropdownForHeader
+                options={memoizedMedicalSpecialtyCategory}
+                selected={formData.medicalSpecialtyCategory}
+                onSelect={handleMedicalSpecialtyCategorySelect}
+                className='text-gray-500'
+            />
+        </div>
+        <div className='bg-[#02a993] rounded'>
+            <LocationSearchFree
+                options={memoizedLocation}
+                selected={formData.location}
+                onSelect={handleLocationSelect}
+                className='text-gray-500 bg-[#02a993]'
+            />
+        </div>
+        <button
+            type="button"
+            onClick={handleSearch} 
+            className="w-full bg-white text-[#00b39b] font-medium rounded-lg px-4 py-2"
+        >
+            Search
+        </button>
+        </div> 
+    </div>
+
+
+)}
+  </nav>
+</div>
+
+   )
+
+}
+
+
+export default WithLogout(DoctorPublicProfileHeader)
+  {/* Navigation Logo section */}
+                {/* <div className='flex grow lg:shrink-0 gap-4 items-center py-1  justify-between'>
+                    {/* Logo */}
+                    {/* <div className=' flex w-full items-center justify-between'>
+                        <Link to="/" className='flex items-center justify-between'>
+                            
+                                <img
+                                    src={isAboveSmallScreens ? logo : mobileLogo}
+                                    alt="logo"
+                                    className={`${
+                                    isAboveSmallScreens
+                                        ? "w-[12.2rem] brightness-110"  
+                                        : "w-[2.2rem] opacity-80"         
+                                }`}
+                                />
+                            
+                          
+                        </Link> */} 
+                        
+                        {/* No issues here, all clear */}
+                        {/* 
+                          <div className='flex w-full flex-1  items-center justify-between'>
+                            <div className=' bg-[#00b39b] grow flex items-center mx-4 cursor-pointer' onClick={handleMenuToggle}>
+                                <input type="text" placeholder='What are you looking for?' className='border-none bg-transparent placeholder:text-slate-200 placeholder:text-sm grow w-full' />
+                                <CiSearch className='text-white mr-1' />
+                            </div>
+                            
+                        </div>
+
+                        <div className='lg:hidden block'>
+                            <button
+                                className='p-2  rounded-md text-white cursor-pointer'
+                                onClick={handleMenuToggle}
+                                id='hamburger-button'
+                            >
+                                {isOpen ? (
+                                    <FaTimes className='text-2xl animate-menuClose text-white' />
+                                ) : (
+                                    <FaAlignRight className='text-2xl animate-menuOpen' />
+                                )}
+                            </button>
+                        </div>
+                    
+                    </div> */}
+
+                    {/* Search Form */}
+                    {/* {/* {isAboveSmallScreens && 
+                        <form className=' lg:block w-full justify-between sm:flex-row items-center lg:flex-row '>
                         <div className='flex flex-shri justify-center items-center bg-[#158a783 gap-[1.5px]' >
                             <div className=' basis-[35%] bg-[#158a7838]'>
                                 <MedicalSpecialtyDropdownForHeader
@@ -214,13 +508,15 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
                                 </button>
                             </div>
                         </div>
-                    </form>
+                    </form>}
 
-                </div>
-                <div className='flex gap-4'>
-                    {/* DESKTOP NAVIGATION */}
-                    {isAboveSmallScreens ? (
-                        <div className='flex items-center'>
+               </div> */}
+
+                {/* <div className='flex gap-4'> */} 
+
+                    {/* Navigation  items open on toggle  for none logged*/}
+                    {/* {isAboveSmallScreens ? (
+                        <div className='flex items-center '>
                             <Navbar.Collapse>
                                 {!currentUser && (
                                 <div className='text-white'>
@@ -228,18 +524,10 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
                                 </div>
                                 )}  
                             </Navbar.Collapse>
-                            <div className='flex items-center gap-4'>
-                                <div className='flex items-center gap-4'>
-                                    <Button
-                                        className='w-12 h-10 sm:inline'
-                                        color=''
-                                        pill
-                                        onClick={() => dispatch(toogleTheme())}
-                                    >
-                                        {theme === 'light' ? <RxSun className='text-white cursor-pointer'/> : <FaMoon />}
-                                    </Button>
-                                    
-                                    {currentUser ? (
+                            <div className='flex items-center gap-4 '>
+                                <div className='flex items-center gap-4'> */}
+                                    {/* Logged in user */}
+                                    {/* {currentUser ? (
                                         <div className='relative' ref={dropdownRef}>
                                             <span
                                                 className='text-white cursor-pointer flex items-center'
@@ -247,10 +535,10 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
                                             >
                                                 {currentUser.email ? truncateEmail(currentUser.email) : 'No email found'}
                                                 <MdKeyboardArrowDown className='ml-1 text-2xl'/>
-                                            </span>
+                                            </span> */}
 
                                             {/* Dropdown Menu */}
-                                            {isDropdownOpen && (
+                                            {/* {isDropdownOpen && (
                                                 <div className="absolute right-0 mt-5 w-48 bg-white border rounded-md shadow-lg z-50">
                                                     <ul className="py-1">
                                                         <li>
@@ -299,81 +587,51 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
                                 </div>
                             </div>
                         </div>
-                    ) : (
-                        <div className=' flex'>
-                            <Button
-                                className='w-12 h-10 sm:inline mr-5'
-                                color=''
-                                pill
-                                onClick={() => dispatch(toogleTheme())}
-                            >
-                                {theme === 'light' ? <RxSun className='text-white text-2xl cursor-pointer'/> : <FaMoon />}
-                            </Button>
+                    ):(<></>) } */}
 
-                            <button
-                                className='p-2  rounded-md text-white cursor-pointer'
-                                onClick={handleMenuToggle}
-                                id='hamburger-button'
-                            >
-                                {isOpen ? (
-                                    <FaTimes className='text-2xl animate-menuClose' />
-                                ) : (
-                                    <FaAlignRight className='text-2xl animate-menuOpen' />
-                                )}
-                            </button>
-
-                            <Link to='/login'>
-                                <Button outline gradientDuoTone="greenToBlue" size='sm' className='hidden'>
-                                    Login
-                                </Button>
-                            </Link>
-                        </div>
-                    )}
-
+                
                     {/* MOBILE NAVIGATION */}
-                    {!isAboveSmallScreens && isMenuToggled && (
-                        <div className="fixed right-0 bottom-0 h-full bg-[#00b39b] text-white w-[100%] transition-all duration-3000 z-50">
-                            {/* CLOSE ICON */}
-                            <header className="px-5">
-                                <div className="flex justify-between items-center w-[100%] m-auto py-4">
-                                    <img src={mobileLogo} alt='logo' className='w-[9%]' />
-                                    <button onClick={handleMenuToggle} className='text-2xl font-bold'>
-                                        <FaTimes />
-                                    </button>
-                                </div>
-                            </header>
-                            {/* CONDITIONAL RENDERING */}
-                            {showDropdownContent ? (
-                                <MobileDropdownContent onBack={() => setShowDropdownContent(false)} onClose={closeMenu} />
-                            ) : (
-                                <nav>
-                                    <div className='flex flex-col m-auto justify-start list-none w-[93%]'>
-                                        <div className='flex flex-col divide-y divide-[#343a4018] divide-y-reverse'>
-                                          
-                                            <Navbar.Link active={path === '/questions'} as='div' className='border-b-[1px] border-[#343a4018] bg-transparent hover:bg-transparent py-5'>
-                                                <Link to="/login"><span className=' text-white hover:font-extrabold'>Log in</span></Link>
-                                            </Navbar.Link>
-                                           
-                                            <div className='py-4'>
-                                                <button
-                                                    className='w-full flex items-center pl-2 justify-between gap-1 rounded-lg tracking-wider border-4 border-transparent'
-                                                    onClick={() => setShowDropdownContent(true)}
-                                                >
-                                                    <span>Register for free</span> <FaAngleRight />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </nav>
-                            )}
+                    {/* {!isAboveSmallScreens && isMenuToggled && (
+                    <div className="fixed inset-0 bg-[#00b39b]  w-full h-full z-50 overflow-y-auto">
+                        {/* Header */}
+                        {/* <header className="flex justify-between items-center px-4 py-3 border-b border-white/20">
+                        <img src={mobileLogo} alt="logo" className="w-8 opacity-80" />
+                        <button onClick={handleMenuToggle} className="text-2xl">
+                            <FaTimes className='text-white'/>
+                        </button>
+                        </header> */}
+
+                        {/* Full Search Form for Mobile */}
+                        {/* <div className="p-4 space-y-4">
+                        <div className='bg-[#02a993] rounded'>
+                            <MedicalSpecialtyDropdownForHeader
+                                options={memoizedMedicalSpecialtyCategory}
+                                selected={formData.medicalSpecialtyCategory}
+                                onSelect={handleMedicalSpecialtyCategorySelect}
+                                className='text-gray-500'
+                            />
                         </div>
+                        <div className='bg-[#02a993] rounded'>
+                            <LocationSearchFree
+                                options={memoizedLocation}
+                                selected={formData.location}
+                                onSelect={handleLocationSelect}
+                                className='text-gray-500 bg-[#02a993]'
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleSearch}
+                            className="w-full bg-white text-[#00b39b] font-medium rounded-lg px-4 py-2"
+                        >
+                            Search
+                        </button>
+                        </div> */}
+
+                        {/* Rest of your nav links */}
+                       
+                    {/* </div>
                     )}
-                </div>
-            </Navbar>
-        </div>
-)
-
-}
 
 
-export default WithLogout(DoctorPublicProfileHeader)
+                </div>  */}

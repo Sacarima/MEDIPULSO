@@ -9,7 +9,9 @@ import {
     updateDoctorProfileCompletion,
     searchDoctors, 
     getRandomDoctors,
-    deleteDoctorPhoto
+    deleteDoctorPhoto,
+    changeDoctorPassword,     
+    deleteDoctorAccount, 
 } from '../controllers/doctorForm.controller.js'
 import { logout } from '../controllers/auth.controller.js'
 import { verifyToken } from '../utils/verifyDoctor.js'
@@ -34,6 +36,8 @@ router.post('/logout', logout)
 router.get('/:doctorId', verifyToken, getDoctor)
 router.put('/update/:doctorId', verifyToken, updateDoctor)
 router.put("/profile-completion/:doctorId", verifyUserOrDoctor, updateDoctorProfileCompletion)
+router.put('/:doctorId/password', verifyToken, changeDoctorPassword); 
+router.delete('/:doctorId', verifyToken, deleteDoctorAccount);          
 router.delete('/photo/:filePath(*)', verifyUserOrDoctor, deleteDoctorPhoto)
 
 

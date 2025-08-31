@@ -43,7 +43,7 @@ const MedicalSpecialtyDropdownForHeader = ({ selected, onSelect }) => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full text-white opacity-70 py-[10px] text-left border-gray-300 rounded-sm p-2 flex items-center justify-between focus:outline-none"
+        className="w-full  opacity-70 py-[10px] text-left border-gray-300 rounded-sm p-2 flex items-center justify-between focus:outline-none"
       >
         {selected || 'speciality, study or name'}
         <IoIosArrowDown

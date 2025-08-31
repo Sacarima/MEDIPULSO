@@ -123,25 +123,21 @@ const io = new SocketServer(server, {
 app.set('io', io);
 
 io.on('connection', (socket) => {
-  console.log('socket connected', socket.id);
   socket.on('joinTreatment', (slug) => {
     console.log('joinTreatment', slug);
     socket.join(`treatment:${slug}`);
   });
   socket.on('leaveTreatment', (slug) => {
-    console.log('leaveTreatment', slug);
     socket.leave(`treatment:${slug}`);
   });
 
     socket.on('joinDoctor', (doctorId) => {
     const room = `doctor:${doctorId}`;
-    console.log('[socket] join ->', room);
     socket.join(room);
   });
 
   socket.on('leaveDoctor', (doctorId) => {
     const room = `doctor:${doctorId}`;
-    console.log('[socket] leave ->', room);
     socket.leave(room);
   });
 });

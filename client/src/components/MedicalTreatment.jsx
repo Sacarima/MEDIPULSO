@@ -176,7 +176,7 @@ useEffect(() => {
 
   return (
     <div>
-      <DoctorPublicProfileHeader />
+      
       <div className="container lg:w-[60%] mx-auto p-6 bg-white ">
         {/* TITLE */}
         <section className="border-b pb-6">

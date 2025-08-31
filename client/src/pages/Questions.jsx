@@ -105,7 +105,7 @@ const Questions = () => {
 
 
   return (
-    <div className="bg-[#f0f4f8] min-h-screen mt-">
+    <div className="bg-[#f0f4f8] min-h-screen">
       {/* <DoctorPublicProfileHeader /> */}
       <div className="lg:w-[70%] md:w-[90%] mx-auto p-6 shadow rounded-md bg-white ">
         <div className="border-b pb-4">

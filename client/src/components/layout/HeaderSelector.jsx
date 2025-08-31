@@ -37,7 +37,8 @@ function HeaderSelector() {
     pathname.startsWith("/search-results") ||
     pathname.startsWith("/profile-info/") ||
     pathname.startsWith("/ask-doctor") ||
-    pathname.startsWith("/questions/");
+    pathname.startsWith("/questions/") ||
+    pathname.startsWith("/treatments/"); 
    
   if (!isDoctor && isPublicDoctorPage) {
     return <DoctorPublicProfileHeader />;

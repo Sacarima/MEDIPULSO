@@ -63,3 +63,5 @@ export function EnsureDoctorDashboardProvider({ children }) {
   const ctx = useContext(DoctorDashboardContext);
   return ctx ? children : <DoctorDashboardProvider>{children}</DoctorDashboardProvider>;
 }
+
+

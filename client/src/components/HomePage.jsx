@@ -497,7 +497,7 @@ const  HomePage = () => {
   
         </section>
         <hr className='mt-20'/>
-        {/* <Footer /> */}
+        <Footer />
       </div>
     )
   }

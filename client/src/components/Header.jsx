@@ -182,14 +182,6 @@ const  Header = ({ handleLogout }) => {
                         </div>
                     ) : (
                         <div className=' flex '>
-                            {/* <Button
-                                className='w-12 h-10 sm:inline mr-5'
-                                color=''
-                                pill
-                                onClick={() => dispatch(toogleTheme())}
-                            >
-                                {theme === 'light' ? <RxSun className='text-white text-2xl cursor-pointer'/> : <FaMoon />}
-                            </Button> */}
 
                             <button
                                 className='p-2  rounded-md text-white  cursor-pointer'

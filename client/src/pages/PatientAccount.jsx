@@ -175,7 +175,7 @@ function PatientAccount() {
 
             {/* Sidebar Navigation */}
             <aside 
-              className='bg-gray-200 sm:w-[20%] w-[90%] m-auto sm:fixed p-4 mt-6  sm:left-0 sm:top-24 sm:h-full  shadow-mdoverflow-auto'>
+              className='bg-gray-200 sm:w-[20%] w-[90%] m-auto sm:fixed p-4 lg:mt-6  sm:left-0 sm:top-24 sm:h-full  shadow-mdoverflow-auto'>
               <nav>
                 <ul>
                   <li className='text-gray-400 text-[12px]'>Specialists</li>

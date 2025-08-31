@@ -1,5 +1,6 @@
-import React from 'react'
-import logo from '../assets/medipulso.png'; // Replace with your logo path
+import logo from '../assets/medipulso.png'; 
+import { ROUTES } from '../config/routes';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
@@ -37,7 +38,7 @@ export default function Footer() {
           </ul>
         </aside>
 
-        <aside className='sm:w-[25%] sm:text-start text-center mt-4 px-2'>
+        <aside className='lg:w-[25%] w-full sm:text-start text-center mt-4 px-2'>
           <h2 className='text-gray-500 mb-3'>For professionals</h2>
           <ul>
             <li>Price-list</li>
@@ -49,15 +50,19 @@ export default function Footer() {
           </ul>
         </aside>
 
-        <aside className='sm:w-[25%] mt-4 flex flex-col justify-start items-start sm:items-start px-2'>
+        <aside className='sm:w-[25%] mt-4 flex flex-col lg:justify-start  lg:items-start items- px-2'>
           <div>
-            <img
-              className='w-24 mx-auto  mb-4 m-auto'
-              src={logo}
-              alt="logo"
-            />
+            <Link to={ROUTES.HOME}>
+              <img
+                className='w-24 mx-auto  mb-4 m-auto'
+                src={logo}
+                alt="logo"
+              />
+            </Link>
           </div>
-          <p className='t sm:text-start'>Medipulso connects patients with trusted doctors and clinics, making it easy to find specialists, book appointments, and access healthcare services online or in person..</p>
+          <div className='text-center '>
+            <p className='t lg:text-start text-center'>Medipulso connects patients with trusted doctors and clinics, making it easy to find specialists, book appointments, and access healthcare services online or in person..</p>
+          </div>
         </aside>
       </div>
 

@@ -80,11 +80,15 @@ export const updateDoctor = async (req, res, next) => {
                     heardAboutUs: req.body.heardAboutUs,
                     officeName: req.body.officeName,
                     officeAddress: req.body.officeAddress,
+                    officeLocation: req.body.officeLocation,
+                    zipcode: req.body.zipcode,
                     onlineConsultation: req.body.onlineConsultation,
                     acceptChildren: req.body.acceptChildren,
                     publication: req.body.publication,
                     awards: req.body.awards,
                     customTreatments: req.body.customTreatments,
+                    phoneNumber: req.body.phoneNumber,
+
 
                 },
             },
@@ -142,7 +146,7 @@ export const updateDoctorProfileCompletion = async (req, res, next) => {
             { new: true }
         );
 
-        console.log("✅ Profile Updated Successfully:", updatedDoctor);
+        console.log(" Profile Updated Successfully:", updatedDoctor);
 
         res.status(200).json({
             success: true,
@@ -452,4 +456,108 @@ export const getRandomDoctors = async (req, res, next) => {
     next(errorHandler(500, 'Failed to delete photo'));
   }
  }
+
+
+ export const changeDoctorPassword = async (req, res, next) => {
+  try {
+    const { doctorId } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    // must be the same logged-in doctor
+    if (!req.user || req.user.id !== doctorId) {
+      return next(errorHandler(403, 'You are not authorized to perform this action'));
+    }
+    if (!currentPassword || !newPassword) {
+      return next(errorHandler(400, 'Current password and new password are required'));
+    }
+    if (newPassword.length < 6) {
+      return next(errorHandler(400, 'Password must be at least 6 characters long'));
+    }
+
+    const doctor = await DoctorForm.findById(doctorId).select('+password');
+    if (!doctor) return next(errorHandler(404, 'Doctor not found'));
+
+    const ok = await bcryptjs.compare(currentPassword, doctor.password);
+    if (!ok) return next(errorHandler(400, 'Current password is incorrect'));
+
+    doctor.password = bcryptjs.hashSync(newPassword, 10);
+    await doctor.save();
+
+    return res.status(200).json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Failed to change password:', err);
+    return next(errorHandler(500, 'Failed to change password'));
+  }
+};
+
+/**
+ * Delete doctor account (and related data)
+ * DELETE /api/doctor-form/:doctorId
+ * - verifies ownership
+ * - deletes: DoctorAvailability, Reviews
+ * - removes Firebase Storage files in photoURLs/profilePicture if provided
+ * - deletes DoctorForm
+ */
+export const deleteDoctorAccount = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { doctorId } = req.params;
+
+    if (!req.user || req.user.id !== doctorId) {
+      return next(errorHandler(403, 'You are not authorized to perform this action'));
+    }
+
+    const doctor = await DoctorForm.findById(doctorId).session(session);
+    if (!doctor) {
+      await session.abortTransaction();
+      return next(errorHandler(404, 'Doctor not found'));
+    }
+
+    // Collect potential file paths to delete from Firebase Storage
+    const filePaths = [];
+    // Allow both single and multiple photos depending on your schema
+    if (doctor.photo) filePaths.push(doctor.photo); // if you store one path
+    if (Array.isArray(doctor.photoURLs)) filePaths.push(...doctor.photoURLs);
+    if (doctor.profilePicture) filePaths.push(doctor.profilePicture);
+
+    // Delete related collections (expand when you add more)
+    await DoctorAvailability.deleteMany({ doctor: doctorId }).session(session);
+    await Review.deleteMany({ doctor: doctorId }).session(session);
+    // TODO: await Appointment.deleteMany({ doctor: doctorId }).session(session); // if/when you add
+
+    // Delete the Doctor record
+    await DoctorForm.findByIdAndDelete(doctorId).session(session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    // Best-effort: delete files from Firebase Storage (outside transaction)
+    if (filePaths.length) {
+      const bucket = admin.storage().bucket();
+      await Promise.all(
+        filePaths
+          .filter(Boolean)
+          .map(async (p) => {
+            try {
+              const filePath = decodeURIComponent(p);
+              await bucket.file(filePath).delete();
+            } catch (e) {
+              // Log but do not fail the whole request
+              console.warn('Failed to delete file from storage:', p, e?.message);
+            }
+          })
+      );
+    }
+
+    return res.status(200).json({ message: 'Doctor account deleted successfully' });
+  } catch (err) {
+    console.error('Failed to delete doctor account:', err);
+    try {
+      await session.abortTransaction();
+      session.endSession();
+    } catch (_) {}
+    return next(errorHandler(500, 'Failed to delete doctor account'));
+  }
+};
   
