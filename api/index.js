@@ -41,9 +41,9 @@ import admin from 'firebase-admin'
 
 
 //remove this in production
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+//const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
 
-//import serviceAccount from './secrets/firebaseServicesAccountKey.json' assert { type: 'json' }
+import serviceAccount from './secrets/firebaseServicesAccountKey.json' assert { type: 'json' }
 
 
 // Load environment variables

@@ -201,7 +201,7 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
           <div className=''>
             <form className="w-full ">
               <div className="flex  justify-center items-center bg-[#158a783] gap-[1.5px]">
-                <div className="bg-[#158a7838] text-white">
+                <div className="bg-[#158a7838] text-white flex-1">
                   <MedicalSpecialtyDropdownForHeader
                     options={memoizedMedicalSpecialtyCategory}
                     selected={formData.medicalSpecialtyCategory}
@@ -210,7 +210,7 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
                     handleChange={handleChange}
                   />
                 </div>
-                <div className="bg-[#158a7838] ">
+                <div className="bg-[#158a7838]">
                   <LocationDropdownForHeader
                     options={memoizedLocation}
                     selected={formData.location}

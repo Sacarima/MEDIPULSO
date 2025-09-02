@@ -67,7 +67,7 @@ export default function Footer() {
       </div>
 
       <hr className='w-[70%] m-auto my-6'/>
-      <div className='text-center '>
+      <div className='text-center mb-2'>
         <p>© 2025 Medi-Pulso. All rights reserved.</p>
       </div>
     </div>
