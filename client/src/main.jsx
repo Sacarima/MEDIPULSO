@@ -1,31 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import ReactDOM from 'react-dom/client'
-// import App from './App.jsx'
-// import './index.css'
-// import { store, persistor } from './redux/store.js'
-// import { Provider } from 'react-redux'
-// import { PersistGate } from 'redux-persist/integration/react'
-// import ThemeProvider from './components/ThemeProvider.jsx'
-// import LoadingOverlay from './components/loaders/LoadingOverlay.jsx'
-
-// ReactDOM.createRoot(document.getElementById('root')).render(
-//     <Provider store={store}>
-//     <PersistGate
-//       persistor={persistor}
-//       loading={<LoadingOverlay open label="Starting Medi Pulso…" />}
-//       onBeforeLift={() => {
-//         // Fires when rehydration completes
-//         if (import.meta.env.DEV) console.log("[persist] rehydrated");
-//       }}
-//     >
-//       <ThemeProvider>
-//         <App />
-//       </ThemeProvider>
-//     </PersistGate>
-//   </Provider>
-
-// )
-
 // src/main.jsx
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";

@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { BiSolidBriefcase } from 'react-icons/bi';
 import { IoIosArrowDown } from 'react-icons/io';
 import axios from 'axios';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 const MedicalSpecialtyDropdownForHeader = ({ selected, onSelect }) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [isOpen, setIsOpen] = useState(false);
   const [specialties, setSpecialties] = useState([]);
   const dropdownRef = useRef(null)
@@ -54,7 +56,7 @@ const MedicalSpecialtyDropdownForHeader = ({ selected, onSelect }) => {
       </button>
 
       {isOpen && (
-        <ul className="absolute  min-w-[500px] bg-white border text-gray-500 border-gray-300 z-40 rounded-lg shadow-lg max-h-[15rem] sm:max-h-[20rem] overflow-auto mt-1">
+        <ul className="absolute  lg:w-[500px] w-full bg-white border text-gray-500 border-gray-300 z-40 rounded-lg shadow-lg max-h-[15rem] sm:max-h-[20rem] overflow-auto mt-1">
           {specialties.map((spec) => (
             <li
               key={spec._id}
@@ -65,7 +67,7 @@ const MedicalSpecialtyDropdownForHeader = ({ selected, onSelect }) => {
                 <BiSolidBriefcase className="text-blue-500" />
                 {spec.name}
               </div>
-              <span className="text-gray-400">Specialty</span>
+              <span className="text-gray-400 ">Specialty</span>
             </li>
           ))}
         </ul>

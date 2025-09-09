@@ -124,7 +124,6 @@ app.set('io', io);
 
 io.on('connection', (socket) => {
   socket.on('joinTreatment', (slug) => {
-    console.log('joinTreatment', slug);
     socket.join(`treatment:${slug}`);
   });
   socket.on('leaveTreatment', (slug) => {

@@ -6,10 +6,15 @@ import {
     signupClinic, 
     signupDoctor, 
     apple, 
-    logout
+    logout,
+    authMe
+
     
 } from '../controllers/auth.controller.js'
 import { getLoggedInDoctor } from '../controllers/auth.controller.js'
+import { verifyUserOrDoctor } from '../utils/verifyUserOrDoctor.js'
+
+
 
 
 
@@ -24,7 +29,9 @@ router.get('/me', getLoggedInDoctor)
 router.post('/login', login)
 router.post('/google', google)
 router.post('/apple', apple)
+router.get('/session', verifyUserOrDoctor, authMe);
 router.post('/logout', logout)
+
 
 
 export default router

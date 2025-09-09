@@ -19,13 +19,7 @@ function formatRelativeTime(dateStr) {
   return d.toLocaleDateString();
 }
 
-/**
- * Props:
- * - country: used by NewsAPI fallback (e.g., 'us', 'pl', 'gb')
- * - pageSize: items per page
- * - language: used by NewsAPI fallback (e.g., 'en')
- * - initialTopics: optional string[] to seed topic chips (e.g., doctor specialties)
- */
+
 export default function DoctorNewsPanel({
   country = "us",
   pageSize = 12,
@@ -85,7 +79,7 @@ export default function DoctorNewsPanel({
 
   // --- Provider auto-detect ---
   const NEWSAPI_KEY = import.meta.env.VITE_NEWSAPI_KEY;
-  const ER_KEY = import.meta.env.VITE_EVENTREGISTRY_KEY; // your current working key
+  const ER_KEY = import.meta.env.VITE_EVENTREGISTRY_KEY; 
   const USE_EVENT_REGISTRY = !!ER_KEY;
 
   //  keep  NewsAPI backend proxy toggle for the fallback

@@ -7,17 +7,85 @@ import { errorHandler } from '../utils/error.js'
 import jwt from 'jsonwebtoken'
 import JwksClient from 'jwks-rsa'
 import Specialty from '../models/specialty.model.js'
+import { cookieOpts } from '../utils/cookieOpts.js';
 
+export const authMe = async (req, res, next) => {
+  try {
+    // req.auth is set by requireAnyAuth middleware
+    const { id, role, exp } = req.auth;
 
-// Role-based access control middleware
-export const verifyToken = (allowedRoles) => {
-    return (req, res, next) => {
-        if (!req.user || !allowedRoles.includes(req.user.role)) {
-            return next(errorHandler(403, 'Forbidden: You do not have access to this resource'))
-        }
-        next()
+    let model = null;
+    switch (role) {
+      case 'doctor':
+        model = DoctorForm;
+        break;
+      case 'user':
+        model = User;
+        break;
+      case 'clinic':
+        model = Clinic;
+        break;
+      case 'admin':
+        model = Admin;
+        break;
+      default:
+        return res.status(403).json({
+          success: false,
+          code: 'FORBIDDEN_ROLE',
+          message: 'Forbidden - Unknown role',
+        });
     }
-}
+
+    const doc = await model.findById(id).lean();
+    if (!doc) {
+      // User removed or mismatch
+      return res.status(401).json({
+        success: false,
+        code: 'TOKEN_INVALID',
+        message: 'Unauthorized - Account not found',
+      });
+    }
+
+    
+    // eslint-disable-next-line no-unused-vars
+    const { password, ...safe } = doc;
+
+    return res.status(200).json({
+      success: true,
+      role,
+      user: safe,
+      exp, // seconds since epoch (from JWT)
+      sessionExpiresAt: exp * 1000, // ms epoch, convenient for UI timers
+      serverTimeMs: Date.now(), 
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+/**
+ * POST /auth/logout
+ * Clears the access_token cookie.
+ */
+export const logout = async (req, res, next) => {
+  try {
+   
+    res.clearCookie('access_token', {
+      path: '/',
+      sameSite: process.env.COOKIE_SAMESITE || 'lax',
+      secure: (String(process.env.COOKIE_SECURE || '').toLowerCase() === 'true') && (process.env.NODE_ENV === 'production'),
+      httpOnly: true,
+    });
+    return res.status(200).json({ success: true, message: 'Logged out' });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+
+export const setAccessTokenCookie = (res, token, maxAgeMs) => {
+  res.cookie('access_token', token, cookieOpts(maxAgeMs));
+};
 
 //Create a new user
 export const signup = async (req, res, next) => { 
@@ -431,9 +499,10 @@ export const login = async (req, res, next) => {
 
 
         // return success response with user data and token and redirection
+        const ACCESS_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; 
         res
             .status(200)
-            .cookie('access_token', token, {
+            .cookie('access_token', token, cookieOpts(ACCESS_TOKEN_TTL_MS), {
                 httpOnly: true
             })
             .json({
@@ -447,27 +516,6 @@ export const login = async (req, res, next) => {
     }
 }
 
-// logout user
-export const logout = async (req, res, next) => {
-    try {
-        res.clearCookie('access_token', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-        })
-
-        res.status(200).json({
-            success: true,
-            message: 'User has been signed out',
-        })
-
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Logout failed',
-            error: error.message
-        })
-    }
-}
   
 
 
@@ -556,63 +604,86 @@ export const signupDoctorForm = async (req, res, next) => {
     }
 }
 
-// google auth controller
+
+
 export const google = async (req, res, next) => {
 
-    // Get the user data from the request body
-    const { email, name, googlePhotoUrl } = req.body
-    try {
-        // Check if the user already exists
-        const user = await User.findOne({
-            email
-        })
-        // If the user does not exist
-        if (user) {
-            const token = jwt.sign({
-                _id: user._id
-            }, process.env.JWT_SECRET_TOKEN)
-        //  remove the password from the user object
-        const { password, ...rest } = user._doc
-        res
-            .status(200)
-            .cookie('access_token', token , {
-                httpOnly: true,
-            })
-            .json(rest)
-        } else {
-            //  generate a random password
-            const generartePassword = 
-                Math.random().toString(36).slice(-8) +
-                Math.random().toString(36).slice(-8)
-            // Hash the password
-            const hashedPassword = bcryptjs.hashSync(generartePassword, 10)
-            // Create a new user
-            const newUser = new User({
-                username: name.toLowerCase().split(' ').join('') + 
-                Math.random().toString(9).slice(-4), 
-                email, 
-                password: hashedPassword, 
-                profilePicture: googlePhotoUrl,
-            })
-            // Save the new user
-            await newUser.save()
-            // Create a token
-            const token = jwt.sign({
-                _id: newUser._id
-            }, process.env.JWT_SECRET_TOKEN)
-            // remove the password from the user object
-            const { password, ...rest } = newUser._doc
-            res
-                .status(200)
-                .cookie('access_token', token , {
-                    httpOnly: true,
-                })
-                .json(rest)
-        }
-    } catch (error) {
-        next(error)
+  const { email, name, googlePhotoUrl, firstName: bodyFirstName, lastName: bodyLastName } = req.body;
+
+  // derive first/last robustly
+  function getNames() {
+    const trimmed = (name || "").trim();
+    const parts = trimmed ? trimmed.split(/\s+/) : [];
+    const fn = bodyFirstName || parts[0] || "";
+    const ln = bodyLastName || (parts.length > 1 ? parts.slice(1).join(" ") : "");
+    return { firstName: fn, lastName: ln };
+  }
+  const { firstName, lastName } = getNames();
+
+  try {
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // backfill names/photo if missing
+      let changed = false;
+      if ((!user.firstName || user.firstName === "") && firstName) {
+        user.firstName = firstName;
+        changed = true;
+      }
+      if ((!user.lastName || user.lastName === "") && lastName) {
+        user.lastName = lastName;
+        changed = true;
+      }
+      if ((!user.profilePicture || user.profilePicture === "") && googlePhotoUrl) {
+        user.profilePicture = googlePhotoUrl;
+        changed = true;
+      }
+      if (changed) await user.save();
+
+      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_TOKEN);
+      const { password, ...rest } = user._doc;
+      return res
+        .status(200)
+        .cookie("access_token", token, { httpOnly: true })
+        .json(rest);
+    } else {
+      // username base: prefer names, else fall back to name/email local part
+      const baseUsername =
+        (firstName + (lastName ? lastName : "")).trim().toLowerCase() ||
+        (name ? name.toLowerCase().split(" ").join("") : "") ||
+        (email?.split("@")[0] || "user");
+
+      const username = baseUsername + Math.random().toString(9).slice(-4);
+
+      // generate + hash password (unchanged approach)
+      const generartePassword =
+        Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      const hashedPassword = bcryptjs.hashSync(generartePassword, 10);
+
+      const newUser = new User({
+        username,
+        email,
+        password: hashedPassword,
+        profilePicture: googlePhotoUrl,
+        firstName: firstName || undefined,
+        lastName: lastName || undefined,
+        provider: "google",
+      });
+
+      await newUser.save();
+
+      const token = jwt.sign({ _id: newUser._id }, process.env.JWT_SECRET_TOKEN);
+      const { password, ...rest } = newUser._doc;
+      return res
+        .status(200)
+        .cookie("access_token", token, { httpOnly: true })
+        .json(rest);
     }
-}
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 // Function to fetch the public key based on the kid
 const getKey = async (kid) => {

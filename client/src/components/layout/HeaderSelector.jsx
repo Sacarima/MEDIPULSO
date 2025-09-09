@@ -8,8 +8,7 @@ import DataPrivacyHeader from "../DataPrivacyHeader";
 import DoctorSignupConfirmationHeader from "../DoctorSignupConfirmationHeader";
 import DoctorPublicProfileHeader from "../DoctorPublicProfileHeader";
 import AccountHeaderPatient from "../AccountHeaderPatient";
-import DoctorProfileCompletionHeader from "../doctor/DoctorProfileCompletionHeader";
-//  Do NOT import DoctorProfileHeader or Sidebar here (sidebars are layout-only)
+
 
 function HeaderSelector() {
   const { pathname } = useLocation();
@@ -17,7 +16,7 @@ function HeaderSelector() {
      const isProfileCompletionRoute =
     pathname.startsWith("/doctor-profile-completion") ||
     pathname.startsWith("/doctor/complete-profile") ||
-    pathname.startsWith("/complete-your-profile");
+    pathname.startsWith("/complete-your-profile")
 
   const doctorState = useSelector((s) => s.doctor);
   const userState   = useSelector((s) => s.user);
@@ -47,6 +46,7 @@ function HeaderSelector() {
       const doctorLoggedIn = !!doctorState?.isLoggedIn;
        const NO_HEADER_PATHS_FOR_LOGGED_IN_DOCTOR = new Set([
          "/job-offers-for-doctor",
+          "/doctor-review",
        ]);
      
        // If a doctor is logged in, suppress header on Job Offers page
@@ -54,6 +54,8 @@ function HeaderSelector() {
          return null;
        }
   if (doctorLoggedIn && pathname.startsWith("/job-offers-for-doctor")) return null;
+  if (doctorLoggedIn && pathname.startsWith("/doctor-review")) return null;
+  if (doctorLoggedIn && pathname.startsWith("/doctor-appointment")) return null;
 
   // If you have a *top* header for doctor-appointment pages, keep it here.
   // Otherwise remove this block.

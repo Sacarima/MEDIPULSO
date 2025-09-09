@@ -49,6 +49,8 @@ import HomePage from './components/HomePage'
 import Layout from './components/layout/Layout'
 import toast, { Toaster } from 'react-hot-toast';
 import { EnsureDoctorDashboardProvider } from './components/context/DoctorDashboardContext'
+import SessionManager from './auth/SessionManager'
+
 
 
 
@@ -80,14 +82,12 @@ const { currentAdmin } = useSelector((state) => state.admin)
     return <div>Loading...</div>
   }
 
-  //   if (appLoading || !isLoaded) {
-  //   return <LoadingOverlay isLoading={true} />
-  // }
 
   return (
     
  <EnsureDoctorDashboardProvider>
   <BrowserRouter>
+    <SessionManager />
     <Routes>
       {/* PUBLIC (with Layout so headers render) */}
       <Route path="/" element={<Layout><HomePage /></Layout>} />

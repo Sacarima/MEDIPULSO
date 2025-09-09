@@ -24,7 +24,9 @@ function Layout({ children, hideHeader = false }) {
   const isProfileCompletionRoute =
     pathname.startsWith("/doctor-profile-completion") ||
     pathname.startsWith("/doctor/complete-profile") ||
-    pathname.startsWith("/complete-your-profile");
+    pathname.startsWith("/complete-your-profile") ||
+    pathname.startsWith("/doctor-review") ||
+    pathname.startsWith("/doctor-appointment");
 
   if (!isPersistReady) {
     return <AppShellSkeleton sidebar={isDoctor || isAdmin} />;

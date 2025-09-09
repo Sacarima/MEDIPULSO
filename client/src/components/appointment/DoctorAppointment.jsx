@@ -243,8 +243,8 @@ const  DoctorAppointment = () => {
             <div className="flex-grow">
                 {/* Step 1 - Visit Selection */}
                 {step === 1 && (
-                    <div className='w-[60%] m-auto flex items-start mt-10'>
-                        <div className='w-[60%]'>
+                    <div className='lg:w-[60%] w-full px-4 lg:px-0 m-auto flex items-start flex-col lg:flex-row mt-10'>
+                        <div className='lg:w-[60%] w-full'>
                             <VisitOptionsSelection
                                 doctorId={doctorId}
                                 handleNextStep={handleNextStep}
@@ -261,7 +261,7 @@ const  DoctorAppointment = () => {
                         </div>
 
                         {/* SIDE SECTION */}
-                        <section className="flex justify-between w-[40%] grow  bg-gray-100 p-6 rounded-sm">
+                        <section className="flex justify-between lg:w-[40%] w-full grow  bg-gray-100 p-6 rounded-sm">
                           <div className="">
                             <div className="flex">
                               <img
@@ -307,8 +307,8 @@ const  DoctorAppointment = () => {
 
                 {/* Step 2 - Patient Details */}
                 {step === 2 && (
-                    <div className='w-[60%] m-auto gap-8 flex items-start mt-10'>
-                        <div className='w-[60%]'>
+                    <div className='lg:w-[60%] w-full m-auto gap-8 flex flex-col lg:flex-row px-4 lg:px-0 items-start mt-10'>
+                        <div className='lg:w-[60%] w-full'>
                             <AppointmentInformation
                                 formData={formData}
                                 setFormData={setFormData}
@@ -325,7 +325,7 @@ const  DoctorAppointment = () => {
                                 setErrors={setErrors}
                             />
                         </div>
-                        <section className="flex justify-between w-[40%] grow  bg-gray-100 p-6 rounded-sm">
+                        <section className="flex justify-between lg:w-[40%] w-full grow  bg-gray-100 p-6 rounded-sm">
                           <div className="">
                             <div className="flex">
                               <img
