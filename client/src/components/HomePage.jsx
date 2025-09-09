@@ -12,6 +12,7 @@ import onlineImagMobile from '../assets/online-doc-mobile.png'
 import { FaClock } from "react-icons/fa6"
 import { FaSearch } from "react-icons/fa"
 import statistic from '../assets/one.jpg'
+import { Link } from 'react-router-dom'
 import LocationSearch from '../components/LocationSearch'
 import LocationSearchFree from './LocationSearchFree.jsx'
 import MedicalSpecialtyDropdown from '../components/MedicalSpecialtyDropdown'
@@ -492,7 +493,7 @@ const  HomePage = () => {
                 <li className='list-disc'>Build your online reputation by getting trustworthy reviews.</li>
               </ul>
             </div>
-            <button className='bg-blue-500 text-white py-2 px-3 sm:self-start rounded mt-6' type='button'>Discover Medi Pulso Pro</button>
+            <Link to="/discover-medi-pulso-pro"><button  className='bg-blue-500 text-white py-2 px-3 sm:self-start rounded mt-6' type='button'>Discover Medi Pulso Pro</button></Link>
           </div>
   
         </section>

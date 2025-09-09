@@ -35,7 +35,6 @@ import Calendar from './components/doctor/Calendar'
 import SearchResults from './pages/SearchResults'
 import AskDoctorForm from './components/questions/AskQuestionForm'
 import Settings from './components/dashboard/Settings'
-//import LoadingOverlay from './components/LoadingOverlay'
 import MedicalTreatment from './components/MedicalTreatment'
 import { useSelector } from 'react-redux'
 import AdminLayout from './components/dashboard/AdminLayout'
@@ -50,6 +49,7 @@ import Layout from './components/layout/Layout'
 import toast, { Toaster } from 'react-hot-toast';
 import { EnsureDoctorDashboardProvider } from './components/context/DoctorDashboardContext'
 import SessionManager from './auth/SessionManager'
+import DiscoverMediPulsoPro from './pages/DiscoverMediPulsoPro'
 
 
 
@@ -111,6 +111,7 @@ const { currentAdmin } = useSelector((state) => state.admin)
       <Route path="/signup/doctor-form" element={<DoctorForm />} />
       <Route path="/signup/clinic-form" element={<ClinicForm />} />
       <Route path="/terms-and-condition" element={<TermsAndCondition />} />
+      <Route path="/discover-medi-pulso-pro" element={<DiscoverMediPulsoPro />} />
       {/* <Route path="/job-offers-for-doctors" element={<JobOffersForDoctors />} /> */}
 
       {/* PUBLIC doctor profile (will show DoctorProfileHeader if user is a doctor, else public header) */}

@@ -527,10 +527,12 @@ const goTo = (path) => {
                         </li>
                       </ul>
 
-                      <div className="bg-[#00b39be6] p-2 rounded mx-4">
-                        <button className="w-full cursor-pointer bg-white text-[#00b39be6] py-2 rounded font-medium">
-                          Discover Medi Pulso Pro
-                        </button>
+                      <div className="bg-[#00b39be6] p-2 rounded mx-4 ">
+                        <Link to="/discover-medi-pulso-pro">
+                          <button className="w-full cursor-pointer bg-white text-[#00b39be6] py-2 rounded font-medium pointer-events-none">
+                            Discover Medi Pulso Pro
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   )}
