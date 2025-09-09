@@ -80,7 +80,7 @@ const  Header = ({ handleLogout }) => {
 
     return (
         <div className=' bg-[#00c3a5] dark:bg-gray-800'>
-            <Navbar className='flex items-center justify-between flex-wra w-full max-w-[] lg:px-0   mx-auto lg:py-3 bg-[#00c3a5] 2xl:w-[70%] md:w-[100%] m-auto 2xl:bg-[#00c3a5]'>
+            <Navbar className='flex items-center justify-between flex-wra w-full  lg:px-0   mx-auto lg:py-3 bg-[#00c3a5] 2xl:w-[70%] md:w-[100%] m-auto 2xl:bg-[#00c3a5]'>
                 <div className='w-[12.2rem]'>
                     <Link to="/" >
                         <img src={theme === 'dark' ? logoDarkMode : logo} alt="logo" className='w-[100%]' />
@@ -223,36 +223,44 @@ const  Header = ({ handleLogout }) => {
                                     <div className="flex flex-col m-auto justify-start list-none w-[93%]">
                                         <div className="flex flex-col divide-y divide-[#343a4018] divide-y-reverse">
                                         <div className="border-b-[1px] border-[#343a4018]">
-                                            <Navbar.Link active={path === '/job-offers-for-doctors'} as="div" className="border-none list-none py-5 hover:bg-transparent bg-transparent">
-                                            <Link to="/job-offers-for-doctors">
-                                                <span className="mb-4 text-white border-none hover:font-semibold">Job offers for doctors</span>
-                                            </Link>
+                                            <div className='md:py-5'>
+                                                <Navbar.Link active={path === '/job-offers-for-doctors'} as="div" className="border-none list-none py-5 hover:bg-transparent bg-transparent">
+                                                <Link to="/job-offers-for-doctors">
+                                                    <span className="mb-4 text-white border-none hover:font-semibold">Job offers for doctors</span>
+                                                </Link>
+                                                </Navbar.Link>
+                                            </div>
+                                        </div>
+
+                                        <div className='md:py-5'>
+                                            <Navbar.Link active={path === '/data-privacy'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                                <Link to="/data-privacy">
+                                                <span className="text-white hover:font-semibold">Data privacy</span>
+                                                </Link>
                                             </Navbar.Link>
                                         </div>
 
-                                        <Navbar.Link active={path === '/data-privacy'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
-                                            <Link to="/data-privacy">
-                                            <span className="text-white hover:font-semibold">Data privacy</span>
-                                            </Link>
-                                        </Navbar.Link>
-
-                                        <Navbar.Link active={path === '/ask-doctor'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
-                                            <Link to="/ask-doctor">
-                                            <span className="text-white hover:font-semibold">Ask your doctor</span>
-                                            </Link>
-                                        </Navbar.Link>
+                                        <div className='md:py-5'>
+                                            <Navbar.Link active={path === '/ask-doctor'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                                <Link to="/ask-doctor">
+                                                <span className="text-white hover:font-semibold">Ask your doctor</span>
+                                                </Link>
+                                            </Navbar.Link>
+                                        </div>
 
                                         {!currentUser ? (
                                             <>
-                                            <Navbar.Link active={path === '/login'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
-                                                <Link to="/login">
-                                                <span className="text-white hover:font-extrabold">Log in</span>
-                                                </Link>
-                                            </Navbar.Link>
+                                            <div className='md:py-5'>
+                                                <Navbar.Link active={path === '/login'} as="div" className="border-none bg-transparent hover:bg-transparent py-5">
+                                                    <Link to="/login">
+                                                    <span className="text-white hover:font-extrabold">Log in</span>
+                                                    </Link>
+                                                </Navbar.Link>
+                                            </div>
 
-                                            <div className="py-4">
+                                            <div className="py-5">
                                                 <button
-                                                className="w-full flex items-center pl-2 justify-between gap-1 rounded-lg tracking-wider border-4 border-transparent"
+                                                className="w-full flex items-center  justify-between gap-1 rounded-lg tracking-wider border-4 border-transparent"
                                                 onClick={() => setShowDropdownContent(true)}
                                                 >
                                                 <span>Register for free</span> <FaAngleRight />

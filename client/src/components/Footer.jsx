@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 export default function Footer() {
   return (
     <div className=''>
-      <div className='sm:flex 2xl:w-[70%] md:w-[90%] p-4 m-auto mt-6'>
+      <div className='md:flex lg:w-full xl:w-[70%] gap-4 p-4 m-auto mt-6 text-center md:text-left lg:text-left lg:justify-between lg:items-start sm:flex  sm:justify '>
         
 
-        <aside className='sm:w-[25%] mt-4 sm:text-start text-center'>
+        <aside className=' mt-4 '>
           <h2 className='mb-3 text-gray-500'>Service</h2>
           <ul>
             <li>Privacy and Cookie Policy</li>
@@ -24,7 +24,7 @@ export default function Footer() {
           </ul>
         </aside>
 
-        <aside className='sm:w-[25%] mt-4 sm:text-start text-center'>
+        <aside className=' mt-4 '>
           <h2 className='text-gray-500 mb-3'>For Patients</h2>
           <ul>
             <li>How to find a doctor</li>
@@ -38,7 +38,7 @@ export default function Footer() {
           </ul>
         </aside>
 
-        <aside className='lg:w-[25%] w-full sm:text-start text-center mt-4 px-2'>
+        <aside className=' mt-4 px-2'>
           <h2 className='text-gray-500 mb-3'>For professionals</h2>
           <ul>
             <li>Price-list</li>
@@ -50,7 +50,7 @@ export default function Footer() {
           </ul>
         </aside>
 
-        <aside className='sm:w-[25%] mt-4 flex flex-col lg:justify-start  lg:items-start items- px-2'>
+        <aside className='sm:w-[25%] mt-4 flex flex-col lg:justify-left  lg:items- items- px-2 '>
           <div>
             <Link to={ROUTES.HOME}>
               <img
@@ -60,8 +60,8 @@ export default function Footer() {
               />
             </Link>
           </div>
-          <div className='text-center '>
-            <p className='t lg:text-start text-center'>Medipulso connects patients with trusted doctors and clinics, making it easy to find specialists, book appointments, and access healthcare services online or in person..</p>
+          <div className='text-center'>
+            <p className=''>Medipulso connects patients with trusted doctors and clinics, making it easy to find specialists, book appointments, and access healthcare services online or in person..</p>
           </div>
         </aside>
       </div>

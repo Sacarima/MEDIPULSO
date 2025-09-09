@@ -176,7 +176,7 @@ const DoctorPublicProfileHeader = ({ handleLogout, setShowSpecialtyFilter }) => 
 
       return (
         <div className="bg-[#00c3a5]">
-          <nav className="lg:w-[70%] w-full px-2 m-auto lg:py-3 py-2 bg-[#00c3a5]">
+          <nav className="lg:w-full xl:w-[70%] w-full px-2 m-auto lg:py-3 py-2 bg-[#00c3a5]">
     
     {/* ======= HEADER ROW (logo + desktop nav OR hamburger) ======= */}
     <div className="flex items-center justify-between">
