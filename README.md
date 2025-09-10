@@ -3,6 +3,12 @@
 Full-stack healthcare web application where **patients can search and consult doctors**, **doctors can manage their profiles and availability**, and **clinics can register** to offer services. Built using the MERN stack with  features like Google OAuth, Firebase image uploads, real-time scheduling, and smart filtering.
 
 ---
+## 📷 Preview
+
+![Site Screenshot](https://github.com/Sacarima/MEDIPULSO/blob/main/client/src/assets/site-screenshot.png?raw=true)
+
+
+---
 
 ## Project Status
 
@@ -168,12 +174,6 @@ npm run dev
 ## 🌓 License
 
 This project is licensed under the MIT License.
-
----
-
-## 📷 Preview
-
-![Site Screenshot](https://github.com/Sacarima/MEDIPULSO/blob/main/client/src/assets/site-screenshot.png?raw=true)
 
 ---
 
