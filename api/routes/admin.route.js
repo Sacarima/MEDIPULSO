@@ -23,6 +23,7 @@ import {
  import { getAppointmentsByDoctor } from '../controllers/appointment.controller.js'
  import { adminHardDeleteAppointment } from '../controllers/appointment.controller.js'
 import { verifyAdmin } from '../utils/verifyAdmin.js'
+import { addTreatment } from '../controllers/treatment.controller.js'
 
 const router = express.Router()
 
@@ -36,6 +37,7 @@ router.post('/create', verifyAdmin, createAdmin)
 router.post('/logout', logoutAdmin)
 
 // Admin Actions (protected routes)
+router.post('/treatments', verifyAdmin, addTreatment)
 router.get('/users', verifyAdmin, getAllUsers)
 router.get('/doctors', verifyAdmin, getAllDoctors)
 router.get('/clinics', verifyAdmin, getAllClinics)

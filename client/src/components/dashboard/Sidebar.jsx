@@ -1,17 +1,18 @@
+
+import useMediaQuery from "../../hooks/useMediaQuery";
 import React, { useEffect, useMemo, useState } from "react";
 import { FaHome, FaUsers, FaChartBar, FaCog, FaSignOutAlt } from "react-icons/fa";
-import { FiMenu, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import { Link, useLocation } from "react-router-dom";
 import WithLogout from "../WithLogout";
 
-const Sidebar = ({ handleLogout, role }) => {
-  // Desktop collapse (persisted)
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  // Mobile drawer
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const location = useLocation();
 
-  // Persist collapse state
+const Sidebar = ({ handleLogout, role, mobileOpen = false, setMobileOpen = () => {} }) => {
+  const location = useLocation();
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+  // Persisted collapse state for desktop
+  const [isCollapsed, setIsCollapsed] = useState(false);
   useEffect(() => {
     const saved = localStorage.getItem("adminSidebarCollapsed");
     if (saved === "true") setIsCollapsed(true);
@@ -20,23 +21,26 @@ const Sidebar = ({ handleLogout, role }) => {
     localStorage.setItem("adminSidebarCollapsed", String(isCollapsed));
   }, [isCollapsed]);
 
+  // Maintain a CSS variable for content margin on desktop
+  useEffect(() => {
+    const w = isDesktop ? (isCollapsed ? "5rem" : "16rem") : "0px";
+    document.documentElement.style.setProperty("--sidebar-w", w);
+  }, [isDesktop, isCollapsed]);
+
   const toggleCollapse = () => setIsCollapsed((v) => !v);
-  const openMobile = () => setIsMobileOpen(true);
-  const closeMobile = () => setIsMobileOpen(false);
+  const closeMobile = () => setMobileOpen(false);
   const onNavClick = () => {
-    // auto-close drawer on mobile after navigation
-    if (isMobileOpen) closeMobile();
+    if (!isDesktop) closeMobile();
   };
 
-  // Keep your original links & paths (note: duplicates preserved to avoid changing behavior)
+  // Keep your original links & paths (duplicates left intact to avoid changing behavior)
   const links = useMemo(
     () => [
-      { to: "/admin", icon: <FaHome />, label: "Dashboard" },
-      { to: "/users", icon: <FaUsers />, label: "Users" },
-      { to: "/analytics", icon: <FaChartBar />, label: "Analytics" },
-      { to: "/settings", icon: <FaCog />, label: "Settings" },
-      { to: "/users", icon: <FaChartBar />, label: "Users" }, // duplicate kept intentionally
       { to: "/admin/dashboard", icon: <FaHome />, label: "Dashboard" },
+      { to: "/admin/analytics", icon: <FaChartBar />, label: "Analytics" },
+      { to: "/admin/settings", icon: <FaCog />, label: "Settings" },
+      { to: "/admin/users", icon: <FaChartBar />, label: "Users" }, // duplicate kept intentionally
+      // { to: "/admin/dashboard", icon: <FaHome />, label: "Dashboard" },
       { to: "/admin/treatments", icon: <FaCog />, label: "Treatments" },
       { to: "/admin/doctor-table", icon: <FaUsers />, label: "Doctor Table" },
       { to: "/admin/appointments", icon: <FaUsers />, label: "Doctor Appointments" },
@@ -44,116 +48,148 @@ const Sidebar = ({ handleLogout, role }) => {
     []
   );
 
-  // Base styles
-  const asideBase =
-    "fixed z-40 inset-y-0 left-0 bg-gray-900/90 backdrop-blur supports-[backdrop-filter]:bg-gray-900/70 border-r border-white/10 text-white transition-[transform,width] duration-300 ease-out lg:static";
-  const asideWidth = isCollapsed ? "lg:w-20" : "lg:w-64";
-  const asideTransform = isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0";
+  // Shared nav list
+  const NavList = () => (
+    <ul className="space-y-1">
+      {links.map((item, idx) => (
+        <SidebarLink
+          key={`${item.to}-${idx}`}
+          to={item.to}
+          icon={item.icon}
+          label={item.label}
+          isCollapsed={isDesktop ? isCollapsed : false}
+          currentPath={location.pathname}
+          onClick={onNavClick}
+        />
+      ))}
+
+      {/* Logout (same behavior) */}
+      <SidebarLink
+        icon={<FaSignOutAlt />}
+        label="Logout"
+        isCollapsed={isDesktop ? isCollapsed : false}
+        onClick={() => {
+          handleLogout?.(role);
+          onNavClick();
+        }}
+      />
+    </ul>
+  );
 
   return (
     <>
-      {/* Mobile top trigger (appears only on small screens) */}
-      <button
-        className="lg:hidden fixed top-3 left-3 z-50 inline-flex items-center gap-2 rounded-xl bg-gray-900/90 px-3 py-2 text-white shadow-md ring-1 ring-white/10"
-        onClick={openMobile}
-        aria-label="Open menu"
-      >
-        <FiMenu className="text-xl" />
-        <span className="text-sm">Menu</span>
-      </button>
+      {/* Desktop: fixed left aside, full height */}
+      {isDesktop && (
+        <aside
+          className={[
+            "fixed inset-y-0 left-0 z-40 bg-gray-900 text-white border-r border-white/10",
+            "transition-[width] duration-300 ease-out",
+            isCollapsed ? "w-20" : "w-64",
+          ].join(" ")}
+          aria-label="Admin navigation"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-3 py-3 bg-gray-950/40">
+            <Link to="/admin/dashboard" onClick={onNavClick} className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-emerald-500/90 grid place-items-center font-bold">
+                A
+              </div>
+              {!isCollapsed && (
+                <div className="leading-tight">
+                  <div className="text-sm font-semibold">Admin Dashboard</div>
+                  <div className="text-[11px] text-gray-400">MEDIPULSO</div>
+                </div>
+              )}
+            </Link>
 
-      {/* Overlay for mobile drawer */}
-      {isMobileOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
-          onClick={closeMobile}
-          aria-hidden="true"
-        />
-      )}
+            <button
+              onClick={toggleCollapse}
+              className="hidden lg:inline-flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 hover:bg-white/10 ring-1 ring-white/10"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={isCollapsed ? "Expand" : "Collapse"}
+            >
+              {isCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
+            </button>
+          </div>
 
-      {/* Aside */}
-      <aside
-        className={`${asideBase} ${asideWidth} ${asideTransform}`}
-        aria-label="Admin navigation"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-3 py-3 bg-gray-950/50">
-          <Link to="/admin" onClick={onNavClick} className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-emerald-500/90 grid place-items-center font-bold">
-              A
-            </div>
-            {!isCollapsed && (
-              <div className="leading-tight">
-                <div className="text-sm font-semibold">Admin Dashboard</div>
-                <div className="text-[11px] text-gray-400">MEDIPULSO</div>
+          {/* Nav */}
+          <nav className={["px-2 py-4", isCollapsed ? "" : ""].join(" ")}>
+            <NavList />
+          </nav>
+
+          {/* Footer */}
+          <div className="absolute bottom-0 inset-x-0 px-3 py-3 border-t border-white/10 text-xs text-gray-400">
+            {isCollapsed ? (
+              <div className="text-center">v1.0</div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <span>v1.0</span>
+                <span className="opacity-80">© {new Date().getFullYear()}</span>
               </div>
             )}
-          </Link>
+          </div>
+        </aside>
+      )}
 
-          {/* Collapse toggle (desktop) */}
-          <button
-            onClick={toggleCollapse}
-            className="hidden lg:inline-flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 hover:bg-white/10 ring-1 ring-white/10"
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            title={isCollapsed ? "Expand" : "Collapse"}
+      {/* Mobile: slide-in drawer + overlay */}
+      {!isDesktop && (
+        <>
+          {/* Overlay */}
+          <div
+            className={[
+              "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity",
+              mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+            ].join(" ")}
+            aria-hidden={!mobileOpen}
+            onClick={closeMobile}
+          />
+
+          {/* Drawer */}
+          <div
+            className={[
+              "fixed inset-y-0 left-0 z-50 w-72 max-w-[85%] bg-gray-900 text-white border-r border-white/10",
+              "transition-transform duration-300 ease-out",
+              mobileOpen ? "translate-x-0" : "-translate-x-full",
+            ].join(" ")}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
           >
-            {isCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
-          </button>
-        </div>
+            <div className="flex items-center justify-between px-3 py-3 bg-gray-950/40">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-emerald-500/90 grid place-items-center font-bold">
+                  A
+                </div>
+                <div className="leading-tight">
+                  <div className="text-sm font-semibold">Admin</div>
+                  <div className="text-[11px] text-gray-400">MEDIPULSO</div>
+                </div>
+              </div>
 
-        {/* Nav list */}
-        <nav className="flex-1 overflow-y-auto px-2 py-4 min-h-screen">
-          <ul className="space-y-1">
-            {links.map((item, idx) => (
-              <SidebarLink
-                key={`${item.to}-${idx}`}
-                to={item.to}
-                icon={item.icon}
-                label={item.label}
-                isCollapsed={isCollapsed}
-                currentPath={location.pathname}
-                onClick={onNavClick}
-              />
-            ))}
-
-            {/* Logout: same functionality */}
-            <SidebarLink
-              icon={<FaSignOutAlt />}
-              label="Logout"
-              isCollapsed={isCollapsed}
-              onClick={() => {
-                handleLogout(role);
-                onNavClick();
-              }}
-            />
-          </ul>
-        </nav>
-
-        {/* Footer (optional) */}
-        <div className="px-3 py-3 border-t border-white/10 text-xs text-gray-400">
-          {!isCollapsed ? (
-            <div className="flex items-center justify-between">
-              <span>v1.0</span>
-              <span className="opacity-80">© {new Date().getFullYear()}</span>
+              <button
+                onClick={closeMobile}
+                className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 hover:bg-white/10 ring-1 ring-white/10"
+                aria-label="Close menu"
+              >
+                <FiX />
+              </button>
             </div>
-          ) : (
-            <div className="text-center">v1.0</div>
-          )}
-        </div>
-      </aside>
+
+            <nav className="px-2 py-4">
+              <NavList />
+            </nav>
+          </div>
+        </>
+      )}
     </>
   );
 };
 
-// Sidebar link with active state + tooltips when collapsed
+// Sidebar link (active state + tooltips on desktop collapse)
 const SidebarLink = ({ to, icon, label, isCollapsed, currentPath = "", onClick }) => {
   const isActive = to ? currentPath === to : false;
-
-  // Button or Link, depending on presence of `to`
   const Wrapper = to ? Link : "button";
-  const wrapperProps = to
-    ? { to, onClick }
-    : { onClick, type: "button" };
+  const wrapperProps = to ? { to, onClick } : { onClick, type: "button" };
 
   return (
     <li className="group relative">
@@ -171,7 +207,7 @@ const SidebarLink = ({ to, icon, label, isCollapsed, currentPath = "", onClick }
         {!isCollapsed && <span className="text-sm font-medium">{label}</span>}
       </Wrapper>
 
-      {/* Tooltip when collapsed */}
+      {/* Tooltip when collapsed (desktop only) */}
       {isCollapsed && label && (
         <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="whitespace-nowrap rounded-md bg-gray-800 px-2 py-1 text-xs text-white shadow-lg ring-1 ring-white/10">
@@ -184,3 +220,4 @@ const SidebarLink = ({ to, icon, label, isCollapsed, currentPath = "", onClick }
 };
 
 export default WithLogout(Sidebar);
+

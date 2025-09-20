@@ -206,16 +206,45 @@ const AppointmentInformation = ({ formData, setFormData, errors, setErrors, hand
 
             <div className='w-full mt-6'>
                 <p className='font-medium'>Contact details*</p>
-                <PhoneInput
-                    country={'pl'}  
-                    value={formData.phoneNumber || ""}
-                    onChange={(phone) => setFormData({ ...formData, phoneNumber: phone })} 
-                    className={` w-[48.4%] border-[.5px] rounded outline-none mt-6 transition-all duration-200 ${
-                        errorMessage && !formData.phoneNumber
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      }`}
-                />
+                <div className='flex gap-2 flex-col lg:flex-row'>
+                  <PhoneInput
+                      country={'pl'}
+                      value={formData.phoneNumber || ""}
+                    
+                      onChange={(phone) => setFormData({ ...formData, phoneNumber: phone })}
+                      className={` w-[50%] border-[.5px] rounded outline-non mt-6 transition-all duration-200 ${
+                          errorMessage && !formData.phoneNumber
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                        inputStyle={{
+                            width: '100%',
+                            height: '44px',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #d1d5db', // Tailwind gray-300
+                            paddingLeft: '3rem',
+                            fontSize: '1rem',
+                          }}
+                          buttonStyle={{
+                            borderRadius: '0.5rem 0 0 0.5rem',
+                            border: '.5px solid #d1d5db',
+                          }}
+                  />
+                  <div className='grow'>
+                      <input
+                          type="email"
+                          name='email'
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="Email*"
+                          className={`w-full p-2 border rounded outline-none mt-6 transition-all duration-200 ${
+                              errorMessage && !formData.email
+                                ? "border-red-500"
+                                : "border-gray-300"
+                            }`}
+                      />
+                  </div>
+                </div>
             </div>
 
               {/* Textarea for additional details */}

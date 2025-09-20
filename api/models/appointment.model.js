@@ -57,7 +57,10 @@ const appointmentSchema = new mongoose.Schema({
         type: String,
         required: false,
         default: "",
-    }, 
+    },
+    reminderVersion: { 
+        type: Number, default: 0 
+    },
     canceledAt: Date,
     canceledBy: { type: String, enum: ["doctor","patient","admin","system"], default: undefined },
     cancelReason: String,

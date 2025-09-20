@@ -54,7 +54,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
     const isMobile = useMediaQuery('(max-width: 768px)')
     
 
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, '')
 
 
 
@@ -68,7 +68,18 @@ const DoctorPublicProfile = ({ isLoaded }) => {
     const priceListRef = useRef(null)
     const reviewsRef = useRef(null)
 
-    const { doctorId } = useParams()
+    const { doctorId, firstName, lastName, medicalCategory, city } = useParams()
+
+
+    // 1) Build  doctor-info endpoint
+    const buildDoctorInfoUrl = () => {
+    if (doctorId) {
+        return `${API_BASE_URL}/api/doctor-form/profile-info/${doctorId}`;
+    }
+    // slug route – encode since these are path params and may contain spaces
+    const seg = `${encodeURIComponent(firstName)}-${encodeURIComponent(lastName)}/${encodeURIComponent(medicalCategory)}/${encodeURIComponent(city)}`;
+    return `${API_BASE_URL}/api/doctor-form/profile/${seg}`;
+    };
 
     // concat about me information
     const maxLength = 350

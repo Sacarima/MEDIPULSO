@@ -50,6 +50,9 @@ import toast, { Toaster } from 'react-hot-toast';
 import { EnsureDoctorDashboardProvider } from './components/context/DoctorDashboardContext'
 import SessionManager from './auth/SessionManager'
 import DiscoverMediPulsoPro from './pages/DiscoverMediPulsoPro'
+import AdminUsersPanel from './components/dashboard/adminUsersPanel'
+import AdminSettings from './components/dashboard/AdminSettings'
+import AdminAnalytics from './components/dashboard/AdminAnalytics'
 
 
 
@@ -119,6 +122,22 @@ const { currentAdmin } = useSelector((state) => state.admin)
         path="/profile-info/:doctorId"
         element={<Layout><DoctorPublicProfile isLoaded={isLoaded} /></Layout>}
       />
+      <Route
+        path="/profile/:firstName-:lastName/:medicalCategory/:city"
+        element={<Layout><DoctorPublicProfile isLoaded={isLoaded} /></Layout>}
+      />
+
+      <Route
+        path="/profile/:nameSlug/:medicalCategory/:city"
+        element={<Layout><DoctorPublicProfile isLoaded={isLoaded} /></Layout>}
+      />
+
+      <Route
+          path="/profile/:name/:medicalCategory/:city/:doctorId"
+          element={<Layout><DoctorPublicProfile isLoaded={isLoaded} /></Layout>}
+        />
+
+      
 
       {/* PRIVATE */}
       <Route element={<PrivateRoute />}>
@@ -179,7 +198,9 @@ const { currentAdmin } = useSelector((state) => state.admin)
           <Route path="treatments" element={<AdminAddTreatment />} />
           <Route path="doctor-table" element={<DoctorTable />} />
           <Route path="appointments" element={<AppointmentTable />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="users" element={<AdminUsersPanel />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
         </Route>
       )}
 

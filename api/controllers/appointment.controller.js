@@ -1,20 +1,116 @@
 import mongoose from "mongoose"
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import Appointment from "../models/appointment.model.js"
 import DoctorAvailability from "../models/doctorAvailability.model.js"
 import { errorHandler } from "../utils/error.js"
 import DoctorForm from "../models/doctorForm.model.js"
 import { normalizeTime } from "../utils/time.js" 
+import { emitReminderEvent } from "../lib/reminderClient.js"
+import { DateTime } from "luxon"
 
+
+// Build startAt as a timezone-aware ISO using patient's (or default) IANA tz.
+// Handles your `date` as a real Date and `time` as "HH:mm".
+function toStartAtISO(dateValue, timeStr, tz = 'Europe/Warsaw') {
+  const hhmm = normalizeTime(timeStr);            // ensure "HH:mm"
+  const [hour, minute] = hhmm.split(':').map(Number);
+
+  const base = dateValue instanceof Date
+    ? DateTime.fromJSDate(dateValue, { zone: tz })
+    : DateTime.fromISO(String(dateValue), { zone: tz });
+
+  return base.set({ hour, minute, second: 0, millisecond: 0 }).toISO();
+}
 
 
 function emitAppointment(io, doctorId, payload, action) {
   if (!io || !doctorId) return;
-  io.to(`doctor:${doctorId}`).emit('appointment:changed', {
+
+  const appt = payload?.appointment;
+  const apptDateStr = appt?.date
+    ? new Date(appt.date).toISOString().split("T")[0]
+    : payload?.date || null;
+  const apptTimeStr = appt?.time || payload?.time || null;
+
+  io.to(`doctor:${doctorId}`).emit("appointment:changed", {
     doctorId,
     action,   // 'created' | 'statusUpdated' | 'canceled' | 'rescheduled'
     ...payload,
+    date: apptDateStr,   // ensure always present
+    time: apptTimeStr,   // ensure always present
   });
 }
+
+
+async function sendReminder(appt, type) {
+  try {
+    // Load patient contact if needed
+    const populated = await Appointment.findById(appt._id).populate(
+      'patient',
+      'email phoneNumber tz'
+    );
+    const p = populated?.patient || {};
+
+    // Decide channel — prefer email, fallback to phone
+    const hasEmail = !!p.email;
+    const hasPhone = !!appt.phoneNumber; // <- use appointment's phone field
+    const channel = hasEmail ? 'email' : hasPhone ? 'sms' : null;
+    if (!channel) {
+      console.warn(
+        '[reminders] No patient contact (email/phone) for appointment',
+        String(appt._id)
+      );
+      return; // nothing to send
+    }
+
+    // Normalize phone number if present
+    let phoneE164;
+    if (hasPhone) {
+      const parsed = parsePhoneNumberFromString(appt.phoneNumber, 'PL'); // default PL, can adapt
+      phoneE164 = parsed?.number || appt.phoneNumber;
+    }
+
+    // Increment persisted version if schema has it
+    let nextVersion = 1;
+    if (Object.prototype.hasOwnProperty.call(appt, 'reminderVersion')) {
+      appt.reminderVersion = (appt.reminderVersion || 0) + 1;
+      nextVersion = appt.reminderVersion;
+      await appt.save(); // persist increment
+    } else {
+      // fallback (no schema field): map type
+      nextVersion =
+        type === 'appointment.created'
+          ? 1
+          : type === 'appointment.updated'
+          ? 2
+          : 3;
+    }
+
+    const payload = {
+      type, // 'appointment.created' | 'appointment.updated' | 'appointment.canceled'
+      appointmentId: String(appt._id),
+      version: nextVersion,
+      clinicId: String(appt.doctor), // no clinic entity? use doctor id
+      patient: {
+        id: String(appt.patient),
+        tz: p.tz || 'Europe/Warsaw',
+        channelPreference: channel, // 'email' | 'sms'
+        email: hasEmail ? p.email : undefined,
+        phoneE164: hasPhone ? phoneE164 : undefined, 
+      },
+      startAt: toStartAtISO(appt.date, appt.time),
+    };
+
+    await emitReminderEvent(payload);
+  } catch (e) {
+    // Never break the request because reminders failed; just log
+    console.error('[reminders] emit failed:', e?.message || e);
+  }
+}
+
+
+
+
 
 
 // Create a new appointment
@@ -116,10 +212,17 @@ export const createAppointment = async (req, res, next) => {
         })
 
         const savedAppointment = await newAppointment.save()
+        await sendReminder(savedAppointment, 'appointment.created');
 
         // Emit the appointment creation event
         const io = req.app.get('io');
-        emitAppointment(io, doctor, { appointment: savedAppointment }, 'created');
+        emitAppointment(io, doctor, { 
+          appointment: savedAppointment,
+          date: savedAppointment.date,
+          time: savedAppointment.time,
+        }, 
+        'created'
+      );
 
         // Respond with the created appointment
         res.status(201).json({
@@ -336,6 +439,8 @@ export const rescheduleAppointment = async (req, res, next) => {
     appointment.time = newTime;
     await appointment.save();
 
+    await sendReminder(appointment, 'appointment.updated');
+
     // Emit the appointment rescheduling event (include previous slot)
     const io = req.app.get('io');
     emitAppointment(
@@ -402,10 +507,11 @@ export const cancelAppointment = async (req, res, next) => {
     // Soft cancel
     appt.status = "canceled";
     appt.canceledAt = new Date();
-    appt.canceledBy = req.user.role || "unknown"; // e.g., 'doctor' or 'patient'
+    appt.canceledBy = req.user.role || "unknown"; 
     if (reason) appt.cancelReason = reason;
 
     await appt.save();
+    await sendReminder(appt, 'appointment.canceled')
 
     // Emit socket event to free slot in real time
     const io = req.app.get("io");

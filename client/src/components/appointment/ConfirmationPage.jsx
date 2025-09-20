@@ -4,6 +4,7 @@ import { FaCheckCircle } from "react-icons/fa"
 import { FaCalendarAlt, FaClock, FaUserMd, FaMapMarkerAlt, FaUser, FaPhone } from "react-icons/fa"
 import { useSelector } from 'react-redux'
 import { useDoctor } from '../context/DoctorContext'
+import { MdMarkEmailUnread } from "react-icons/md";
 
 
 
@@ -63,6 +64,15 @@ const ConfirmationPage = () => {
                   <FaPhone className="text-[#00c3a5]  text-xl" />
                   <p className="text-gray-700 font-medium">{appointment.phoneNumber}</p>
                 </div>
+                {appointment.email && (
+                <div className="flex items-center gap-3">
+                  <MdMarkEmailUnread className="text-[#00c3a5]  text-xl" />
+                  <p className="text-gray-700 font-medium">{appointment.email}</p>
+                </div>
+                )}
+              </div>
+              <div className='mt-4 text-sm text-gray-500 italic'>A confirmation email has been sent to {appointment.email || currentUser.email}. Please check your inbox (and spam folder) for details.
+              If you do not receive an email, please contact the clinic directly.
               </div>
             </div>
     

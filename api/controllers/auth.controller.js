@@ -493,7 +493,7 @@ export const login = async (req, res, next) => {
             redirectTo = '/clinic-profile';
             break;
         case 'admin':
-            redirectTo = '/admin'; // Admin specific redirect
+            redirectTo = '/admin/dashboard'; // Admin specific redirect
             break;
         }
 

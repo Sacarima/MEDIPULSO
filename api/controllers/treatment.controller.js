@@ -70,22 +70,50 @@ export const getTreatmentsBySpecialty = async (req, res, next) => {
 // If the treatment is successfully added, it returns a success message and the treatment details.
 // If there is an error during the process, it returns a 500 error.
 // If the treatment name is not provided, it returns a 400 error.
+// export const addTreatment = async (req, res, next) => {
+//     try {
+//         const { name, description, specialties } = req.body;
+
+//         if (!name) return next(errorHandler(400, "Treatment name is required."));
+
+//         const slug = slugify(name, { lower: true });
+
+//         const treatment = new Treatment({ name, slug, description, specialties });
+//         await treatment.save();
+
+//         res.status(201).json({ success: true, message: "Treatment added successfully.", treatment });
+//     } catch (error) {
+//         next(errorHandler(500, "Failed to add treatment."));
+//     }
+// };
+
 export const addTreatment = async (req, res, next) => {
-    try {
-        const { name, description, specialties } = req.body;
+  try {
+    const { name, description, specialties, images, sections, priceRange, priceByCity } = req.body;
 
-        if (!name) return next(errorHandler(400, "Treatment name is required."));
+    if (!name) return next(errorHandler(400, "Treatment name is required."));
 
-        const slug = slugify(name, { lower: true });
+    const slug = slugify(name, { lower: true });
 
-        const treatment = new Treatment({ name, slug, description, specialties });
-        await treatment.save();
+    const treatment = new Treatment({
+      name,
+      slug,
+      description,
+      specialties,
+      images: images || [],
+      sections: sections || [],
+      priceRange: priceRange || "",
+      priceByCity: priceByCity || []
+    });
 
-        res.status(201).json({ success: true, message: "Treatment added successfully.", treatment });
-    } catch (error) {
-        next(errorHandler(500, "Failed to add treatment."));
-    }
+    await treatment.save();
+
+    res.status(201).json({ success: true, message: "Treatment added successfully.", treatment });
+  } catch (error) {
+    next(errorHandler(500, "Failed to add treatment."));
+  }
 };
+
 
 // Update Treatment (Admin Only)
 // This function allows an admin to update an existing treatment.
