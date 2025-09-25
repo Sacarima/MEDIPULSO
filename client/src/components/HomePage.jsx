@@ -363,31 +363,9 @@ const  HomePage = () => {
  
 
         {/*  Show Loading if Data is Empty */}
-        <div className="container-visible 2xl:w-[70%] md:w-[90%] m-auto p-6 mt-5 rounded-md bg-[#f7f9fa]">
+        <div className="container-visible xl:w-[70%] md:w-[90%] m-auto p-6 mt-5 rounded-md bg-[#f7f9fa]">
                     <h2 className="text-lg font-semibold mb-4">Medical Treatments</h2>
 
-                {/* Show treatments if data is available */}
-                {/* {treatments.length > 0 ? (
-                    <ul className="flex flex-wrap">
-                        {treatments.slice(0, displayedTreatments).map((treatment, index) => (
-                            <li key={index} className="mr-4 hover:underline cursor-pointer">
-                                {typeof treatment === "string" ? treatment : treatment.name || "Unknown Treatment"}
-                            </li>
-                        ))}
-                        
-                        
-                        {showMoreServices && treatments.length > displayedTreatments && (
-                            <li 
-                                className="mr-4 underline cursor-pointer text-blue-600 font-medium"
-                                onClick={handleShowMore}
-                            >
-                                More
-                            </li>
-                        )}
-                    </ul>
-                ) : (
-                    <p className="text-center text-gray-500">Loading treatments...</p>
-                )} */}
 
                 
                {treatments.length > 0 ? (
@@ -421,7 +399,7 @@ const  HomePage = () => {
 
         </div>
         
-        <div className=' pb-6 border-b-[.5px] border-gray-200'>
+        <div className=' pb-6 border-b-[.5px] border-gray-200 '>
           <div className='md:w-[90%] xl:w-[70%] md:flex md:wrap  m-auto px-3  mt-8'>
               <div className='p-3'>
                 <div className='flex items-center gap-2 mb-2'>
@@ -457,7 +435,7 @@ const  HomePage = () => {
           </div>
         </div>
 
-        <div className='2xl:w-[70%] lg:flex  m-auto mt-10 gap-8'>
+        <div className='md:w-[90%] xl:w-[70%] w-full lg:flex  m-auto mt-10 gap-8'>
           <div className='lg:w-[50%] lg:mx-4'>
             <span className='ml-4 text-xl font-semibold'>Tips</span>
             <LatestQuestionsFeed />

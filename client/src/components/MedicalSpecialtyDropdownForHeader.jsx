@@ -56,7 +56,7 @@ const MedicalSpecialtyDropdownForHeader = ({ selected, onSelect }) => {
       </button>
 
       {isOpen && (
-        <ul className="absolute  lg:w-[500px] w-full bg-white border text-gray-500 border-gray-300 z-40 rounded-lg shadow-lg max-h-[15rem] sm:max-h-[20rem] overflow-auto mt-1">
+        <ul className="absolute  lg:w-[500px] w-full bg-white border text-gray-500 border-gray-300 z-50 rounded-lg shadow-lg max-h-[15rem] sm:max-h-[20rem] overflow-auto mt-1">
           {specialties.map((spec) => (
             <li
               key={spec._id}

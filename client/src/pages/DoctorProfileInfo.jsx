@@ -667,11 +667,7 @@ useEffect(() => {
     
     <DoctorDashboardProvider>
       <div className='flex flex-col md:flex-row min-h-screen'>
-          {/* <DoctorProfileHeader
-            // active={active}
-            // setActive={setActive}
-            // onChange={setActive}
-          /> */}
+         
           {isAboveSmallScreens && (active || "").startsWith("profile/") && (
               <ProfileInfoNavigation  counts={counts} countsLoading={countsLoading} />
           )}
@@ -742,7 +738,7 @@ useEffect(() => {
               <>
             <div className=''>
                 <form className='p-2' onSubmit={handleSubmit}>
-                <div className='lg:w-[70%] w-full m-auto flex rounded-md bg-white p-4'>
+                <div className='xl:w-[70%] md:w-[90%] w-full m-auto flex rounded-md bg-white p-4'>
                   <div>
                       <CircularProgressbar progress={progress} />
                       {error && <p>{error}</p>}
@@ -843,7 +839,7 @@ useEffect(() => {
                   </div>
                 </div>
                 {/* Profile completion */}
-                <div className='sm:w-[70%] m-auto flex rounded-md bg-white p-4 mt-4'>
+                <div className='xl:w-[70%] md:w-[90%] m-auto flex rounded-md bg-white p-4 mt-4'>
                   <div className='w-full'>
                     <div className=''>
                       <div className='flex items-center gap-4' >
@@ -1023,8 +1019,8 @@ useEffect(() => {
                   </div>
                 </div>
                 {/* GENDER  */}
-                <div ref={genderRef} className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
-                  <div className='sm:w-[20%] py-4'>
+                <div ref={genderRef} className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
+                  <div className='xl:w-[20%] md:w-[50%] py-4'>
                     <span className='p-2 font-bold text-xl my-4' htmlFor='gender'>Gender</span>
                     <MedicalCategoryDropdown
                       className=""
@@ -1039,7 +1035,7 @@ useEffect(() => {
                   </div>
                 </div>
                 {/* Addresses info */}
-                <div ref={addressRef} className='lg:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div ref={addressRef} className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <span className='p-2 font-bold text-xl my-4' htmlFor='address'>Office Information</span>
                   <div className='mt-4 bg-gray-100 p-2 py-4 rounded-md'>
                     <span className='font-medium'>Help patients find and contact you with ease</span>
@@ -1104,7 +1100,7 @@ useEffect(() => {
                   </div>
                 </div>
                 {/* LINCENSE NUMBER PWZ NO. */}
-                <div ref={licenseRef} className='lg:w-[70%] w-full m-auto  rounded-md bg-white p-4 mt-4'>
+                <div ref={licenseRef} className='xl:w-[70%] md:w-[90%] w-full m-auto  rounded-md bg-white p-4 mt-4'>
                   <div className='w- py-4'>
                     <span className='p font-bold text-xl my-4' >PWZ NO.</span>
                     <div className='flex items-center text-gray-500 gap-2 mb-4'>
@@ -1136,7 +1132,7 @@ useEffect(() => {
                 </div>
       
               {/*  PHOTO UPLOAD */}
-              <div ref={photoRef} className="sm:w-[70%] m-auto rounded-md bg-white p-4 mt-4">
+              <div ref={photoRef} className="xl:w-[70%] md:w-[90%] m-auto rounded-md bg-white p-4 mt-4">
                 <div>
                   <span className="p-2 font-bold text-xl my-4">Photo</span>
                   <p className="pl-2">
@@ -1152,13 +1148,6 @@ useEffect(() => {
                   {/* Display doctors photos from the database and temporary photo storage */}
                   <div className="flex flex-wrap justify-between gap-4 mt-5 cursor-pointer">
                         {firebasePhotoURLs.map((url, index) => (
-                          // <img
-                          //   key={`saved-${index}`}
-                          //   src={url}
-                          //   alt={`Photo ${index}`}
-                          //   className="w-36 h-36 object-cover cursor-pointer"
-                          //   onClick={() => handlePreviewImageModalOpen(url)}
-                          // />
                           <div key={`saved-${index}`} className="relative w-36 h-36">
                             <img
                               src={url}
@@ -1176,13 +1165,6 @@ useEffect(() => {
                           </div>
                         ))}
                         {temporaryPhotos.map((photo, index) => {
-                          // <img
-                          //   key={`temp-${index}`}
-                          //   src={URL.createObjectURL(photo)}
-                          //   alt={`Preview ${index}`}
-                          //   className="w-32 h-32 object-fit cursor-pointer "
-                          //   onClick={() => handlePreviewImageModalOpen(URL.createObjectURL(photo))}
-                          // />
                             const objectUrl = URL.createObjectURL(photo);
                                 return (
                                   <div key={`temp-${index}`} className="relative w-32 h-32">
@@ -1234,7 +1216,7 @@ useEffect(() => {
                 />
       
                 {/*  VIDEO UPLOAD */}
-                <div ref={videoRef} className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div ref={videoRef} className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div>
                     <span className='p-2 font-bold text-xl my-4'>Videos</span>
                     <p className='pl-2'>With videos you can highlight your professionalism even better</p>
@@ -1250,7 +1232,7 @@ useEffect(() => {
                   </div>
                 </div>
                 {/*  CERTIFICATE UPLOADS */}
-                <div ref={certificateRef} className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div ref={certificateRef} className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div>
                     <span className='p-2 font-bold text-xl my-4'>Certificate</span>
                     <p className='pl-2'>For 71% of patients, the experience of the doctor is important. Certificates confirm your knowledge and skills. Showthem off</p>
@@ -1266,7 +1248,7 @@ useEffect(() => {
                   </div>
                 </div>
                 {/*  ABOUT ME */}
-                <div ref={aboutMeRef} className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div ref={aboutMeRef} className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div>
                     <span className='p-2 font-bold text-xl my-4 pb-'>About me</span>
                     <p className='mb-5 pl-2'>What diseases or procedures are you an expert in ? How much experience do you have in a given specialization ? What are your achievements ? This information is very important to patients looking for the best doctor for them. According to our regulations, the "About Me" section shot not contain information (phone number, email address, or other contact me details)</p>
@@ -1281,7 +1263,7 @@ useEffect(() => {
                   </div>
                 </div>
                 {/*  SOCIAL MEDIA */}
-                <div ref={socialMediaRef} className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div ref={socialMediaRef} className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div>
                     <span className='p-2 font-bold text-xl my-4'>Social media profiles</span>
                     <p className='pl-2'>Provide links to your socialmedia profiles so patients can get to know you better.</p>
@@ -1365,7 +1347,7 @@ useEffect(() => {
                 </div>
       
                 {/* DISEASES */}
-                <div ref={diseasesRef} className="sm:w-[70%] m-auto rounded-md bg-white p-4 mt-4">
+                <div ref={diseasesRef} className="xl:w-[70%] md:w-[90%] m-auto rounded-md bg-white p-4 mt-4">
                 <div>
                   <span className="p-2 font-bold text-xl my-4 pb-">Diseases</span>
                   <p className="mb-5 pl-2">
@@ -1409,7 +1391,7 @@ useEffect(() => {
                   />
                 </div>
                 {/*  SCOPE OF ADVICE */}
-                <div className='lg:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div className='w- py-4'>
                     <span className='p font-bold text-xl my-4' >Scope of advice</span>
                     <div className='flex items-center  gap-2 my-4'>
@@ -1441,7 +1423,7 @@ useEffect(() => {
                 </div>
       
                 {/* COMPLETE SCHOOLS */}
-                <div className='lg:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div className='w- py-4'>
                     <span className='p font-bold text-xl my-4' >Completed schools</span>
                     <div className='flex items-center  gap-2 my-4'>
@@ -1480,7 +1462,7 @@ useEffect(() => {
                 </div>
       
                 {/*  PUBLICATION */}
-                <div ref={addPublicationRef} className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div ref={addPublicationRef} className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div className='w- py-4'>
                     <span className='p font-bold text-xl my-4' >Publications</span>
                     <div className='flex items-center  gap-2 my-4'>
@@ -1519,7 +1501,7 @@ useEffect(() => {
                 </div>
       
                 {/*  AWARD AND DISTINCTIONS */}
-                <div ref={awardsRef} className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div ref={awardsRef} className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div className='w- py-4'>
                     <span className='p font-bold text-xl my-4' >Awards and distinctions</span>
                     <div className='flex items-center  gap-2 my-4'>
@@ -1558,7 +1540,7 @@ useEffect(() => {
                   </div>
                 </div>
                 {/*  PROFESSIONAL EXPERIENCE */}
-                <div ref={professionalExperienceRef} className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div ref={professionalExperienceRef} className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div className='w- py-4'>
                     <span className='p font-bold text-xl my-4' >Professional Experience</span>
                     <div className='flex items-center  gap-2 my-4'>
@@ -1596,7 +1578,7 @@ useEffect(() => {
                   </div>
                 </div>
                 {/*  LANGUAGES */}
-                <div className='sm:w-[70%] m-auto  rounded-md bg-white p-4 mt-4'>
+                <div className='xl:w-[70%] md:w-[90%] m-auto  rounded-md bg-white p-4 mt-4'>
                   <div className='w- py-4'>
                     <span className='p font-bold text-xl my-4' >Knowledge of languages</span>
                     <div className='flex items-center  gap-2 my-4'>
@@ -1669,8 +1651,8 @@ useEffect(() => {
                   </div>
                 </div>
                 {/*  save cancel information */}
-                <div className='lg:w-[70%] m-auto sm:flex justify-between rounded-md bg-white py-6 p-4 mt-4'>
-                  <p className='lg:w-[70%]'>We remind you that in many countries, doctors can only publish informal content that does not have advertising charecteristics. Please pay attection to the regulations in your country.</p>
+                <div className='xl:w-[70%] md:w-[90%] m-auto sm:flex justify-between rounded-md bg-white py-6 p-4 mt-4'>
+                  <p className='xl:w-[70%] md:w-[90%]'>We remind you that in many countries, doctors can only publish informal content that does not have advertising charecteristics. Please pay attection to the regulations in your country.</p>
                   <div className='flex justify-between gap-3 mt-4'>
                     <button className=' text-blue-500   px-3 py-2 font-medium' type=''>Cancel</button>
                     <button className='bg-blue-500 text-white rounded-sm px-3 py-2 font-medium' type='button' onClick={handleSubmit}>Save changes</button>
@@ -1686,21 +1668,6 @@ useEffect(() => {
             ) : (
               <div className="p-4 text-gray-500">Select a section</div>
             )}
-            {/* success and Error message */}
-            {/* <div className='flex justify-center  '>
-              {updateDoctorSuccess && updateSuccessDoctor && (
-                <Alert color='success' className='my-5'>
-                 {updateSuccessDoctor}
-                </Alert>
-              )}
-              {updateDoctorError && (
-                <Alert color='failure' className='my-5'>
-                  {updateDoctorError}
-                </Alert>
-              )}
-      
-            </div> */}
-      
           </div>
       
       </div>

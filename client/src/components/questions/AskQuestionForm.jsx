@@ -158,14 +158,14 @@ const AskDoctorForm = () => {
         
         {/* <DoctorPublicProfileHeader /> */}
         {loading && <LoadingOverlay isLoading={loading} delay={4000} />}
-        <nav className="lg:w-[70%] w-full mx-auto">
+        <nav className="xl:w-[70%] md:w-[90%]  w-full mx-auto">
             <ul className="flex ml-2 items-center space-x-2 text-gray-500 text-sm mt-4  ">
                 <li className="cursor-pointer hover:underline">Home Page</li>
                 <li>/</li>
                 <li className="cursor-pointer hover:underline">Questions and Answers</li>
             </ul>
         </nav>
-        <div className="lg:w-[70%] w-full mx-auto bg-white p-6 mt-4 rounded">
+        <div className="xl:w-[70%] md:w-[90%] w-full mx-auto bg-white p-6 mt-4 rounded">
             <div className="flex flex-col lg:flex-row mt-4">
                 <div className="lg:w-[60%] w-full">
                     <h2 className="text-3xl">Ask our doctors a question</h2>
@@ -246,7 +246,7 @@ const AskDoctorForm = () => {
         </div>
         </div>   
 
-        <div className="lg:w-[70%] mx-auto bg-white p-6 mt-4 pb-14 rounded">
+        <div className="xl:w-[70%] md:w-[90%] mx-auto bg-white p-6 mt-4 pb-14 rounded">
             <div className="border-b pb-4">
                 <span className="text-xl font-medium">How does it work?</span>
             </div>
@@ -284,7 +284,7 @@ const AskDoctorForm = () => {
         
 
 
-        <div className="lg:w-[70%] w-full mx-auto">
+        <div className="xl:w-[70%] md:w-[90%] w-full mx-auto">
         {/* Display popular questions */}
         <div className="bg-white p-6 mt-8 rounded">
             <div className="border-b pb-4">
@@ -369,7 +369,7 @@ const AskDoctorForm = () => {
 
         
 
-        <div className="lg:w-[70%] w-full mx-auto mt-8">
+        <div className="xl:w-[70%] md:w-[90%] w-full mx-auto mt-8">
             <MostActiveDoctors />
         </div>
 

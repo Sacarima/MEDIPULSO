@@ -225,8 +225,8 @@ const DoctorForm = () => {
         <DoctorHeader />
         
         <div className='w-full lg:flex h-screen min-h-full md:h-screen '>
-           <div className='lg:w-[55%] p-4 '>
-                <div className=' lg:w-[70%] sm:ml-auto sm:mr-9 sm:mt-8'>
+           <div className='xl:w-[55%] md:w-[90%] p-4 '>
+                <div className=' xl:w-[70%] md:w-[85%] sm:ml-auto sm:mr-9 sm:mt-8'>
                   
                   <div>
                       <h1 className='text-2xl sm:w-full font-semibold pb-3 sm:text-start'>{titles[page]}</h1>
@@ -295,10 +295,10 @@ const DoctorForm = () => {
             </div>
 
            { page === 0 && ( 
-              <div className=' lg:w-[45%] order-2 lg:order-none'>
+              <div className=' xl:w-[45%] order-2 lg:order-none'>
                 <section className='bg-gray-100 lg:h-screen lg:w-full' style={{ display: page === 1 ? 'none' : 'block'}}>
-                <div className=' lg:w-[80%] p-4 pb-36 md:p-12'>
-                <div className='lg:flex flex-col lg:max-w-[75%]'>
+                <div className=' xl:w-[80%] md:w-[90%] p-4 pb-36 md:p-12'>
+                <div className='lg:flex flex-col xl:max-w-[75%] md:max-w-[100%] '>
                   <div className='flex'>
                     <TbStarsFilled className='text-5xl text-teal-500' />
                     <div className='flex flex-col pl-2 pb-4'>
@@ -332,10 +332,10 @@ const DoctorForm = () => {
                 className='bg-gray-100 sm:h-screen sm:w-full'
                 style={{ display: page === 0 ? 'none' : 'block'}}
               >
-                <div className=' xl:[85%] md lg:w-[80%] p-4 pb-36 sm:p-12'>
-                <div className='flex flex-col lg:max-w-[75%]'>
+                <div className=' xl:w-[70%] md:w-[90%]  xl:p-4 md:p-2 md:pt-10 pb-36 sm:p-12'>
+                <div className='flex flex-col w-full'>
                 <h3 className='text-lg font-semibold'>How do we help our specialists?</h3>
-                <p className='text-[0.9rem] italic mt-3'>The appointment management system is a really convenient solution - I no longer have to deal with a constantly ringing phone. Medi-Pulso offers real support for busy doctors.</p>
+                <p className='text-[0.9rem] italic mt-3 xl:max-w-lg'>The appointment management system is a really convenient solution - I no longer have to deal with a constantly ringing phone. Medi-Pulso offers real support for busy doctors.</p>
                   <div className='flex mt-4 '>
                     <div className='pr-4'>
                       <img src={doctorImage} alt="doctors image" style={{height: '100px', width: '70px', borderRadius: '10px'}}/>
@@ -358,7 +358,7 @@ const DoctorForm = () => {
                   </div>
 
                   <div className='border-b-[1px] mt-8'></div>
-                  <p className='text-[0.9rem] italic mt-6'>Right after I launched Calendar, my work became easier and I had more time for other activities. Patients had access to all appointments and I didn't have to worry about registration.</p>
+                  <p className='text-[0.9rem] italic mt-6 xl:max-w-lg'>Right after I launched Calendar, my work became easier and I had more time for other activities. Patients had access to all appointments and I didn't have to worry about registration.</p>
                   <div className='flex mt-4'>
                     <div className='pr-4'>
                       <img src={doctorImg} alt="doctors image" style={{height: '100px', width: '70px', borderRadius: '10px'}}/>

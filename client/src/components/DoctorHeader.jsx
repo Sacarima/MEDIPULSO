@@ -10,7 +10,7 @@ const DoctorHeader = () => {
 
   return (
     <div className='border-b-[0.5px]'>
-        <header className="flex justify-between sm:px-0 px-4 py-3 sm:w-[70%] sm:m-auto">
+        <header className="flex justify-between sm:px-0 px-4 py-3 xl:w-[70%] md:w-[90%] sm:m-auto">
           <Link to="/">
             <img src={theme === 'dark' ? logoDarkMode : logo} alt="logo" className="w-32" />
           </Link>

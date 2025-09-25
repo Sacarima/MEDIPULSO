@@ -86,22 +86,22 @@ export default function SignDoctor() {
     }
   };
 
-  const medicalCategories = [
-    "Dentist", "Cardiologist", "Dermatologist", "Gynecologist",
-    "Neurologist", "Ophthalmologist", "Orthopedist", "Pediatrician",
-    "Psychiatrist", "Surgeon", "Urologist", "Allergist",
-    "Endocrinologist", "Gastroenterologist", "Hematologist",
-    "Nephrologist", "Oncologist", "Otolaryngologist", "Pulmonologist",
-    "Rheumatologist", "Radiologist", "Anesthesiologist", "Emergency physician",
-    "Family physician", "Internist", "Physical therapist", "Occupational therapist",
-    "Speech therapist", "Nutritionist", "Psychologist", "Pharmacist",
-    "Nurse", "Midwife", "Paramedic", "Medical assistant",
-    "Medical laboratory scientist", "Radiologic technologist", "Phlebotomist",
-    "Medical coder", "Medical transcriptionist", "Health information technician",
-    "Health educator", "Medical illustrator", "Medical writer", "Medical librarian",
-    "Medical interpreter", "Medical scribe", "Medical ethicist",
-    "Bariatrician", "Geriatrician", "Hospitalist"
-  ];
+  // const medicalCategories = [
+  //   "Dentist", "Cardiologist", "Dermatologist", "Gynecologist",
+  //   "Neurologist", "Ophthalmologist", "Orthopedist", "Pediatrician",
+  //   "Psychiatrist", "Surgeon", "Urologist", "Allergist",
+  //   "Endocrinologist", "Gastroenterologist", "Hematologist",
+  //   "Nephrologist", "Oncologist", "Otolaryngologist", "Pulmonologist",
+  //   "Rheumatologist", "Radiologist", "Anesthesiologist", "Emergency physician",
+  //   "Family physician", "Internist", "Physical therapist", "Occupational therapist",
+  //   "Speech therapist", "Nutritionist", "Psychologist", "Pharmacist",
+  //   "Nurse", "Midwife", "Paramedic", "Medical assistant",
+  //   "Medical laboratory scientist", "Radiologic technologist", "Phlebotomist",
+  //   "Medical coder", "Medical transcriptionist", "Health information technician",
+  //   "Health educator", "Medical illustrator", "Medical writer", "Medical librarian",
+  //   "Medical interpreter", "Medical scribe", "Medical ethicist",
+  //   "Bariatrician", "Geriatrician", "Hospitalist"
+  // ];
 
   return (
     <>
@@ -109,7 +109,7 @@ export default function SignDoctor() {
       
       <div className='min-h-screen w-full sm:flex'>
         <div className='w-full bg-white p-4 sm:p-12'>
-          <div className='sm:w-[70%] sm:ml-auto sm:mr-8'>
+          <div className='xl:w-[70%] md:w-[90%] sm:ml-auto sm:mr-8'>
           <div className="w-full bg-neutral-200 dark:bg-neutral-600">
           <div
           className="bg-green-600 p-0.5 mb-2 text-center text-xs font-medium leading-none text-slate-100"
@@ -193,7 +193,7 @@ export default function SignDoctor() {
         </div>
 
         <section className='bg-gray-100 sm:w-[80%]'>
-          <div className='sm:w-[60%] xl:[85%] lg:w-[80%] p-4 pb-36 sm:p-12'>
+          <div className='sm:w-[60%] md:w-[90%] xl:w-[80%] p-4 pb-36 sm:p-12'>
             <div className='flex flex-col'>
               <div className='flex'>
                 <TbStarsFilled className='text-4xl text-teal-500' />

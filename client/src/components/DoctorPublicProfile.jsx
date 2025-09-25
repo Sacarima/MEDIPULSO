@@ -255,7 +255,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
         )}
         <div className='bg-[#eef4fd] min-h-screen'>
             {/* <DoctorPublicProfileHeader /> */}
-            <section className='lg:w-[70%] m-auto'>
+            <section className='xl:w-[70%] md:w-[90%] m-auto'>
                 <div  className='flex gap-6'>
                     <div className='lg:w-[55%]'>
                                 <section className=' flex flex-col lg:flex-row lg:mt-6 bg-white w-full p-4 rounded-t-sm shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px]'>
@@ -730,7 +730,7 @@ const DoctorPublicProfile = ({ isLoaded }) => {
             </section>
             
             {/* FREQUENTLY ASKED QUESTION */}
-            <section className='lg:w-[70%] m-auto'>
+            <section className='xl:w-[70%] md:w-[90%] m-auto'>
                 <div className='lg:w-[60%]'>
                 <section  className=' mt-4 w-full  p-4'>
                     <h2 className='text-xl font-medium py-2'>Frequently asked question</h2>

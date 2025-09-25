@@ -107,7 +107,7 @@ const Questions = () => {
   return (
     <div className="bg-[#f0f4f8] min-h-screen">
       {/* <DoctorPublicProfileHeader /> */}
-      <div className="lg:w-[70%] md:w-[90%] mx-auto p-6 shadow rounded-md bg-white ">
+      <div className="xl:w-[70%] md:w-[90%] mx-auto p-6 shadow rounded-md bg-white ">
         <div className="border-b pb-4">
           <span className="text-xl font-medium">Question: {question.questionText}</span>
           {/* Display number of answers */}
@@ -181,7 +181,7 @@ const Questions = () => {
         {/* Display random doctors */}
       
       </div>
-      <div className="lg:w-[70%] mx-auto mt-6 lg:p-6 shadow bg-white">
+      <div className="xl:w-[70%] md:w-[90%] mx-auto mt-6 lg:p-6 shadow bg-white">
         <div className="p-6">
           <h2 className="text-2xl font-semibold mb-4">Still looking for an answer? Ask a new question</h2>
         </div>
@@ -219,7 +219,7 @@ const Questions = () => {
         </div>
       </div>
 
-      <div className="w-[70%] mx-auto py-4 text-gray-400 text-sm">
+      <div className="xl:w-[70%] md:w-[90%] mx-auto py-4 text-gray-400 text-sm">
           <p>All content, especially questions and answers, relating to medical topics is for informational purposes only and cannot, under any circumstances, replace a medical diagnosis  </p>
       </div>
 

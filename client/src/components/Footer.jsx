@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export default function Footer() {
   return (
     <div className=''>
-      <div className='md:flex lg:w-full xl:w-[70%] gap-4 p-4 m-auto mt-6 text-center md:text-left lg:text-left lg:justify-between lg:items-start sm:flex  sm:justify '>
+      <div className='md:flex  xl:w-[70%] md:w-[90%] gap-4 p-4 m-auto mt-6 text-center md:text-left lg:text-left lg:justify-between lg:items-start sm:flex  sm:justify '>
         
 
         <aside className=' mt-4 '>

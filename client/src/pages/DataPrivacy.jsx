@@ -13,7 +13,7 @@ export default function DataPrivacy() {
     <div className=''>
         {/* <DataPrivacyHeader /> */}
         <div className='bg-[#f7f9fa]'>
-          <section className='lg:w-[70%] w-full m-auto flex flex-col lg:flex-row px-4 pt-14 pb-8'>
+          <section className='xl:w-[70%] md:w-[90%] w-full m-auto flex flex-col lg:flex-row px-4 pt-14 pb-8'>
 
             <div className='lg:w-[60%] order-2 lg:order-none'>
               <div className='sm:m flex flex-col justify-center sm:min-h-full'>
@@ -50,7 +50,7 @@ export default function DataPrivacy() {
         </div>
 
         <div className=''>
-          <section className='lg:w-[70%] m-auto flex flex-col lg:flex-row px-4 pt-14 pb-8 gap-4 '>
+          <section className='xl:w-[70%] md:w-[90%] m-auto flex flex-col lg:flex-row px-4 pt-14 pb-8 gap-4 '>
           <div className='lg:w-[50%] '>
               <img className='w-[80%] mx-auto lg:mx-none' src={dataimage} alt="" />
             </div>
@@ -78,8 +78,8 @@ export default function DataPrivacy() {
         </div>
 
         <div className='bg-[#f7f9fa]'>
-          <section className='lg:w-[70%] m-auto px-4 pt-14 pb-8 '>
-            <div className='lg:w-[70%] m-auto'>
+          <section className='xl:w-[70%] md:w-[90%] m-auto px-4 pt-14 pb-8 '>
+            <div className='xl:w-[70%] md:w-[90%] m-auto'>
               <h2 className='text-center text-2xl mb-3'>Patient data from Medi-Pulse also belongs to you</h2>
               <p className='mb-3'>We hope that you no longer have any doubts about the security of your patients' data. And what about the data of new patients who come to you via the Medi-Pulse service?
                 <span className='font-medium ml-1'>Your current patients and patients acquired from the Medi-Pulse service are saved in separate databases </span>
@@ -123,7 +123,7 @@ export default function DataPrivacy() {
 
         <div className=''>
 
-          <section className='lg:w-[70%] m-auto pl-4 py-14 pr-14'>
+          <section className='xl:w-[70%] md:w-[90%] m-auto pl-4 py-14 pr-14'>
             <h2 className='text-2xl mb-3'>Your data is safe with Amazon Web Service</h2>
             <p className='mb-3'><span className='font-medium'>Medi-Pulse is hosted on Amazon Web Services (AWS) servers.</span> AWS is the world's largest cloud computing platform, used by millions of companies around the world. AWS servers are located in data centers that meet the highest security standards.</p>
             <p>Storing data in the cloud gives you unlimited access from anywhere in the world and from all devices. At the same time, it protects against data loss and theft and does not allow unauthorized access. With Amazon Web Service, 
@@ -133,8 +133,8 @@ export default function DataPrivacy() {
         </div>
 
         <div className='bg-[#f7f9fa]'>
-          <section className='lg:w-[70%] m-auto px-4 pt-14 pb-8 '>
-            <div className='lg:w-[70%] m-auto'>
+          <section className='xl:w-[70%] md:w-[90%] m-auto px-4 pt-14 pb-8 '>
+            <div className='xl:w-[70%] md:w-[90%] m-auto'>
               <h2 className=' text-2xl mb-3'>Ensure GDPR compliance</h2>
               <p>The Premium profile gives you access to the ZnanyLekarz online calendar. As a result, 
                 <span className='font-medium'>you gain access to a tool that will allow you to meet the security conditions: storing, deleting and creating backup copies of data, which are required by GDPR</span>
@@ -146,14 +146,14 @@ export default function DataPrivacy() {
 
         <div className=''>
 
-          <section className='lg:w-[70%] m-auto pl-4 py-14 pr-8'>
+          <section className='xl:w-[70%] md:w-[90%] m-auto pl-4 py-14 pr-8'>
             <h2 className='text-2xl mb-3'>Medi-Pulse takes your privacy very seriously</h2>
             <p className='mb-3'>ZnanyLekarz services, such as the electronic calendar, have been designed to ensure ease of use and maximum security of your data. Here's how we make your work easier and ensure data security.</p>
           </section>
         </div>
 
         <div className='bg-[#f7f9fa]'>
-          <section className='lg:w-[70%] m-auto px-4 pt-14 pb-8 '>
+          <section className='xl:w-[70%] md:w-[90%] m-auto px-4 pt-14 pb-8 '>
               
             <div className='flex flex-col lg:flex-row gap-3 mt-10 mb-4'>
               <div className=' rounded pb-12'>

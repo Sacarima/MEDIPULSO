@@ -80,7 +80,7 @@ const  Header = ({ handleLogout }) => {
 
     return (
         <div className=' bg-[#00c3a5] dark:bg-gray-800'>
-            <Navbar className='flex items-center justify-between flex-wra w-full  lg:px-0   mx-auto lg:py-3 bg-[#00c3a5] 2xl:w-[70%] md:w-[100%] m-auto 2xl:bg-[#00c3a5]'>
+            <Navbar className='flex items-center justify-between flex-wra w-full  lx:px-0 md:px-4   mx-auto lg:py-3 bg-[#00c3a5] 2xl:w-[70%] md:w-[100%] m-auto 2xl:bg-[#00c3a5]'>
                 <div className='w-[12.2rem]'>
                     <Link to="/" >
                         <img src={theme === 'dark' ? logoDarkMode : logo} alt="logo" className='w-[100%]' />

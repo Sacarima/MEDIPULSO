@@ -6,7 +6,7 @@ import logo from '../../assets/logowhite.png';
 const ReviewHeader = ({ step, totalSteps, onBack, calculateProgressWidth }) => {
   return (
     <header className="sticky top-0 bg-white z-50">
-      <div className="w-[70%] m-auto flex py-2">
+      <div className="xl:w-[70%] md:w-[90%] m-auto flex py-2">
         <nav className="flex w-full gap-2 items-center justify-between">
           <FaArrowLeft
             className="text-3xl text-[#00c3a5] cursor-pointer"
