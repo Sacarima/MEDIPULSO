@@ -109,7 +109,7 @@ const SearchResults = () => {
 
             {/* Filter Navigation */}
             <div className="bg-white sticky top-0 z-40">
-                <div className="lg:w-[70%] mx-auto rounded">
+                <div className="xl:w-[70%] md:w-[90%] mx-auto rounded">
                     <nav>
                         <ul className="flex flex-wrap px-4 lg:px-0 items-center gap-4 py-4">
                             <li>
@@ -149,13 +149,13 @@ const SearchResults = () => {
                 </div>
             </div>
 
-            <div className="flex items-center justify-between p-2 lg:w-[70%] mx-auto my-2">
+            <div className="flex items-center justify-between p-2 xl:w-[70%] md:w-[90%] mx-auto my-2">
                 <h2 className="text-xl font-bold lg:mt-6">Search results</h2>
                 <p className="text-gray-500 underline cursor-pointer">How Search Result Work</p>
             </div>
 
             {specialty && (
-                <div className="lg:w-[70%] mx-auto text-lg text-gray-600 mt-4">
+                <div className="xl:w-[70%] md:w-[90%] mx-auto text-lg text-gray-600 mt-4">
                     Showing results for: <span className="font-semibold">{specialty}</span>
                 </div>
             )}
@@ -172,7 +172,7 @@ const SearchResults = () => {
 
 
 
-            <div className="lg:w-[70%] mx-auto mt-6">
+            <div className="xl:w-[70%] md:w-[90%] mx-auto mt-6">
                 {isLoading ? (
                     <p>Loading...</p>
                 ) : errorMessage ? (

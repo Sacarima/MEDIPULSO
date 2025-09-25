@@ -57,7 +57,7 @@ const SpecialtyFilter = ({ allDoctors, setFilteredDoctors , onSpecialtySelect, s
   );
                 
                 return(
-                    <div className="p-6 lg:w-[70%] mx-auto bg-blue-500 text-white rounded">
+                    <div className="p-6 xl:w-[70%] md:w-[90%] mx-auto bg-blue-500 text-white rounded">
                         <div className="flex items-center justify-between font-medium">
                            <span>What kind of specialist are you looking for?</span>
                            <LiaTimesSolid 
