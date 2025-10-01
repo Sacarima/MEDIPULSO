@@ -53,6 +53,7 @@ import DiscoverMediPulsoPro from './pages/DiscoverMediPulsoPro'
 import AdminUsersPanel from './components/dashboard/adminUsersPanel'
 import AdminSettings from './components/dashboard/AdminSettings'
 import AdminAnalytics from './components/dashboard/AdminAnalytics'
+import CookieConsent from './components/privacy/CookieConsent'
 
 
 
@@ -221,6 +222,7 @@ const { currentAdmin } = useSelector((state) => state.admin)
       success: { iconTheme: { primary: '#00c3a5', secondary: '#fff' } }
     }}
   />
+  <CookieConsent />
 </EnsureDoctorDashboardProvider>
   )
 }
