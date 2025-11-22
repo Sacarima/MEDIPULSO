@@ -179,7 +179,7 @@ export default function DoctorAppointmentsPanel({ doctorId }) {
   };
 
   return (
-    <div className="w-full">
+    <div className="max-w-6xl mx-auto p-6 bg-white">
       <div className="mb-4">
         <h3 className="text-xl font-semibold">Appointments</h3>
         <div className="flex flex-wrap gap-2 mt-3">

@@ -601,13 +601,13 @@ const handleCancelAppointment = async () => {
   
 
   return (
-    <div className="lg:p-4">
+    <div className="lg:p-4 max-w-6xl mx-auto">
        {events.length === 0 && !loading && !error && (
         <p className="text-center text-xl text-gray-500 font-medium mb-10">
           You have no availability set up yet. Please add available time slots to allow patients to book appointments.
         </p>
       )}
-      <h2 className="text-2xl font-semibold mb-4 text-red-950">Doctor's Calendar</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-gray-700">Doctor's Calendar</h2>
      
       {loading &&  
           <div className='flex space-x-2 justify-center items-center bg-white dark:invert'>

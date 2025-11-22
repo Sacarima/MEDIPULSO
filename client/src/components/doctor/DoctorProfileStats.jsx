@@ -103,7 +103,7 @@ export default function DoctorProfileStats({ doctorId }) {
   }, [appointments]);
 
   return (
-    <div className="space-y-6 md:p-4">
+    <div className="space-y-6 md:p-4 max-w-6xl mx-auto">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-semibold">Profile statistics</h3>
         <button onClick={fetchAppointments} className="px-3 py-1.5 text-sm border-[1px] borer-[#00b39be6] bg-white rounded hover:bg-gray-50 shadow-lg">
